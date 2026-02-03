@@ -84,10 +84,16 @@ const ingredientAlerts: Alert[] = [
   { id: "4", type: "price", severity: "info", title: "Price Decrease", description: "Bulk pricing now available from new supplier", ingredient: "Oat Flour", timestamp: "2 days ago", change: { from: 3.2, to: 2.85, unit: "/kg" } },
 ]
 
-function generateTrendData(baseValue: number, count: number) {
+function seededRandom(seed: number) {
+  const x = Math.sin(seed) * 10000
+  return x - Math.floor(x)
+}
+
+function generateTrendData(baseValue: number, count: number, seed: number = 0) {
   const data: Array<{ value: number }> = []
   for (let i = 0; i < count; i++) {
-    data.push({ value: Math.floor(baseValue + (Math.random() - 0.3) * baseValue * 0.2) })
+    const random = seededRandom(seed + i + baseValue)
+    data.push({ value: Math.floor(baseValue + (random - 0.3) * baseValue * 0.2) })
   }
   return data
 }
@@ -136,8 +142,9 @@ function StatCard({ title, value, subtitle, trend, icon, gradientFrom, gradientT
   const [range, setRange] = useState<TimeRange>("7d")
   const data = useMemo(() => {
     const count = range === "7d" ? 7 : range === "30d" ? 30 : 12
-    return generateTrendData(value, count)
-  }, [value, range])
+    const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return generateTrendData(value, count, seed)
+  }, [value, range, title])
 
   return (
     <div
