@@ -42,6 +42,13 @@ import {
   Eye,
   CheckCircle,
   XCircle,
+  Star,
+  SlidersHorizontal,
+  Filter,
+  Plus,
+  ShoppingCart,
+  Heart,
+  ArrowRight,
 } from "lucide-react"
 
 type PageType = "overview" | "ingredients" | "products" | "suppliers"
@@ -426,6 +433,369 @@ function AlertsCard({ title, alerts: initialAlerts }: { title: string; alerts: A
             View all alerts
             <ChevronRight className="h-3 w-3" />
           </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// --- Ingredients & Products Data ---
+interface Ingredient {
+  id: string
+  name: string
+  starred: boolean
+  manufacturer: string
+  pricePerUnit: string | null
+  roi: string
+  country: string
+}
+
+const ingredientsListData: Ingredient[] = [
+  { id: "1", name: "#1 Fine Dark Brown Bulgur Wheat Test", starred: true, manufacturer: "General", pricePerUnit: "$0.98", roi: "Coming Soon", country: "US" },
+  { id: "2", name: "#1 Fine Organic Bulgur Wheat", starred: false, manufacturer: "General", pricePerUnit: null, roi: "Coming Soon", country: "US" },
+  { id: "3", name: "#1 Fine Organic Farro Bulgur Wheat", starred: true, manufacturer: "General", pricePerUnit: "$1.35", roi: "Coming Soon", country: "US" },
+  { id: "4", name: "#1 Fine Organic Freekeh Bulgur Wheat", starred: false, manufacturer: "General", pricePerUnit: "$1.25", roi: "Coming Soon", country: "US" },
+  { id: "5", name: "#1 Fine Organic Kamut Khorasan Bulgur Wheat", starred: false, manufacturer: "General", pricePerUnit: null, roi: "Coming Soon", country: "US" },
+  { id: "6", name: "#1 Fine Traditional Bulgur Wheat", starred: false, manufacturer: "General", pricePerUnit: null, roi: "Coming Soon", country: "US" },
+  { id: "7", name: "#1 Liquid Sucrose -67.5%", starred: false, manufacturer: "General", pricePerUnit: null, roi: "Coming Soon", country: "US" },
+  { id: "8", name: "#2 Medium Traditional Bulgur Wheat", starred: false, manufacturer: "General", pricePerUnit: null, roi: "Coming Soon", country: "US" },
+]
+
+interface Product {
+  id: string
+  name: string
+  brand: string
+  type: string
+  flavor: string
+  version: string
+  country: string
+  status: "RETAIL" | "CONCEPT"
+  score: string
+}
+
+const productsListData: Product[] = [
+  { id: "1", name: "Long Grain White Rice - Giant Eagle", brand: "Giant Eagle", type: "-", flavor: "-", version: "v1", country: "US", status: "RETAIL", score: "50%" },
+  { id: "2", name: "Ice cream, denali original churned moose tracks - Giant Eagle", brand: "Giant Eagle", type: "-", flavor: "-", version: "v1", country: "US", status: "RETAIL", score: "50%" },
+  { id: "3", name: "Sauce, whole berry cranberry - Giant Eagle", brand: "Giant Eagle", type: "-", flavor: "-", version: "v1", country: "US", status: "RETAIL", score: "50%" },
+  { id: "4", name: "Jellied sauce, cranberry - Giant Eagle", brand: "Giant Eagle", type: "-", flavor: "-", version: "v1", country: "US", status: "RETAIL", score: "50%" },
+  { id: "5", name: "Biscuits, buttermilk - Giant Eagle", brand: "Giant Eagle", type: "-", flavor: "-", version: "v1", country: "US", status: "RETAIL", score: "50%" },
+  { id: "6", name: "Organic Protein Brownie Mix", brand: "JourneyFoods", type: "Snack", flavor: "Chocolate", version: "v2", country: "US", status: "CONCEPT", score: "78%" },
+  { id: "7", name: "Plant-Based Cheese Alternative", brand: "JourneyFoods", type: "Dairy Alt", flavor: "Cheddar", version: "v1", country: "US", status: "CONCEPT", score: "65%" },
+]
+
+type ProductTab = "retail" | "concept" | "latest" | "journey-ai"
+
+function IngredientsListSection() {
+  const [listViewMode, setListViewMode] = useState<ViewMode>("list")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showStarred, setShowStarred] = useState(false)
+
+  const filtered = ingredientsListData.filter((ing) => {
+    if (showStarred && !ing.starred) return false
+    if (searchQuery && !ing.name.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    return true
+  })
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-slate-800">
+          All Ingredients:<span className="text-blue-600">59653</span>
+        </h2>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setListViewMode("grid")}
+            className={`p-2 rounded-lg transition-colors ${listViewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+          >
+            <LayoutGrid className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setListViewMode("list")}
+            className={`p-2 rounded-lg transition-colors ${listViewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+          >
+            <List className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <SlidersHorizontal className="h-4 w-4" />
+          <span className="font-medium">Filters:</span>
+        </div>
+        {["Cost", "Plant Based", "Allergen", "Category"].map((f) => (
+          <button key={f} type="button" className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+            {f}
+            <ChevronDown className="h-3.5 w-3.5" />
+          </button>
+        ))}
+        <label className="flex items-center gap-2 ml-auto cursor-pointer">
+          <input
+            type="checkbox"
+            checked={showStarred}
+            onChange={(e) => setShowStarred(e.target.checked)}
+            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span className="text-sm text-slate-600">show starred ingredients</span>
+        </label>
+      </div>
+
+      {listViewMode === "list" ? (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="w-12 px-4 py-3" />
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                <th className="w-12 px-4 py-3" />
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Manufacturer</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Price/Unit</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <span className="flex items-center gap-1">ROI <Info className="h-3 w-3 text-blue-500" /></span>
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Country</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((ing) => (
+                <tr key={ing.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center">
+                      <Package className="h-4 w-4 text-slate-400" />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm font-medium text-slate-800">{ing.name}</td>
+                  <td className="px-4 py-3">
+                    <Star className={`h-4 w-4 ${ing.starred ? "text-amber-400 fill-amber-400" : "text-slate-300"}`} />
+                  </td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{ing.manufacturer}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{ing.pricePerUnit || <span className="text-slate-300">-</span>}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500">{ing.roi}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <span role="img" aria-label="US flag">🇺🇸</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.map((ing) => (
+            <div key={ing.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="aspect-square rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center mb-3 group-hover:border-blue-200 transition-colors">
+                <Package className="h-10 w-10 text-slate-300" />
+              </div>
+              <div className="flex items-start justify-between gap-1">
+                <p className="text-sm font-medium text-slate-800 line-clamp-2">{ing.name}</p>
+                <Star className={`h-4 w-4 shrink-0 ${ing.starred ? "text-amber-400 fill-amber-400" : "text-slate-300"}`} />
+              </div>
+              <p className="text-xs text-slate-500 mt-1">{ing.manufacturer}</p>
+              {ing.pricePerUnit && <p className="text-xs font-medium text-slate-700 mt-1">{ing.pricePerUnit}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ProductsListSection() {
+  const [listViewMode, setListViewMode] = useState<ViewMode>("list")
+  const [activeTab, setActiveTab] = useState<ProductTab>("retail")
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const tabs: Array<{ key: ProductTab; label: string; icon: React.ReactNode; color: string }> = [
+    { key: "retail", label: "Retail", icon: <ShoppingCart className="h-4 w-4" />, color: "bg-blue-600 text-white" },
+    { key: "concept", label: "Concept", icon: <Lightbulb className="h-4 w-4" />, color: "bg-green-600 text-white" },
+    { key: "latest", label: "Latest updates", icon: <Bell className="h-4 w-4" />, color: "bg-red-500 text-white" },
+    { key: "journey-ai", label: "Journey AI", icon: <Sparkles className="h-4 w-4" />, color: "bg-slate-700 text-white" },
+  ]
+
+  const filtered = productsListData.filter((p) => {
+    if (activeTab === "retail") return p.status === "RETAIL"
+    if (activeTab === "concept") return p.status === "CONCEPT"
+    return true
+  })
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h2 className="text-xl font-bold text-slate-800">
+            Active Products <span className="text-blue-600">488009</span>
+          </h2>
+          <div className="flex items-center gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  activeTab === tab.key ? tab.color : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setListViewMode("grid")}
+            className={`p-2 rounded-lg transition-colors ${listViewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+          >
+            <LayoutGrid className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setListViewMode("list")}
+            className={`p-2 rounded-lg transition-colors ${listViewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+          >
+            <List className="h-5 w-5" />
+          </button>
+          <button type="button" className="p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-lg">
+            <Plus className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <SlidersHorizontal className="h-4 w-4" />
+          <span className="font-medium">Filters:</span>
+        </div>
+        {["Market", "Brand", "Type"].map((f) => (
+          <button key={f} type="button" className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+            {f}
+            <ChevronDown className="h-3.5 w-3.5" />
+          </button>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-end gap-2 mb-4">
+        <button type="button" className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded transition-colors">
+          <ChevronLeft className="h-4 w-4" />
+          Previous
+        </button>
+        {[1, 2, 3, 4, 5].map((page) => (
+          <button
+            key={page}
+            type="button"
+            onClick={() => setCurrentPage(page)}
+            className={`w-8 h-8 rounded text-sm font-medium transition-colors ${
+              currentPage === page ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+        <button type="button" className="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded transition-colors">
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {listViewMode === "list" ? (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Image</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Product Name</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Brand</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Flavor</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Version</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Country</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Score</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((product) => (
+                <tr key={product.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="w-10 h-10 rounded bg-slate-100 flex items-center justify-center">
+                      <Package className="h-5 w-5 text-slate-400" />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm font-medium text-slate-800 max-w-[200px]">
+                    <span className="line-clamp-2">{product.name}</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{product.brand}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{product.type}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{product.flavor}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">{product.version}</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span role="img" aria-label="US flag">🇺🇸</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
+                      product.status === "RETAIL" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
+                    }`}>
+                      {product.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{product.score}</td>
+                  <td className="px-4 py-3">
+                    <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.map((product) => (
+            <div key={product.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="aspect-square rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center mb-3 group-hover:border-blue-200 transition-colors">
+                <Package className="h-10 w-10 text-slate-300" />
+              </div>
+              <p className="text-sm font-medium text-slate-800 line-clamp-2">{product.name}</p>
+              <p className="text-xs text-slate-500 mt-1">{product.brand}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
+                  product.status === "RETAIL" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"
+                }`}>
+                  {product.status}
+                </span>
+                <span className="text-xs text-slate-500">{product.score}</span>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -856,7 +1226,7 @@ function EmailTrackingPanel({ emails }: { emails: EmailTracking[] }) {
 }
 
 export default function DashboardPage() {
-  const [activePage, setActivePage] = useState<PageType>("suppliers")
+  const [activePage, setActivePage] = useState<PageType>("overview")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -983,15 +1353,90 @@ export default function DashboardPage() {
 
         {/* Main Content */}
         <main className="flex-1 p-6">
+          {/* Overview Welcome Section */}
+          {activePage === "overview" && (
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-slate-800">Welcome Back, Riana</h1>
+              <p className="text-sm text-slate-500 mt-1">Manage your offerings and track their usage.</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mb-3">
+                    <CheckCircle2 className="h-5 w-5 text-red-500" />
+                  </div>
+                  <h3 className="font-semibold text-slate-800">Ingredient Tips</h3>
+                  <p className="text-sm text-slate-500 mt-1">Swap Protein Brownie recommended for you</p>
+                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                    View Swap <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mb-3">
+                    <Plus className="h-5 w-5 text-green-600" />
+                  </div>
+                  <h3 className="font-semibold text-slate-800">Add New Product</h3>
+                  <p className="text-sm text-slate-500 mt-1">Launch your next product with recommendations.</p>
+                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                    Add Product <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mb-3">
+                    <BarChart3 className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <h3 className="font-semibold text-slate-800">AI Insights Report</h3>
+                  <p className="text-sm text-slate-500 mt-1">Review analytics to stay on track</p>
+                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                    Create Report <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-3">
+                    <Users className="h-5 w-5 text-teal-600" />
+                  </div>
+                  <h3 className="font-semibold text-slate-800">Invite Teammates</h3>
+                  <p className="text-sm text-slate-500 mt-1">Get your team onboard for better collaboration</p>
+                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                    Invite Team <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center mb-3">
+                    <FileText className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <h3 className="font-semibold text-slate-800">New Whitepaper</h3>
+                  <p className="text-sm text-slate-500 mt-1">Dive into the findings that can transform your approach and drive success in your field.</p>
+                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                    Read More <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 mt-8">
+                <Heart className="h-6 w-6 text-pink-500" />
+                <h2 className="text-xl font-bold text-slate-800">Top Recommendation for You</h2>
+                <div className="ml-auto flex items-center gap-3">
+                  <span className="text-sm text-slate-500">Latest Activity</span>
+                  <button type="button" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                    <Filter className="h-4 w-4 text-slate-500" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats Grid - Only show for non-supplier pages */}
-          {activePage !== "suppliers" && (
+          {activePage !== "suppliers" && activePage !== "overview" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {(activePage === "ingredients" || activePage === "overview") && (
+            {activePage === "ingredients" && (
               <>
                 <ActionCard
                   title="Ingredient Actions"
                   icon={<Bell className="h-4 w-4" />}
-                  completed={8}
+                  completed={0}
                   total={10}
                   actions={[
                     { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
@@ -1008,9 +1453,15 @@ export default function DashboardPage() {
                   gradientTo="#3b82f6"
                   chartColor="#ffffff"
                 />
-                <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
+                <div className="relative overflow-hidden rounded-xl p-5 min-h-[160px] flex flex-col items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)" }}>
+                  <Star className="h-10 w-10 text-white/80 mb-2" />
+                  <p className="text-xs font-medium text-white/70 uppercase tracking-wider">Starred Ingredients</p>
+                  <p className="text-4xl font-bold text-white mt-1">19</p>
+                  <p className="text-xs text-white/70 mt-1">Saved to your profile</p>
+                </div>
               </>
             )}
+
             {activePage === "products" && (
               <>
                 <ActionCard
@@ -1095,32 +1546,67 @@ export default function DashboardPage() {
           )}
 
           {/* Non-Suppliers Content */}
-          {activePage !== "suppliers" && (
+          {(activePage === "ingredients" || activePage === "products") && (
             <>
               {/* Recently Viewed */}
               <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
                 <h2 className="text-lg font-semibold text-slate-800 mb-4">Recently Viewed</h2>
-                <div className="relative flex gap-4 overflow-x-auto pb-2">
-                  <button type="button" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                <div className="relative flex gap-4 overflow-x-auto pb-2 items-center">
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
                     <ChevronLeft className="h-4 w-4 text-slate-600" />
                   </button>
-                  {["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"].map((name, i) => (
-                    <div key={i} className="flex-shrink-0 w-40 group cursor-pointer">
-                      <div className="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
-                        <div className="w-24 h-24 bg-slate-200 rounded-lg flex items-center justify-center">
-                          <Package className="h-8 w-8 text-slate-400" />
+                  <div className="flex-1 flex gap-6 justify-center">
+                    {(activePage === "ingredients"
+                      ? ["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"]
+                      : ["Korean Dumpling Mix", "Plant Based Protein", "Low Cost Chocolate", "FRUTi Twist Berry"]
+                    ).map((name, i) => (
+                      <div key={i} className="flex-shrink-0 w-36 group cursor-pointer">
+                        <div className="aspect-square rounded-lg bg-gradient-to-br from-rose-50 to-amber-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
+                          <Package className="h-10 w-10 text-slate-300" />
                         </div>
+                        <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
                       </div>
-                      <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
-                    </div>
-                  ))}
-                  <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                    ))}
+                  </div>
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
                     <ChevronRight className="h-4 w-4 text-slate-600" />
                   </button>
                 </div>
               </div>
 
-              {/* Quick Tips */}
+              {/* Data List Section */}
+              {activePage === "ingredients" && <IngredientsListSection />}
+              {activePage === "products" && <ProductsListSection />}
+            </>
+          )}
+
+          {/* Overview Content */}
+          {activePage === "overview" && (
+            <>
+              {/* Recently Viewed */}
+              <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">Recently Viewed</h2>
+                <div className="relative flex gap-4 overflow-x-auto pb-2 items-center">
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                    <ChevronLeft className="h-4 w-4 text-slate-600" />
+                  </button>
+                  <div className="flex-1 flex gap-6 justify-center">
+                    {["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"].map((name, i) => (
+                      <div key={i} className="flex-shrink-0 w-36 group cursor-pointer">
+                        <div className="aspect-square rounded-lg bg-gradient-to-br from-rose-50 to-amber-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
+                          <Package className="h-10 w-10 text-slate-300" />
+                        </div>
+                        <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                    <ChevronRight className="h-4 w-4 text-slate-600" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Tip */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-blue-100 rounded-lg">
@@ -1129,9 +1615,7 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
                     <p className="text-sm text-slate-600">
-                      {activePage === "ingredients" && "Monitor ingredient alerts for supply chain issues, price changes, and quality score updates. Set up notifications to stay ahead of potential disruptions."}
-                      {activePage === "products" && "Use concept products to experiment with formulations before moving them to production. Track ingredient costs and nutritional data in real-time."}
-                      {activePage === "overview" && "Welcome to JourneyFoods! Use the navigation menu to explore ingredients, products, and suppliers in your network."}
+                      Welcome to JourneyFoods! Use the navigation menu to explore ingredients, products, and suppliers in your network.
                     </p>
                   </div>
                 </div>
