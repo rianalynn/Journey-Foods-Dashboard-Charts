@@ -1392,25 +1392,54 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-3">
-                    <Users className="h-5 w-5 text-teal-600" />
-                  </div>
-                  <h3 className="font-semibold text-slate-800">Invite Teammates</h3>
-                  <p className="text-sm text-slate-500 mt-1">Get your team onboard for better collaboration</p>
-                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
-                    Invite Team <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
+              <div className="bg-white rounded-xl border border-slate-200 p-5 mt-4 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-3">
+                  <Users className="h-5 w-5 text-teal-600" />
                 </div>
-                <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center mb-3">
+                <h3 className="font-semibold text-slate-800">Invite Teammates</h3>
+                <p className="text-sm text-slate-500 mt-1">Get your team onboard for better collaboration</p>
+                <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
+                  Invite Team <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
                     <FileText className="h-5 w-5 text-orange-600" />
                   </div>
-                  <h3 className="font-semibold text-slate-800">New Whitepaper</h3>
-                  <p className="text-sm text-slate-500 mt-1">Dive into the findings that can transform your approach and drive success in your field.</p>
-                  <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
-                    Read More <ArrowRight className="h-3.5 w-3.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800">New Whitepapers</h3>
+                    <p className="text-sm text-slate-500">Dive into the findings that can transform your approach and drive success in your field.</p>
+                  </div>
+                </div>
+                <div className="relative flex items-center">
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors z-10">
+                    <ChevronLeft className="h-4 w-4 text-slate-600" />
+                  </button>
+                  <div className="flex-1 overflow-x-auto flex gap-4 px-3 pb-2 scroll-smooth snap-x snap-mandatory">
+                    {[
+                      { src: "/images/whitepaper-1.jpg", title: "The Future of Functional Ingredients", date: "Jan 2026" },
+                      { src: "/images/whitepaper-2.jpg", title: "Supply Chain Resilience in Food Manufacturing", date: "Dec 2025" },
+                      { src: "/images/whitepaper-3.jpg", title: "AI-Driven Product Development", date: "Nov 2025" },
+                      { src: "/images/whitepaper-4.jpg", title: "Clean Label Trends 2026", date: "Oct 2025" },
+                      { src: "/images/whitepaper-5.jpg", title: "Sustainable Sourcing Strategies", date: "Sep 2025" },
+                    ].map((wp, i) => (
+                      <div key={i} className="flex-shrink-0 w-44 snap-start group cursor-pointer">
+                        <div className="aspect-[3/4] rounded-lg overflow-hidden border border-slate-200 shadow-sm group-hover:shadow-md group-hover:border-blue-300 transition-all">
+                          <img
+                            src={wp.src}
+                            alt={`Cover of whitepaper: ${wp.title}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <p className="mt-2 text-sm font-medium text-slate-700 line-clamp-2 group-hover:text-blue-600 transition-colors">{wp.title}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{wp.date}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" className="shrink-0 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors z-10">
+                    <ChevronRight className="h-4 w-4 text-slate-600" />
                   </button>
                 </div>
               </div>
