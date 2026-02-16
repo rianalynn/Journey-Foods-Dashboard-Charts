@@ -49,6 +49,11 @@ import {
   ShoppingCart,
   Heart,
   ArrowRight,
+  Lock,
+  Settings,
+  Palette,
+  Droplets,
+  BoxIcon,
 } from "lucide-react"
 
 type PageType = "overview" | "ingredients" | "products" | "suppliers"
@@ -98,19 +103,21 @@ const suppliersData: Supplier[] = [
   { id: "12", name: "Nexcel Natural Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Plant Extracts", "Botanicals", "Essential Oils"], phone: null, email: "sales@nexcel.com", website: "nexcel.com", certifications: ["USDA Organic", "Non-GMO Project Verified"], description: "Natural and organic plant-based ingredients." },
 ]
 
-const navigation = [
-  { name: "Overview", icon: Home },
-  { name: "Generate", icon: Zap },
-  { name: "Ingredients", icon: Leaf, badge: "10+" },
-  { name: "Products", icon: Package },
-  { name: "Suppliers", icon: Box },
-  { name: "Packaging", icon: ImageIcon },
-]
-
-const supportNav = [
-  { name: "Analytics", icon: BarChart3 },
-  { name: "Integrations", icon: Link2 },
-]
+ const navigation = [
+  { name: "Overview", icon: Home, locked: false },
+  { name: "Generate", icon: Zap, locked: false },
+  { name: "Ingredients", icon: Leaf, badge: "10+", locked: false },
+  { name: "Products", icon: Package, locked: false },
+  { name: "Suppliers", icon: Box, locked: false },
+  { name: "Packaging", icon: ImageIcon, locked: true },
+  { name: "Cosmetics", icon: Palette, locked: true },
+  { name: "Guava", icon: Droplets, locked: true },
+  ]
+  
+ const supportNav = [
+  { name: "Analytics", icon: BarChart3, locked: true },
+  { name: "Integrations", icon: Link2, locked: false },
+  ]
 
 const timeRanges: Array<{ key: TimeRange; label: string }> = [
   { key: "7d", label: "7D" },
@@ -485,10 +492,268 @@ const productsListData: Product[] = [
 
 type ProductTab = "retail" | "concept" | "latest" | "journey-ai"
 
+function FeatureGateModal({ feature, onClose }: { feature: string; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <Lock className="h-8 w-8 text-slate-400" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{feature} is a Premium Feature</h2>
+          <p className="text-sm text-slate-500 mb-6">
+            Upgrade your subscription to unlock {feature} and get access to advanced analytics, expanded categories, and more powerful tools for your business.
+          </p>
+          <div className="bg-slate-50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">What you get with Premium:</h3>
+            <ul className="space-y-2">
+              {[
+                "Full access to " + feature,
+                "Advanced analytics and reporting",
+                "Priority supplier matching",
+                "Custom ingredient recommendations",
+                "Dedicated support",
+              ].map((perk, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
+                  <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                  {perk}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex gap-3">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+              Maybe Later
+            </button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+              Upgrade Plan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function PreferencesModal({ onClose }: { onClose: () => void }) {
+  const [dietaryPrefs, setDietaryPrefs] = useState<string[]>(["Plant-Based"])
+  const [allergens, setAllergens] = useState<string[]>(["Gluten-Free"])
+  const [categories, setCategories] = useState<string[]>(["Functional Foods"])
+  const [certPref, setCertPref] = useState<string[]>(["USDA Organic"])
+  const [priceRange, setPriceRange] = useState("mid")
+  const [saved, setSaved] = useState(false)
+
+  const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
+    setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item])
+  }
+
+  const handleSave = () => {
+    setSaved(true)
+    setTimeout(() => onClose(), 1200)
+  }
+
+  const dietaryOptions = ["Plant-Based", "Vegan", "Vegetarian", "Keto", "Paleo", "Low Sugar", "High Protein", "Whole30"]
+  const allergenOptions = ["Gluten-Free", "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Shellfish-Free", "Sesame-Free", "Corn-Free"]
+  const categoryOptions = ["Functional Foods", "Snacks", "Beverages", "Bakery", "Confectionery", "Dairy Alternatives", "Meat Alternatives", "Supplements"]
+  const certOptions = ["USDA Organic", "Non-GMO", "Fair Trade", "Kosher", "Halal", "Rainforest Alliance", "B Corp", "Regenerative"]
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Settings className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Set Your Preferences</h2>
+                <p className="text-sm text-slate-500">Personalize recommendations and insights</p>
+              </div>
+            </div>
+            <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+              <X className="h-5 w-5 text-slate-500" />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">Dietary Focus</h3>
+            <p className="text-xs text-slate-500 mb-3">Select the dietary trends relevant to your products</p>
+            <div className="flex flex-wrap gap-2">
+              {dietaryOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleItem(dietaryPrefs, setDietaryPrefs, opt)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    dietaryPrefs.includes(opt) ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">Allergen Avoidance</h3>
+            <p className="text-xs text-slate-500 mb-3">Filter out ingredients with these allergens</p>
+            <div className="flex flex-wrap gap-2">
+              {allergenOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleItem(allergens, setAllergens, opt)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    allergens.includes(opt) ? "bg-red-100 text-red-700 ring-1 ring-red-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">Product Categories</h3>
+            <p className="text-xs text-slate-500 mb-3">Which product categories are you focused on?</p>
+            <div className="flex flex-wrap gap-2">
+              {categoryOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleItem(categories, setCategories, opt)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    categories.includes(opt) ? "bg-green-100 text-green-700 ring-1 ring-green-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">Certification Preferences</h3>
+            <p className="text-xs text-slate-500 mb-3">Prioritize suppliers with these certifications</p>
+            <div className="flex flex-wrap gap-2">
+              {certOptions.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleItem(certPref, setCertPref, opt)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    certPref.includes(opt) ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">Price Sensitivity</h3>
+            <p className="text-xs text-slate-500 mb-3">Set your ingredient sourcing budget preference</p>
+            <div className="flex gap-2">
+              {[
+                { key: "low", label: "Budget-Friendly" },
+                { key: "mid", label: "Mid-Range" },
+                { key: "premium", label: "Premium" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setPriceRange(opt.key)}
+                  className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    priceRange === opt.key ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-slate-200 flex gap-3">
+          {saved ? (
+            <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-50 text-green-700 rounded-lg font-medium">
+              <CheckCircle className="h-5 w-5" />
+              Preferences Saved!
+            </div>
+          ) : (
+            <>
+              <button type="button" onClick={onClose} className="px-4 py-3 border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Save Preferences
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FilterDropdown({ label, options, selected, onSelect }: {
+  label: string
+  options: string[]
+  selected: string | null
+  onSelect: (v: string | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-lg text-sm transition-colors ${
+          selected ? "border-blue-300 bg-blue-50 text-blue-700" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+        }`}
+      >
+        {selected || label}
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-lg z-30 py-1 max-h-60 overflow-y-auto">
+          <button
+            type="button"
+            onClick={() => { onSelect(null); setOpen(false) }}
+            className="w-full text-left px-3 py-2 text-sm text-slate-500 hover:bg-slate-50 transition-colors"
+          >
+            All ({label})
+          </button>
+          {options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => { onSelect(opt); setOpen(false) }}
+              className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                selected === opt ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function IngredientsListSection() {
   const [listViewMode, setListViewMode] = useState<ViewMode>("list")
   const [searchQuery, setSearchQuery] = useState("")
   const [showStarred, setShowStarred] = useState(false)
+  const [costFilter, setCostFilter] = useState<string | null>(null)
+  const [plantFilter, setPlantFilter] = useState<string | null>(null)
+  const [allergenFilter, setAllergenFilter] = useState<string | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
 
   const filtered = ingredientsListData.filter((ing) => {
     if (showStarred && !ing.starred) return false
@@ -538,12 +803,30 @@ function IngredientsListSection() {
           <SlidersHorizontal className="h-4 w-4" />
           <span className="font-medium">Filters:</span>
         </div>
-        {["Cost", "Plant Based", "Allergen", "Category"].map((f) => (
-          <button key={f} type="button" className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-            {f}
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
-        ))}
+        <FilterDropdown
+          label="Cost"
+          options={["Under $0.50", "$0.50 - $1.00", "$1.00 - $2.00", "$2.00 - $5.00", "$5.00 - $10.00", "Over $10.00"]}
+          selected={costFilter}
+          onSelect={setCostFilter}
+        />
+        <FilterDropdown
+          label="Plant Based"
+          options={["Plant-Based Only", "Vegan", "Vegetarian", "Contains Dairy", "Contains Animal"]}
+          selected={plantFilter}
+          onSelect={setPlantFilter}
+        />
+        <FilterDropdown
+          label="Allergen"
+          options={["Gluten-Free", "Dairy-Free", "Nut-Free", "Soy-Free", "Egg-Free", "Shellfish-Free", "Sesame-Free", "Corn-Free", "Contains Major Allergens"]}
+          selected={allergenFilter}
+          onSelect={setAllergenFilter}
+        />
+        <FilterDropdown
+          label="Category"
+          options={["Grains & Cereals", "Sweeteners", "Proteins", "Fats & Oils", "Dairy", "Fruits & Vegetables", "Nuts & Seeds", "Spices & Seasonings", "Additives", "Vitamins & Minerals", "Fibers", "Emulsifiers", "Preservatives", "Colors", "Flavors"]}
+          selected={categoryFilter}
+          onSelect={setCategoryFilter}
+        />
         <label className="flex items-center gap-2 ml-auto cursor-pointer">
           <input
             type="checkbox"
@@ -626,6 +909,9 @@ function ProductsListSection() {
   const [listViewMode, setListViewMode] = useState<ViewMode>("list")
   const [activeTab, setActiveTab] = useState<ProductTab>("retail")
   const [currentPage, setCurrentPage] = useState(1)
+  const [marketFilter, setMarketFilter] = useState<string | null>(null)
+  const [brandFilter, setBrandFilter] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<string | null>(null)
 
   const tabs: Array<{ key: ProductTab; label: string; icon: React.ReactNode; color: string }> = [
     { key: "retail", label: "Retail", icon: <ShoppingCart className="h-4 w-4" />, color: "bg-blue-600 text-white" },
@@ -689,12 +975,24 @@ function ProductsListSection() {
           <SlidersHorizontal className="h-4 w-4" />
           <span className="font-medium">Filters:</span>
         </div>
-        {["Market", "Brand", "Type"].map((f) => (
-          <button key={f} type="button" className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-            {f}
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
-        ))}
+        <FilterDropdown
+          label="Market"
+          options={["US Domestic", "European Union", "Asia Pacific", "Latin America", "Middle East", "Global"]}
+          selected={marketFilter}
+          onSelect={setMarketFilter}
+        />
+        <FilterDropdown
+          label="Brand"
+          options={["Giant Eagle", "JourneyFoods", "Private Label", "Whole Foods", "Trader Joe's", "Kroger"]}
+          selected={brandFilter}
+          onSelect={setBrandFilter}
+        />
+        <FilterDropdown
+          label="Type"
+          options={["Snack", "Beverage", "Bakery", "Dairy", "Frozen", "Confectionery", "Cereal", "Condiment", "Meat Alternative", "Supplement"]}
+          selected={typeFilter}
+          onSelect={setTypeFilter}
+        />
       </div>
 
       {/* Pagination */}
@@ -1231,6 +1529,8 @@ export default function DashboardPage() {
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailTracking, setEmailTracking] = useState<EmailTracking[]>([])
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false)
+  const [featureGateTarget, setFeatureGateTarget] = useState<string | null>(null)
 
   const handleConnectSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
@@ -1312,17 +1612,20 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (["overview", "ingredients", "products", "suppliers"].includes(item.name.toLowerCase())) {
+                        if (item.locked) {
+                          setFeatureGateTarget(item.name)
+                        } else if (["overview", "ingredients", "products", "suppliers"].includes(item.name.toLowerCase())) {
                           setActivePage(item.name.toLowerCase() as PageType)
                         }
                       }}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        isActive ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
+                        item.locked ? "text-slate-400 hover:bg-slate-50 cursor-not-allowed" : isActive ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className={`h-5 w-5 ${item.locked ? "opacity-50" : ""}`} />
                       {item.name}
-                      {item.badge && (
+                      {item.locked && <Lock className="h-3.5 w-3.5 ml-auto text-slate-400" />}
+                      {item.badge && !item.locked && (
                         <span className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"}`}>
                           {item.badge}
                         </span>
@@ -1339,10 +1642,21 @@ export default function DashboardPage() {
                   const Icon = item.icon
                   return (
                     <li key={item.name}>
-                      <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
-                        <Icon className="h-5 w-5" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (item.locked) {
+                            setFeatureGateTarget(item.name)
+                          }
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          item.locked ? "text-slate-400 hover:bg-slate-50 cursor-not-allowed" : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${item.locked ? "opacity-50" : ""}`} />
                         {item.name}
-                      </a>
+                        {item.locked && <Lock className="h-3.5 w-3.5 ml-auto text-slate-400" />}
+                      </button>
                     </li>
                   )
                 })}
@@ -1392,15 +1706,21 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 p-5 mt-4 hover:shadow-md transition-shadow cursor-pointer">
+              <div
+                className="bg-white rounded-xl border border-slate-200 p-5 mt-4 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => setShowPreferencesModal(true)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") setShowPreferencesModal(true) }}
+              >
                 <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-3">
-                  <Users className="h-5 w-5 text-teal-600" />
+                  <Settings className="h-5 w-5 text-teal-600" />
                 </div>
-                <h3 className="font-semibold text-slate-800">Invite Teammates</h3>
-                <p className="text-sm text-slate-500 mt-1">Get your team onboard for better collaboration</p>
-                <button type="button" className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3 hover:text-blue-700 transition-colors">
-                  Invite Team <ArrowRight className="h-3.5 w-3.5" />
-                </button>
+                <h3 className="font-semibold text-slate-800">Set Your Preferences</h3>
+                <p className="text-sm text-slate-500 mt-1">Personalize your ingredient and product recommendations by setting dietary focus, allergens, certifications, and more.</p>
+                <span className="flex items-center gap-1 text-sm font-medium text-blue-600 mt-3">
+                  Open Settings <ArrowRight className="h-3.5 w-3.5" />
+                </span>
               </div>
 
               <div className="mt-6">
@@ -1673,6 +1993,16 @@ export default function DashboardPage() {
           }}
           onSend={handleEmailSent}
         />
+      )}
+
+      {/* Preferences Modal */}
+      {showPreferencesModal && (
+        <PreferencesModal onClose={() => setShowPreferencesModal(false)} />
+      )}
+
+      {/* Feature Gate Modal */}
+      {featureGateTarget && (
+        <FeatureGateModal feature={featureGateTarget} onClose={() => setFeatureGateTarget(null)} />
       )}
     </div>
   )
