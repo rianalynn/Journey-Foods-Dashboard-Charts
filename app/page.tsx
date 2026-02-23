@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import IntegrationsPage from "@/components/integrations/integrations-page"
 
 import { useState, useMemo } from "react"
 import {
@@ -56,7 +57,7 @@ import {
   BoxIcon,
 } from "lucide-react"
 
-type PageType = "overview" | "ingredients" | "products" | "suppliers"
+type PageType = "overview" | "ingredients" | "products" | "suppliers" | "integrations"
 type TimeRange = "7d" | "30d" | "3m" | "6m" | "1y"
 type AlertType = "supply" | "score" | "price" | "delivery"
 type AlertSeverity = "critical" | "warning" | "info"
@@ -1614,7 +1615,7 @@ export default function DashboardPage() {
                       onClick={() => {
                         if (item.locked) {
                           setFeatureGateTarget(item.name)
-                        } else if (["overview", "ingredients", "products", "suppliers"].includes(item.name.toLowerCase())) {
+                        } else if (["overview", "ingredients", "products", "suppliers", "integrations"].includes(item.name.toLowerCase())) {
                           setActivePage(item.name.toLowerCase() as PageType)
                         }
                       }}
@@ -1640,6 +1641,7 @@ export default function DashboardPage() {
               <ul className="space-y-1">
                 {supportNav.map((item) => {
                   const Icon = item.icon
+                  const isSupportActive = item.name.toLowerCase() === activePage
                   return (
                     <li key={item.name}>
                       <button
@@ -1647,10 +1649,12 @@ export default function DashboardPage() {
                         onClick={() => {
                           if (item.locked) {
                             setFeatureGateTarget(item.name)
+                          } else if (["integrations"].includes(item.name.toLowerCase())) {
+                            setActivePage(item.name.toLowerCase() as PageType)
                           }
                         }}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                          item.locked ? "text-slate-400 hover:bg-slate-50 cursor-not-allowed" : "text-slate-600 hover:bg-slate-100"
+                          item.locked ? "text-slate-400 hover:bg-slate-50 cursor-not-allowed" : isSupportActive ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
                         }`}
                       >
                         <Icon className={`h-5 w-5 ${item.locked ? "opacity-50" : ""}`} />
@@ -1971,6 +1975,9 @@ export default function DashboardPage() {
               </div>
             </>
           )}
+
+          {/* Integrations Page */}
+          {activePage === "integrations" && <IntegrationsPage />}
         </main>
       </div>
 
