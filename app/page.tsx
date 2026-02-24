@@ -2,6 +2,7 @@
 
 import React from "react"
 import IntegrationsPage from "@/components/integrations/integrations-page"
+import AgentActivityDrawer, { type AgentTimelineEvent } from "@/components/suppliers/agent-activity-drawer"
 
 import { useState, useMemo } from "react"
 import {
@@ -55,6 +56,7 @@ import {
   Palette,
   Droplets,
   BoxIcon,
+  Activity,
 } from "lucide-react"
 
 type PageType = "overview" | "ingredients" | "products" | "suppliers" | "integrations"
@@ -141,6 +143,114 @@ const ingredientAlerts: Alert[] = [
   { id: "3", type: "score", severity: "warning", title: "Quality Score Drop", description: "Sustainability score decreased after supplier audit", ingredient: "Palm Oil (RSPO)", timestamp: "1 day ago", change: { from: 85, to: 72, unit: "/100" } },
   { id: "4", type: "price", severity: "info", title: "Price Decrease", description: "Bulk pricing now available from new supplier", ingredient: "Oat Flour", timestamp: "2 days ago", change: { from: 3.2, to: 2.85, unit: "/kg" } },
 ]
+
+const seedAgentTimeline: Record<string, AgentTimelineEvent[]> = {
+  "1": [
+    {
+      id: "evt-1",
+      type: "ingredient_need",
+      timestamp: "Jan 15, 10:23 AM",
+      title: "Ingredient need detected: Blueberry Powder",
+      description: "Agent identified a gap in the product formulation for organic blueberry powder based on current product pipeline requirements.",
+      metadata: { ingredient: "Blueberry Powder" },
+      status: "completed",
+    },
+    {
+      id: "evt-2",
+      type: "ingredient_need",
+      timestamp: "Jan 15, 10:24 AM",
+      title: "Ingredient need detected: Spirulina",
+      description: "Superfood blend requires high-quality spirulina source. Current supplier coverage is insufficient.",
+      metadata: { ingredient: "Spirulina" },
+      status: "completed",
+    },
+    {
+      id: "evt-3",
+      type: "supplier_match",
+      timestamp: "Jan 15, 11:05 AM",
+      title: "Matched Journey Foods Test for Blueberry Powder",
+      description: "Agent matched this supplier based on ingredient catalog, certifications (USDA Organic, Non-GMO), and compatibility score.",
+      metadata: { ingredient: "Blueberry Powder", score: 72.73 },
+      status: "completed",
+    },
+    {
+      id: "evt-4",
+      type: "email_sent",
+      timestamp: "Jan 16, 9:00 AM",
+      title: "Outreach email sent",
+      description: "Partnership inquiry email sent to contact@journeyfoods.com with platform invitation link.",
+      metadata: { emailSubject: "Partnership Inquiry - JourneyFoods" },
+      status: "completed",
+    },
+    {
+      id: "evt-5",
+      type: "email_opened",
+      timestamp: "Jan 16, 2:34 PM",
+      title: "Email opened by recipient",
+      description: "The outreach email was opened. Recipient viewed the message and platform invitation details.",
+      status: "completed",
+    },
+    {
+      id: "evt-6",
+      type: "email_clicked",
+      timestamp: "Jan 16, 2:41 PM",
+      title: "Platform invitation link clicked",
+      description: "Recipient clicked the supplier profile signup link in the email.",
+      status: "completed",
+    },
+    {
+      id: "evt-7",
+      type: "follow_up_scheduled",
+      timestamp: "Jan 17, 9:00 AM",
+      title: "Automated follow-up scheduled",
+      description: "A 48-hour follow-up has been scheduled to check on supplier response and platform signup status.",
+      status: "completed",
+    },
+    {
+      id: "evt-8",
+      type: "quote_requested",
+      timestamp: "Jan 18, 10:15 AM",
+      title: "Quote requested for Blueberry Powder",
+      description: "RFQ sent for organic blueberry powder -- 500kg initial order with monthly recurring needs.",
+      metadata: { ingredient: "Blueberry Powder", moq: "500 kg" },
+      status: "active",
+    },
+    {
+      id: "evt-9",
+      type: "platform_invite",
+      timestamp: "Jan 18, 10:16 AM",
+      title: "Supplier invited to JourneyFoods platform",
+      description: "Platform invitation sent to create a full supplier profile for streamlined ordering and communication.",
+      status: "active",
+    },
+    {
+      id: "evt-10",
+      type: "follow_up_sent",
+      timestamp: "Jan 20, 9:00 AM",
+      title: "Follow-up email sent",
+      description: "Automated follow-up sent regarding the pending quote request and platform profile creation.",
+      metadata: { emailSubject: "Following up - Blueberry Powder Quote & Platform Profile" },
+      status: "completed",
+    },
+    {
+      id: "evt-11",
+      type: "quote_received",
+      timestamp: "Jan 22, 3:45 PM",
+      title: "Quote received for Blueberry Powder",
+      description: "Supplier responded with pricing for organic blueberry powder. Competitive rates with flexible MOQ.",
+      metadata: { ingredient: "Blueberry Powder", quoteAmount: "$28.50/kg", moq: "250 kg", leadTime: "2-3 weeks" },
+      status: "completed",
+    },
+    {
+      id: "evt-12",
+      type: "connection_established",
+      timestamp: "Pending",
+      title: "Awaiting full platform connection",
+      description: "Supplier has engaged via email but has not yet completed their platform profile. Monitoring for signup.",
+      status: "pending",
+    },
+  ],
+}
 
 function seededRandom(seed: number) {
   const x = Math.sin(seed) * 10000
@@ -1101,7 +1211,7 @@ function ProductsListSection() {
   )
 }
 
-function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; onConnect: (supplier: Supplier) => void; viewMode: ViewMode }) {
+function SupplierCard({ supplier, onConnect, viewMode, onViewActivity, activityCount }: { supplier: Supplier; onConnect: (supplier: Supplier) => void; viewMode: ViewMode; onViewActivity: (supplierId: string) => void; activityCount: number }) {
   const formatWhatsAppLink = (phone: string) => {
     const cleaned = phone.replace(/[^0-9]/g, "")
     return `https://wa.me/${cleaned}`
@@ -1136,6 +1246,19 @@ function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; o
               WhatsApp
             </a>
           )}
+          <button
+            type="button"
+            onClick={() => onViewActivity(supplier.id)}
+            className="relative flex items-center gap-1 px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded transition-colors"
+          >
+            <Activity className="h-3.5 w-3.5" />
+            Activity
+            {activityCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {activityCount > 9 ? "9+" : activityCount}
+              </span>
+            )}
+          </button>
           <button
             type="button"
             onClick={() => onConnect(supplier)}
@@ -1214,13 +1337,28 @@ function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; o
             N/A
           </span>
         )}
-        <button
-          type="button"
-          onClick={() => onConnect(supplier)}
-          className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-        >
-          Connect
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onViewActivity(supplier.id)}
+            className="relative flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            <Activity className="h-3.5 w-3.5" />
+            Activity
+            {activityCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {activityCount > 9 ? "9+" : activityCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => onConnect(supplier)}
+            className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Connect
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -1532,6 +1670,69 @@ export default function DashboardPage() {
   const [emailTracking, setEmailTracking] = useState<EmailTracking[]>([])
   const [showPreferencesModal, setShowPreferencesModal] = useState(false)
   const [featureGateTarget, setFeatureGateTarget] = useState<string | null>(null)
+  const [agentDrawerOpen, setAgentDrawerOpen] = useState(false)
+  const [agentDrawerSupplierId, setAgentDrawerSupplierId] = useState<string | null>(null)
+  const [agentTimelines, setAgentTimelines] = useState<Record<string, AgentTimelineEvent[]>>(seedAgentTimeline)
+
+  const openAgentDrawer = (supplierId: string) => {
+    setAgentDrawerSupplierId(supplierId)
+    setAgentDrawerOpen(true)
+  }
+
+  const closeAgentDrawer = () => {
+    setAgentDrawerOpen(false)
+  }
+
+  const addAgentEvent = (supplierId: string, event: AgentTimelineEvent) => {
+    setAgentTimelines((prev) => ({
+      ...prev,
+      [supplierId]: [...(prev[supplierId] || []), event],
+    }))
+  }
+
+  const handleRequestQuote = () => {
+    if (!agentDrawerSupplierId) return
+    const supplier = suppliersData.find((s) => s.id === agentDrawerSupplierId)
+    if (!supplier) return
+    const ingredient = supplier.ingredients[0] || "General Ingredients"
+    addAgentEvent(agentDrawerSupplierId, {
+      id: `evt-${Date.now()}`,
+      type: "quote_requested",
+      timestamp: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
+      title: `Quote requested for ${ingredient}`,
+      description: `RFQ sent to ${supplier.name} for ${ingredient}. Awaiting supplier response with pricing and availability.`,
+      metadata: { ingredient },
+      status: "active",
+    })
+  }
+
+  const handleInviteToPlatform = () => {
+    if (!agentDrawerSupplierId) return
+    const supplier = suppliersData.find((s) => s.id === agentDrawerSupplierId)
+    if (!supplier) return
+    addAgentEvent(agentDrawerSupplierId, {
+      id: `evt-${Date.now()}`,
+      type: "platform_invite",
+      timestamp: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
+      title: `Supplier invited to JourneyFoods platform`,
+      description: `Platform invitation sent to ${supplier.email}. Supplier will be able to create a profile and manage orders directly.`,
+      status: "active",
+    })
+  }
+
+  const handleScheduleFollowUp = () => {
+    if (!agentDrawerSupplierId) return
+    const supplier = suppliersData.find((s) => s.id === agentDrawerSupplierId)
+    if (!supplier) return
+    addAgentEvent(agentDrawerSupplierId, {
+      id: `evt-${Date.now()}`,
+      type: "follow_up_scheduled",
+      timestamp: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
+      title: "Follow-up scheduled",
+      description: `A 48-hour follow-up has been queued for ${supplier.name} to check on outstanding requests and engagement.`,
+      status: "completed",
+    })
+  }
 
   const handleConnectSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
@@ -1552,6 +1753,16 @@ export default function DashboardPage() {
       replied: false,
     }
     setEmailTracking((prev) => [newTracking, ...prev])
+    // Also push to agent timeline
+    addAgentEvent(supplier.id, {
+      id: `evt-${Date.now()}`,
+      type: "email_sent",
+      timestamp: new Date().toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
+      title: "Outreach email sent",
+      description: `Email sent to ${supplier.email} with subject "${subject}".`,
+      metadata: { emailSubject: subject },
+      status: "completed",
+    })
     setShowEmailModal(false)
     setSelectedSupplier(null)
   }
@@ -1875,25 +2086,34 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div className="lg:col-span-2">
-                  {viewMode === "grid" ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {suppliersData.map((supplier) => (
-                        <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {suppliersData.map((supplier) => (
-                        <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="lg:col-span-1">
-                  <EmailTrackingPanel emails={emailTracking} />
-                </div>
+              <div className="mb-6">
+                {viewMode === "grid" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {suppliersData.map((supplier) => (
+                      <SupplierCard
+                        key={supplier.id}
+                        supplier={supplier}
+                        onConnect={handleConnectSupplier}
+                        viewMode={viewMode}
+                        onViewActivity={openAgentDrawer}
+                        activityCount={(agentTimelines[supplier.id] || []).length}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {suppliersData.map((supplier) => (
+                      <SupplierCard
+                        key={supplier.id}
+                        supplier={supplier}
+                        onConnect={handleConnectSupplier}
+                        viewMode={viewMode}
+                        onViewActivity={openAgentDrawer}
+                        activityCount={(agentTimelines[supplier.id] || []).length}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -1980,6 +2200,26 @@ export default function DashboardPage() {
           {activePage === "integrations" && <IntegrationsPage />}
         </main>
       </div>
+
+      {/* Agent Activity Drawer */}
+      {agentDrawerSupplierId && (
+        <AgentActivityDrawer
+          supplier={suppliersData.find((s) => s.id === agentDrawerSupplierId) || suppliersData[0]}
+          timeline={agentTimelines[agentDrawerSupplierId] || []}
+          open={agentDrawerOpen}
+          onClose={closeAgentDrawer}
+          onSendEmail={() => {
+            const supplier = suppliersData.find((s) => s.id === agentDrawerSupplierId)
+            if (supplier) {
+              setSelectedSupplier(supplier)
+              setShowEmailModal(true)
+            }
+          }}
+          onRequestQuote={handleRequestQuote}
+          onInviteToPlatform={handleInviteToPlatform}
+          onScheduleFollowUp={handleScheduleFollowUp}
+        />
+      )}
 
       {/* Supplier Detail Modal */}
       {selectedSupplier && !showEmailModal && (
