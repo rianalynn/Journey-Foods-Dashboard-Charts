@@ -1132,9 +1132,9 @@ export default function DashboardPage() {
   {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
-        {/* ── Supplier Mode: Ingredient Portfolio (Overview) ───────────────── */}
+        {/* ── Supplier Mode: Supplier Dashboard (Overview) ───────────────── */}
         {isSupplierMode && activePage === "overview" && (
-          <SupplierIngredientPortfolio />
+          <SuppliersPage isSupplierMode={isSupplierMode} />
         )}
 
         {/* ── Suppliers Tab ─────────────────────────────────────── */}
