@@ -43,6 +43,7 @@ import {
   ComplianceBadge,
   RegionTag,
   SeverityBadge,
+  DataSourceBadge,
 } from "@/components/compliance/compliance-components"
 import {
   ingredientComplianceData,
@@ -53,6 +54,8 @@ import {
 } from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type DataSource = "sap" | "oracle" | "netsuite" | "excel" | "csv" | "manual" | "api"
 
 interface Ingredient {
   id: string
@@ -78,6 +81,7 @@ interface Ingredient {
   conceptProducts: number
   starred: boolean
   alert?: string
+  dataSource?: DataSource
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -88,14 +92,14 @@ const ingredientsData: Ingredient[] = [
     supplier: "TropiFresh Co.", score: 92, nutritionScore: 94, sustainabilityScore: 88, costScore: 84,
     price: 4.50, unit: "kg", status: "active", trend: "up", trendValue: 3.2,
     certifications: ["USDA Organic", "Non-GMO", "Fair Trade"], allergens: [],
-    origin: "Mexico", lastUpdated: "2 days ago", activeProducts: 12, conceptProducts: 5, starred: true,
+    origin: "Mexico", lastUpdated: "2 days ago", activeProducts: 12, conceptProducts: 5, starred: true, dataSource: "sap",
   },
   {
     id: "2", name: "Buckwheat Flour", category: "Food", subCategory: "Grain", form: "Powder",
     supplier: "Heartland Mills", score: 87, nutritionScore: 90, sustainabilityScore: 85, costScore: 88,
     price: 2.75, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Gluten-Free", "Non-GMO"], allergens: [],
-    origin: "USA", lastUpdated: "1 week ago", activeProducts: 8, conceptProducts: 15, starred: false,
+    origin: "USA", lastUpdated: "1 week ago", activeProducts: 8, conceptProducts: 15, starred: false, dataSource: "excel",
   },
   {
     id: "3", name: "Turmeric Extract", category: "Food", subCategory: "Spice", form: "Powder",
@@ -103,70 +107,70 @@ const ingredientsData: Ingredient[] = [
     price: 18.20, unit: "kg", status: "flagged", trend: "down", trendValue: -5.1,
     certifications: ["USDA Organic"], allergens: [],
     origin: "India", lastUpdated: "3 days ago", activeProducts: 25, conceptProducts: 3,
-    starred: false, alert: "Supply chain disruption — 3-week delay expected",
+    starred: false, alert: "Supply chain disruption — 3-week delay expected", dataSource: "sap",
   },
   {
     id: "4", name: "Pea Protein Isolate", category: "Food", subCategory: "Protein", form: "Powder",
     supplier: "ProGreen Labs", score: 95, nutritionScore: 97, sustainabilityScore: 93, costScore: 82,
     price: 7.20, unit: "kg", status: "active", trend: "up", trendValue: 8.4,
     certifications: ["USDA Organic", "Non-GMO", "Vegan"], allergens: [],
-    origin: "Canada", lastUpdated: "5 hours ago", activeProducts: 18, conceptProducts: 9, starred: true,
+    origin: "Canada", lastUpdated: "5 hours ago", activeProducts: 18, conceptProducts: 9, starred: true, dataSource: "sap",
   },
   {
     id: "5", name: "Coconut Sugar", category: "Food", subCategory: "Sweetener", form: "Granule",
     supplier: "Island Harvest", score: 83, nutritionScore: 78, sustainabilityScore: 89, costScore: 76,
     price: 5.80, unit: "kg", status: "active", trend: "up", trendValue: 1.4,
     certifications: ["Fair Trade", "USDA Organic"], allergens: [],
-    origin: "Philippines", lastUpdated: "4 days ago", activeProducts: 6, conceptProducts: 11, starred: false,
+    origin: "Philippines", lastUpdated: "4 days ago", activeProducts: 6, conceptProducts: 11, starred: false, dataSource: "manual",
   },
   {
     id: "6", name: "Himalayan Pink Salt", category: "Food", subCategory: "Mineral", form: "Crystal",
     supplier: "Peak Minerals", score: 88, nutritionScore: 85, sustainabilityScore: 90, costScore: 92,
     price: 1.20, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Natural", "Non-GMO"], allergens: [],
-    origin: "Pakistan", lastUpdated: "2 weeks ago", activeProducts: 32, conceptProducts: 7, starred: false,
+    origin: "Pakistan", lastUpdated: "2 weeks ago", activeProducts: 32, conceptProducts: 7, starred: false, dataSource: "excel",
   },
   {
     id: "7", name: "Avocado Oil", category: "Food", subCategory: "Oil", form: "Liquid",
     supplier: "Verde Organics", score: 91, nutritionScore: 93, sustainabilityScore: 87, costScore: 72,
     price: 12.40, unit: "kg", status: "active", trend: "down", trendValue: -2.1,
     certifications: ["USDA Organic", "Non-GMO"], allergens: [],
-    origin: "Mexico", lastUpdated: "1 day ago", activeProducts: 9, conceptProducts: 4, starred: true,
+    origin: "Mexico", lastUpdated: "1 day ago", activeProducts: 9, conceptProducts: 4, starred: true, dataSource: "oracle",
   },
   {
     id: "8", name: "Chicory Root Fiber", category: "Food", subCategory: "Fiber", form: "Powder",
     supplier: "FiberTech EU", score: 86, nutritionScore: 88, sustainabilityScore: 84, costScore: 80,
     price: 6.10, unit: "kg", status: "concept", trend: "up", trendValue: 4.7,
     certifications: ["Non-GMO", "EU Organic"], allergens: [],
-    origin: "Belgium", lastUpdated: "6 days ago", activeProducts: 0, conceptProducts: 8, starred: false,
+    origin: "Belgium", lastUpdated: "6 days ago", activeProducts: 0, conceptProducts: 8, starred: false, dataSource: "api",
   },
   {
     id: "9", name: "Freeze Dried Blueberry", category: "Food", subCategory: "Fruit", form: "Granule",
     supplier: "Arctic Berry Co.", score: 89, nutritionScore: 91, sustainabilityScore: 86, costScore: 68,
     price: 22.00, unit: "kg", status: "active", trend: "up", trendValue: 2.8,
     certifications: ["USDA Organic", "Non-GMO"], allergens: [],
-    origin: "USA", lastUpdated: "3 days ago", activeProducts: 14, conceptProducts: 6, starred: false,
+    origin: "USA", lastUpdated: "3 days ago", activeProducts: 14, conceptProducts: 6, starred: false, dataSource: "sap",
   },
   {
     id: "10", name: "Oat Flour", category: "Food", subCategory: "Grain", form: "Powder",
     supplier: "Nordic Grains", score: 84, nutritionScore: 86, sustainabilityScore: 82, costScore: 94,
     price: 1.80, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Gluten-Free", "Non-GMO"], allergens: ["Oat"],
-    origin: "Sweden", lastUpdated: "1 week ago", activeProducts: 21, conceptProducts: 12, starred: false,
+    origin: "Sweden", lastUpdated: "1 week ago", activeProducts: 21, conceptProducts: 12, starred: false, dataSource: "csv",
   },
   {
     id: "11", name: "Matcha Powder", category: "Food", subCategory: "Tea", form: "Powder",
     supplier: "Kyoto Greens", score: 90, nutritionScore: 92, sustainabilityScore: 88, costScore: 61,
     price: 48.00, unit: "kg", status: "active", trend: "up", trendValue: 6.2,
     certifications: ["USDA Organic", "JAS Organic"], allergens: [],
-    origin: "Japan", lastUpdated: "2 days ago", activeProducts: 7, conceptProducts: 4, starred: true,
+    origin: "Japan", lastUpdated: "2 days ago", activeProducts: 7, conceptProducts: 4, starred: true, dataSource: "sap",
   },
   {
     id: "12", name: "Sunflower Lecithin", category: "Food", subCategory: "Emulsifier", form: "Liquid",
     supplier: "SunBio Labs", score: 79, nutritionScore: 75, sustainabilityScore: 83, costScore: 86,
     price: 3.60, unit: "kg", status: "concept", trend: "down", trendValue: -1.3,
     certifications: ["Non-GMO", "Soy-Free"], allergens: [],
-    origin: "Ukraine", lastUpdated: "2 weeks ago", activeProducts: 0, conceptProducts: 3, starred: false,
+    origin: "Ukraine", lastUpdated: "2 weeks ago", activeProducts: 0, conceptProducts: 3, starred: false, dataSource: "manual",
   },
 ]
 
@@ -298,6 +302,7 @@ function IngredientFullPageView({ ingredient, onBack }: { ingredient: Ingredient
                   }`}>
                     {ingredient.status.charAt(0).toUpperCase() + ingredient.status.slice(1)}
                   </span>
+                  {ingredient.dataSource && <DataSourceBadge source={ingredient.dataSource} size="md" />}
                 </div>
                 <p className="text-sm text-slate-500 mt-1">{ingredient.subCategory} · {ingredient.form} · {ingredient.origin}</p>
                 <p className="text-xs text-slate-400 mt-0.5">Last updated {ingredient.lastUpdated}</p>

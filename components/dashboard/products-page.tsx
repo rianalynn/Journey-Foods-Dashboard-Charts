@@ -48,6 +48,7 @@ import {
   ComplianceSummaryRow,
   ComplianceIssueCard,
   RegionTag,
+  DataSourceBadge,
 } from "@/components/compliance/compliance-components"
 import {
   productComplianceData,
@@ -57,6 +58,8 @@ import {
 } from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type DataSource = "sap" | "oracle" | "netsuite" | "excel" | "csv" | "manual" | "api"
 
 interface Product {
   id: string
@@ -97,6 +100,7 @@ interface Product {
   objectives: string[]
   countryFlag: string
   type: string
+  dataSource?: DataSource
 }
 
 interface ProductVersion {
@@ -127,7 +131,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 6.4, starred: true, tags: ["Vegan", "Gluten-Free", "Non-GMO"],
     lastUpdated: "Tue Jan 13 2026", createdBy: "Huy Lee", dateCreated: "10/28/2025", fulfilmentDate: "",
     servingSize: "60", servingUnit: "g", calories: 220, version: 1, flavor: "Chocolate Fudge", manufacturer: "JourneyFoods",
-    objectives: ["High Protein", "Clean Label"], countryFlag: "🇺🇸",
+    objectives: ["High Protein", "Clean Label"], countryFlag: "🇺🇸", dataSource: "sap",
   },
   {
     id: "2", name: "Green Smoothie Mix", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Powders", type: "Retail",
@@ -143,7 +147,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 12.1, starred: true, tags: ["Vegan", "Keto-Friendly", "High Protein"],
     lastUpdated: "Mon Jan 12 2026", createdBy: "Huy Lee", dateCreated: "10/15/2025", fulfilmentDate: "",
     servingSize: "30", servingUnit: "g", calories: 110, version: 1, flavor: "Natural Green", manufacturer: "JourneyFoods",
-    objectives: ["Superfood Blend"], countryFlag: "🇺🇸",
+    objectives: ["Superfood Blend"], countryFlag: "🇺🇸", dataSource: "sap",
   },
   {
     id: "3", name: "Turmeric Ginger Latte Blend", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Latte Mix", type: "Concept",
@@ -160,7 +164,7 @@ const productsData: Product[] = [
     alert: "Pending regulatory review for EU market",
     lastUpdated: "Sun Jan 11 2026", createdBy: "Huy Lee", dateCreated: "10/10/2025", fulfilmentDate: "",
     servingSize: "15", servingUnit: "g", calories: 60, version: 1, flavor: "Golden Spice", manufacturer: "JourneyFoods",
-    objectives: ["Wellness", "Functional"], countryFlag: "🇺🇸",
+    objectives: ["Wellness", "Functional"], countryFlag: "🇺🇸", dataSource: "excel",
   },
   {
     id: "4", name: "Recovery Electrolyte Drink", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Electrolytes", type: "Retail",
@@ -176,7 +180,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 3.8, starred: false, tags: ["Electrolytes", "Low Sugar", "Non-GMO"],
     lastUpdated: "Sat Jan 10 2026", createdBy: "Huy Lee", dateCreated: "10/05/2025", fulfilmentDate: "",
     servingSize: "12", servingUnit: "g", calories: 25, version: 1, flavor: "Citrus", manufacturer: "JourneyFoods",
-    objectives: ["Hydration", "Athletic Performance"], countryFlag: "🇺🇸",
+    objectives: ["Hydration", "Athletic Performance"], countryFlag: "🇺🇸", dataSource: "sap",
   },
   {
     id: "5", name: "Buckwheat Pancake Mix", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Baking", type: "Retail",
@@ -192,7 +196,7 @@ const productsData: Product[] = [
     trend: "stable", trendValue: 0, starred: false, tags: ["Gluten-Free", "Vegan", "High Fiber"],
     lastUpdated: "Fri Jan 09 2026", createdBy: "Huy Lee", dateCreated: "10/01/2025", fulfilmentDate: "",
     servingSize: "40", servingUnit: "g", calories: 150, version: 1, flavor: "Original", manufacturer: "JourneyFoods",
-    objectives: ["Whole Grain", "Plant-Based"], countryFlag: "🇺🇸",
+    objectives: ["Whole Grain", "Plant-Based"], countryFlag: "🇺🇸", dataSource: "manual",
   },
   {
     id: "6", name: "Matcha Energy Bites", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Snacks", type: "Concept",
@@ -208,7 +212,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 4.2, starred: false, tags: ["Vegan", "Antioxidant", "Non-GMO"],
     lastUpdated: "Thu Jan 22 2026", createdBy: "Huy Lee", dateCreated: "2024-02-22", fulfilmentDate: "2026-03-23",
     servingSize: "28", servingUnit: "g", calories: 120, version: 1, flavor: "Matcha Green Tea", manufacturer: "JourneyFoods",
-    objectives: ["Natural Energy", "Clean Label"], countryFlag: "🇺🇸",
+    objectives: ["Natural Energy", "Clean Label"], countryFlag: "🇺🇸", dataSource: "excel",
   },
   {
     id: "7", name: "Collagen Peptides Powder", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Supplements", type: "Retail",
@@ -223,7 +227,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 8.5, starred: false, tags: ["Grass-Fed", "Keto", "Paleo"],
     lastUpdated: "Wed Jan 08 2026", createdBy: "Huy Lee", dateCreated: "09/15/2025", fulfilmentDate: "",
     servingSize: "10", servingUnit: "g", calories: 35, version: 1, flavor: "Unflavored", manufacturer: "JourneyFoods",
-    objectives: ["Skin Health", "Joint Support"], countryFlag: "🇺🇸",
+    objectives: ["Skin Health", "Joint Support"], countryFlag: "🇺🇸", dataSource: "oracle",
   },
   {
     id: "8", name: "Adaptogenic Mushroom Blend", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Powders", type: "Concept",
@@ -239,7 +243,7 @@ const productsData: Product[] = [
     trend: "stable", trendValue: 0, starred: true, tags: ["Organic", "Adaptogenic", "Nootropic"],
     lastUpdated: "Tue Jan 07 2026", createdBy: "Admin", dateCreated: "08/20/2025", fulfilmentDate: "2026-02-15",
     servingSize: "5", servingUnit: "g", calories: 15, version: 2, flavor: "Earthy", manufacturer: "JourneyFoods",
-    objectives: ["Cognitive Support", "Stress Relief"], countryFlag: "🇺🇸",
+    objectives: ["Cognitive Support", "Stress Relief"], countryFlag: "🇺🇸", dataSource: "manual",
   },
   {
     id: "9", name: "Plant-Based Protein Crunch", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Cereal", type: "Retail",
@@ -255,7 +259,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 5.2, starred: false, tags: ["High Protein", "Vegan", "Low Sugar"],
     lastUpdated: "Mon Jan 06 2026", createdBy: "Huy Lee", dateCreated: "08/10/2025", fulfilmentDate: "",
     servingSize: "55", servingUnit: "g", calories: 210, version: 1, flavor: "Vanilla Almond", manufacturer: "JourneyFoods",
-    objectives: ["Breakfast", "High Protein"], countryFlag: "🇺🇸",
+    objectives: ["Breakfast", "High Protein"], countryFlag: "🇺🇸", dataSource: "sap",
   },
   {
     id: "10", name: "Prebiotic Fiber Gummies", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Supplements", type: "Retail",
@@ -271,7 +275,7 @@ const productsData: Product[] = [
     trend: "up", trendValue: 7.8, starred: false, tags: ["Gut Health", "Vegan", "Sugar-Free"],
     lastUpdated: "Sun Jan 05 2026", createdBy: "Admin", dateCreated: "07/25/2025", fulfilmentDate: "",
     servingSize: "10", servingUnit: "g", calories: 30, version: 1, flavor: "Mixed Berry", manufacturer: "JourneyFoods",
-    objectives: ["Digestive Health", "Immune Support"], countryFlag: "🇺🇸",
+    objectives: ["Digestive Health", "Immune Support"], countryFlag: "🇺🇸", dataSource: "csv",
   },
 ]
 
@@ -748,7 +752,10 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{product.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-slate-900">{product.name}</h1>
+            {product.dataSource && <DataSourceBadge source={product.dataSource} size="md" />}
+          </div>
           <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
             <span><span className="font-medium text-slate-700">Company:</span> {product.company}</span>
             <span><span className="font-medium text-slate-700">Brand:</span> {product.brand}</span>
@@ -1211,7 +1218,7 @@ function ProductGridCard({ product, onView }: { product: Product; onView: () => 
   )
 }
 
-// ─── Product List Row ─────────────────────────────────────────────────────────
+// ─── Product List Row ─────────────────────────────────��───────────────────────
 
 function ProductListRow({ product, onView }: { product: Product; onView: () => void }) {
   return (

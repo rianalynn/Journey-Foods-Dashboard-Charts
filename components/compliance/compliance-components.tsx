@@ -94,6 +94,80 @@ export function SeverityBadge({ severity, size = "md" }: SeverityBadgeProps) {
   )
 }
 
+// ─── Data Source Badge ────────────────────────────────────────────────────────
+
+type DataSource = "sap" | "oracle" | "netsuite" | "excel" | "csv" | "manual" | "api"
+
+interface DataSourceBadgeProps {
+  source: DataSource
+  size?: "sm" | "md" | "lg"
+  showLabel?: boolean
+}
+
+const dataSourceConfig: Record<DataSource, { label: string; bg: string; text: string; border: string; description: string }> = {
+  sap: { label: "SAP", bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", description: "Synced from SAP ERP" },
+  oracle: { label: "Oracle", bg: "bg-red-50", text: "text-red-700", border: "border-red-200", description: "Synced from Oracle ERP" },
+  netsuite: { label: "NetSuite", bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", description: "Synced from NetSuite" },
+  excel: { label: "Excel", bg: "bg-green-50", text: "text-green-700", border: "border-green-200", description: "Imported from Excel" },
+  csv: { label: "CSV", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", description: "Imported from CSV" },
+  manual: { label: "Manual", bg: "bg-slate-50", text: "text-slate-600", border: "border-slate-200", description: "Manually entered" },
+  api: { label: "API", bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200", description: "Synced via API" },
+}
+
+export function DataSourceBadge({ source, size = "md", showLabel = true }: DataSourceBadgeProps) {
+  const config = dataSourceConfig[source]
+  
+  const sizeClasses = {
+    sm: "px-2 py-0.5 text-[10px] gap-1",
+    md: "px-2.5 py-1 text-xs gap-1.5",
+    lg: "px-3 py-1.5 text-sm gap-2",
+  }
+
+  const iconSize = {
+    sm: "w-3 h-3",
+    md: "w-3.5 h-3.5",
+    lg: "w-4 h-4",
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center font-medium rounded-full border ${config.bg} ${config.text} ${config.border} ${sizeClasses[size]}`}
+      title={config.description}
+    >
+      {(source === "sap" || source === "oracle" || source === "netsuite") ? (
+        <svg className={iconSize[size]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      ) : source === "excel" || source === "csv" ? (
+        <svg className={iconSize[size]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="16" y2="17"/>
+        </svg>
+      ) : source === "api" ? (
+        <svg className={iconSize[size]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      ) : (
+        <svg className={iconSize[size]} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      )}
+      {showLabel && config.label}
+    </span>
+  )
+}
+
+// Helper to get full data source info
+export function getDataSourceInfo(source: DataSource) {
+  return dataSourceConfig[source]
+}
+
 // ─── Region Tag ───────────────────────────────────────────────────────────────
 
 interface RegionTagProps {

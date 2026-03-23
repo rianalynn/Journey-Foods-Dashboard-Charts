@@ -31,6 +31,7 @@ import {
   Zap,
   Target,
   ArrowRight,
+  ArrowLeft,
   Bell,
   RefreshCw,
   Upload,
@@ -41,11 +42,20 @@ import {
   ExternalLink,
   Plus,
   Leaf,
+  Download,
+  Package,
+  DollarSign,
+  Truck,
+  Award,
+  BarChart3,
 } from "lucide-react"
+import { DataSourceBadge } from "@/components/compliance/compliance-components"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ViewMode = "grid" | "list"
+
+type DataSource = "sap" | "oracle" | "netsuite" | "excel" | "csv" | "manual" | "api"
 
 type PipelineStage = 
   | "ingredient-need"
@@ -78,6 +88,7 @@ interface Supplier {
     pending: number
     invited: boolean
   }
+  dataSource?: DataSource
 }
 
 interface AgentActivity {
@@ -107,10 +118,10 @@ const suppliersData: Supplier[] = [
   { 
     id: "1", 
     name: "Journey Foods Test", 
-    location: "Unknown Location", 
+    location: "Austin, TX", 
     score: 72.73, 
     status: "Pending", 
-    lastUpdated: "Invalid Date", 
+    lastUpdated: "Mar 20, 2026", 
     ingredients: ["Blueberry", "Papaya", "hibiscus flow", "Mango", "Acai", "Spirulina", "Chlorella", "Matcha"], 
     phone: null, 
     email: "contact@journeyfoods.com", 
@@ -118,7 +129,8 @@ const suppliersData: Supplier[] = [
     certifications: ["USDA Organic", "Non-GMO"], 
     description: "A leading supplier of organic superfoods and functional ingredients.",
     pipelineStage: "email-sent",
-    agentStats: { emails: 2, quotes: 1, pending: 1, invited: false }
+    agentStats: { emails: 2, quotes: 1, pending: 1, invited: false },
+    dataSource: "sap"
   },
   { 
     id: "2", 
@@ -126,7 +138,7 @@ const suppliersData: Supplier[] = [
     location: "Unknown Location", 
     score: 90, 
     status: "Pending", 
-    lastUpdated: "Invalid Date", 
+    lastUpdated: "Mar 18, 2026", 
     ingredients: [], 
     phone: null, 
     email: "check@example.com", 
@@ -134,7 +146,8 @@ const suppliersData: Supplier[] = [
     certifications: [], 
     description: "New supplier pending verification.",
     pipelineStage: "ingredient-need",
-    agentStats: { emails: 0, quotes: 0, pending: 0, invited: false }
+    agentStats: { emails: 0, quotes: 0, pending: 0, invited: false },
+    dataSource: "manual"
   },
   { 
     id: "3", 
@@ -142,7 +155,7 @@ const suppliersData: Supplier[] = [
     location: "Unknown Location", 
     score: 90, 
     status: "Pending", 
-    lastUpdated: "Invalid Date", 
+    lastUpdated: "Mar 17, 2026", 
     ingredients: [], 
     phone: null, 
     email: "abhi@example.com", 
@@ -150,15 +163,16 @@ const suppliersData: Supplier[] = [
     certifications: [], 
     description: "New supplier pending verification.",
     pipelineStage: "supplier-match",
-    agentStats: { emails: 0, quotes: 0, pending: 1, invited: false }
+    agentStats: { emails: 0, quotes: 0, pending: 1, invited: false },
+    dataSource: "excel"
   },
   { 
     id: "4", 
     name: "LinkOne Ingredient Solutions", 
-    location: "Unknown Location", 
+    location: "Springfield, MO", 
     score: 24.24, 
     status: "Pending", 
-    lastUpdated: "Invalid Date", 
+    lastUpdated: "Mar 16, 2026", 
     ingredients: ["Oils", "Eggs", "Nuts", "Seeds", "Dairy"], 
     phone: "+1 417-236-9602", 
     email: "info@linkone.com", 
@@ -166,15 +180,16 @@ const suppliersData: Supplier[] = [
     certifications: ["FDA Approved", "GFSI"], 
     description: "Comprehensive ingredient solutions for food manufacturers.",
     pipelineStage: "quote-requested",
-    agentStats: { emails: 1, quotes: 1, pending: 1, invited: false }
+    agentStats: { emails: 1, quotes: 1, pending: 1, invited: false },
+    dataSource: "sap"
   },
   { 
     id: "5", 
     name: "Pharmore Ingredients Inc", 
-    location: "Unknown Location", 
+    location: "Salt Lake City, UT", 
     score: 90, 
     status: "Pending", 
-    lastUpdated: "Invalid Date", 
+    lastUpdated: "Mar 15, 2026", 
     ingredients: ["Chondroitin Sulfate Sodium", "Glucosamine HCl"], 
     phone: "+1 801-446-8188", 
     email: "sales@pharmore.com", 
@@ -182,12 +197,13 @@ const suppliersData: Supplier[] = [
     certifications: ["GMP Certified", "NSF"], 
     description: "Specialty ingredients for nutraceuticals and dietary supplements.",
     pipelineStage: "platform-invite",
-    agentStats: { emails: 3, quotes: 2, pending: 0, invited: true }
+    agentStats: { emails: 3, quotes: 2, pending: 0, invited: true },
+    dataSource: "oracle"
   },
   { 
     id: "6", 
     name: "HPS Food & Ingredients Inc.", 
-    location: "Unknown Location", 
+    location: "Boulder, CO", 
     score: 90, 
     status: "Connected", 
     lastUpdated: "Mar 15, 2026", 
@@ -198,7 +214,8 @@ const suppliersData: Supplier[] = [
     certifications: ["Organic", "Kosher", "Halal"], 
     description: "Premium hemp-based ingredients for food and beverage applications.",
     pipelineStage: "connected",
-    agentStats: { emails: 5, quotes: 3, pending: 0, invited: true }
+    agentStats: { emails: 5, quotes: 3, pending: 0, invited: true },
+    dataSource: "sap"
   },
 ]
 
@@ -937,6 +954,336 @@ function EmailOutreachModal({ supplier, onClose, onSend }: {
           >
             Cancel
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Supplier Full Page View ──────────────────────────────────────────────────
+
+function SupplierFullPageView({ 
+  supplier, 
+  onBack, 
+  onSendEmail 
+}: { 
+  supplier: Supplier
+  onBack: () => void
+  onSendEmail: (supplier: Supplier) => void
+}) {
+  const formatWhatsAppLink = (phone: string) => {
+    const cleaned = phone.replace(/[^0-9]/g, "")
+    return `https://wa.me/${cleaned}`
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Connected": return "bg-green-100 text-green-700 border-green-200"
+      case "Active": return "bg-blue-100 text-blue-700 border-blue-200"
+      case "Inactive": return "bg-slate-100 text-slate-500 border-slate-200"
+      default: return "bg-amber-100 text-amber-700 border-amber-200"
+    }
+  }
+
+  const pipelinePercentage = supplier.pipelineStage === "connected" ? 100
+    : supplier.pipelineStage === "platform-invite" ? 83
+    : supplier.pipelineStage === "quote-requested" ? 66
+    : supplier.pipelineStage === "email-sent" ? 50
+    : supplier.pipelineStage === "supplier-match" ? 33
+    : 16
+
+  // Mock data for products supplied
+  const productsSupplied = [
+    { id: "1", name: "Organic Protein Bar", status: "active" },
+    { id: "2", name: "Green Smoothie Mix", status: "active" },
+    { id: "3", name: "Matcha Energy Bites", status: "concept" },
+  ]
+
+  // Mock order history
+  const orderHistory = [
+    { id: "1", date: "Mar 15, 2026", amount: "$12,500", status: "completed" },
+    { id: "2", date: "Feb 28, 2026", amount: "$8,750", status: "completed" },
+    { id: "3", date: "Jan 20, 2026", amount: "$15,200", status: "completed" },
+  ]
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div className="px-6 py-4">
+          <button 
+            type="button" 
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Suppliers
+          </button>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 border border-amber-200 flex items-center justify-center">
+                <Box className="h-8 w-8 text-amber-600" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-slate-800">{supplier.name}</h1>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${getStatusColor(supplier.status)}`}>
+                    {supplier.status}
+                  </span>
+                  {supplier.dataSource && <DataSourceBadge source={supplier.dataSource} size="md" />}
+                </div>
+                <div className="flex items-center gap-4 mt-1">
+                  <span className="flex items-center gap-1 text-sm text-slate-500">
+                    <MapPin className="h-4 w-4" />
+                    {supplier.location}
+                  </span>
+                  <span className="text-sm text-slate-400">|</span>
+                  <span className="text-sm text-slate-500">Last updated {supplier.lastUpdated}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button type="button" className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <Download className="h-4 w-4 text-slate-500" />
+              </button>
+              <button type="button" className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <ExternalLink className="h-4 w-4 text-slate-500" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onSendEmail(supplier)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                Contact Supplier
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* About */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-3">About</h2>
+              <p className="text-sm text-slate-600 leading-relaxed">{supplier.description}</p>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                <div className="w-10 h-10 mx-auto rounded-lg bg-blue-100 flex items-center justify-center mb-3">
+                  <Award className="h-5 w-5 text-blue-600" />
+                </div>
+                <p className="text-2xl font-bold text-slate-800">{supplier.score.toFixed(0)}</p>
+                <p className="text-xs text-slate-500 mt-1">Quality Score</p>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                <div className="w-10 h-10 mx-auto rounded-lg bg-green-100 flex items-center justify-center mb-3">
+                  <Package className="h-5 w-5 text-green-600" />
+                </div>
+                <p className="text-2xl font-bold text-slate-800">{supplier.ingredients.length}</p>
+                <p className="text-xs text-slate-500 mt-1">Ingredients</p>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                <div className="w-10 h-10 mx-auto rounded-lg bg-amber-100 flex items-center justify-center mb-3">
+                  <Truck className="h-5 w-5 text-amber-600" />
+                </div>
+                <p className="text-2xl font-bold text-slate-800">{supplier.agentStats?.quotes || 0}</p>
+                <p className="text-xs text-slate-500 mt-1">Orders</p>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                <div className="w-10 h-10 mx-auto rounded-lg bg-violet-100 flex items-center justify-center mb-3">
+                  <BarChart3 className="h-5 w-5 text-violet-600" />
+                </div>
+                <p className="text-2xl font-bold text-slate-800">{pipelinePercentage}%</p>
+                <p className="text-xs text-slate-500 mt-1">Pipeline</p>
+              </div>
+            </div>
+
+            {/* Ingredients Supplied */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Ingredients Supplied</h2>
+              {supplier.ingredients.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {supplier.ingredients.map((ing, i) => (
+                    <span key={i} className="px-3 py-1.5 text-sm bg-blue-50 text-blue-700 rounded-full border border-blue-200 font-medium">
+                      {ing}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 italic">No ingredients listed</p>
+              )}
+            </div>
+
+            {/* Products Using This Supplier */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Products Using This Supplier</h2>
+              <div className="space-y-3">
+                {productsSupplied.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center">
+                        <Package className="h-4 w-4 text-slate-500" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700">{product.name}</span>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      product.status === "active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                    }`}>
+                      {product.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Order History */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Order History</h2>
+              <div className="space-y-3">
+                {orderHistory.map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">{order.date}</p>
+                        <p className="text-xs text-slate-400">Order #{order.id}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-slate-800">{order.amount}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
+            {/* Contact Information */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-800 mb-4">Contact Information</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                  <Mail className="h-4 w-4 text-slate-500" />
+                  <span className="text-sm text-slate-600">{supplier.email}</span>
+                </div>
+                {supplier.phone && (
+                  <a
+                    href={formatWhatsAppLink(supplier.phone)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-green-600" />
+                    <span className="text-sm text-green-700">{supplier.phone}</span>
+                    <MessageSquare className="h-4 w-4 text-green-500 ml-auto" />
+                  </a>
+                )}
+                {supplier.website && (
+                  <a
+                    href={`https://${supplier.website}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <Globe className="h-4 w-4 text-slate-500" />
+                    <span className="text-sm text-blue-600">{supplier.website}</span>
+                    <ExternalLink className="h-3 w-3 text-slate-400 ml-auto" />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Certifications */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-800 mb-4">Certifications</h3>
+              {supplier.certifications.length > 0 ? (
+                <div className="space-y-2">
+                  {supplier.certifications.map((cert, i) => (
+                    <div key={i} className="flex items-center gap-2 p-2 bg-green-50 rounded-lg">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span className="text-sm text-green-700 font-medium">{cert}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400 italic">No certifications listed</p>
+              )}
+            </div>
+
+            {/* Agent Activity Summary */}
+            {supplier.agentStats && (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-sm font-semibold text-slate-800">AI Agent Activity</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-slate-800">{supplier.agentStats.emails}</p>
+                    <p className="text-xs text-slate-500">Emails Sent</p>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <p className="text-xl font-bold text-slate-800">{supplier.agentStats.quotes}</p>
+                    <p className="text-xs text-slate-500">Quotes</p>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <p className={`text-xl font-bold ${supplier.agentStats.pending > 0 ? "text-amber-600" : "text-slate-800"}`}>
+                      {supplier.agentStats.pending}
+                    </p>
+                    <p className="text-xs text-slate-500">Pending</p>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center flex flex-col items-center justify-center">
+                    {supplier.agentStats.invited ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-slate-400" />
+                    )}
+                    <p className="text-xs text-slate-500 mt-1">
+                      {supplier.agentStats.invited ? "Invited" : "Not Invited"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="text-sm font-semibold text-slate-800 mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => onSendEmail(supplier)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Send className="h-4 w-4" />
+                  Send Email
+                </button>
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <FileText className="h-4 w-4" />
+                  Request Quote
+                </button>
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Schedule Call
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2015,12 +2362,14 @@ interface SuppliersPageProps {
 export function SuppliersPage({ isSupplierMode = false }: SuppliersPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
+  const [detailViewSupplier, setDetailViewSupplier] = useState<Supplier | null>(null)
   const [activitySupplier, setActivitySupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
   const handleConnect = (supplier: Supplier) => {
-    setSelectedSupplier(supplier)
+    // Open full page view when clicking Connect
+    setDetailViewSupplier(supplier)
   }
 
   const handleActivity = (supplier: Supplier) => {
@@ -2045,6 +2394,20 @@ export function SuppliersPage({ isSupplierMode = false }: SuppliersPageProps) {
   // Supplier Mode View
   if (isSupplierMode) {
     return <SupplierDashboard />
+  }
+
+  // Full Page Supplier Detail View
+  if (detailViewSupplier) {
+    return (
+      <SupplierFullPageView
+        supplier={detailViewSupplier}
+        onBack={() => setDetailViewSupplier(null)}
+        onSendEmail={(supplier) => {
+          setSelectedSupplier(supplier)
+          setShowEmailModal(true)
+        }}
+      />
+    )
   }
 
   // Manufacturer Mode View

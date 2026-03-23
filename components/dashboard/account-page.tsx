@@ -425,34 +425,121 @@ export function AccountPage() {
             )}
 
             {companyTab === "markets" && (
-              <div className="max-w-2xl">
-                <MarketsSelector
-                  selectedRegions={marketSelection.regions}
-                  selectedCountries={marketSelection.countries}
-                  onRegionToggle={(regionCode) => {
-                    setMarketSelection((prev) => ({
-                      ...prev,
-                      regions: prev.regions.includes(regionCode)
-                        ? prev.regions.filter((r) => r !== regionCode)
-                        : [...prev.regions, regionCode],
-                    }))
-                  }}
-                  onCountryToggle={(countryCode) => {
-                    setMarketSelection((prev) => ({
-                      ...prev,
-                      countries: prev.countries.includes(countryCode)
-                        ? prev.countries.filter((c) => c !== countryCode)
-                        : [...prev.countries, countryCode],
-                    }))
-                  }}
-                  onSelectAll={() => {
-                    setMarketSelection({
-                      regions: regions.map((r) => r.code),
-                      countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
-                    })
-                  }}
-                  onClearAll={() => setMarketSelection({ regions: [], countries: [] })}
-                />
+              <div className="max-w-3xl space-y-6">
+                {/* Summary of Operating Markets */}
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3">Your Operating Markets</h3>
+                  {marketSelection.regions.length === 0 && marketSelection.countries.length === 0 ? (
+                    <p className="text-sm text-slate-500 italic">No markets selected. Select regions or countries below.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Selected Regions */}
+                      {marketSelection.regions.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Regions ({marketSelection.regions.length})</p>
+                          <div className="flex flex-wrap gap-2">
+                            {marketSelection.regions.map((regionCode) => {
+                              const region = regions.find(r => r.code === regionCode)
+                              if (!region) return null
+                              return (
+                                <span key={regionCode} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
+                                  <span>{region.flag}</span>
+                                  {region.name}
+                                  <button
+                                    type="button"
+                                    onClick={() => setMarketSelection(prev => ({
+                                      ...prev,
+                                      regions: prev.regions.filter(r => r !== regionCode),
+                                      countries: prev.countries.filter(c => !region.countries.some(rc => rc.code === c)),
+                                    }))}
+                                    className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Selected Countries (not part of selected regions) */}
+                      {(() => {
+                        const countriesNotInSelectedRegions = marketSelection.countries.filter(countryCode => {
+                          const country = regions.flatMap(r => r.countries).find(c => c.code === countryCode)
+                          return country && !marketSelection.regions.includes(country.regionCode)
+                        })
+                        if (countriesNotInSelectedRegions.length === 0) return null
+                        return (
+                          <div>
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Individual Countries ({countriesNotInSelectedRegions.length})</p>
+                            <div className="flex flex-wrap gap-2">
+                              {countriesNotInSelectedRegions.map((countryCode) => {
+                                const country = regions.flatMap(r => r.countries).find(c => c.code === countryCode)
+                                if (!country) return null
+                                return (
+                                  <span key={countryCode} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-800 text-sm rounded-full font-medium">
+                                    <span>{country.flag}</span>
+                                    {country.name}
+                                    <button
+                                      type="button"
+                                      onClick={() => setMarketSelection(prev => ({
+                                        ...prev,
+                                        countries: prev.countries.filter(c => c !== countryCode),
+                                      }))}
+                                      className="ml-1 hover:bg-emerald-200 rounded-full p-0.5 transition-colors"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })()}
+                      
+                      {/* Total count */}
+                      <div className="pt-3 border-t border-slate-200">
+                        <p className="text-sm text-slate-600">
+                          Operating in <span className="font-semibold text-slate-800">{marketSelection.countries.length} countries</span> across <span className="font-semibold text-slate-800">{marketSelection.regions.length} regions</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Markets Selector */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3">Select Operating Markets</h3>
+                  <MarketsSelector
+                    selectedRegions={marketSelection.regions}
+                    selectedCountries={marketSelection.countries}
+                    onRegionToggle={(regionCode) => {
+                      setMarketSelection((prev) => ({
+                        ...prev,
+                        regions: prev.regions.includes(regionCode)
+                          ? prev.regions.filter((r) => r !== regionCode)
+                          : [...prev.regions, regionCode],
+                      }))
+                    }}
+                    onCountryToggle={(countryCode) => {
+                      setMarketSelection((prev) => ({
+                        ...prev,
+                        countries: prev.countries.includes(countryCode)
+                          ? prev.countries.filter((c) => c !== countryCode)
+                          : [...prev.countries, countryCode],
+                      }))
+                    }}
+                    onSelectAll={() => {
+                      setMarketSelection({
+                        regions: regions.map((r) => r.code),
+                        countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
+                      })
+                    }}
+                    onClearAll={() => setMarketSelection({ regions: [], countries: [] })}
+                  />
+                </div>
               </div>
             )}
 
