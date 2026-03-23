@@ -7,6 +7,8 @@ import {
   Sliders,
   CreditCard,
   ChevronDown,
+  ChevronRight,
+  ChevronUp,
   Upload,
   Shield,
   Search,
@@ -18,6 +20,8 @@ import {
   Bot,
   Check,
   Code2,
+  Globe,
+  AlertTriangle,
 } from "lucide-react"
 import { 
   type AIModel, 
@@ -27,10 +31,25 @@ import {
   ALL_MODELS 
 } from "./generate-tab"
 import { DeveloperPortalModal, DeveloperPortalCard } from "./developer-portal-modal"
+import {
+  GuardrailsToggle,
+  SeverityThresholdSelector,
+  MarketsSelector,
+  RegulatoryRuleCard,
+} from "@/components/compliance/compliance-components"
+import {
+  type RegulatoryGuardrails,
+  type MarketSelection,
+  type RuleSeverity,
+  defaultGuardrails,
+  defaultMarketSelection,
+  regulatoryRules,
+  regions,
+} from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings" | "developer"
+type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings" | "developer" | "regulatory" | "markets"
 type PreferenceTab = "product" | "ingredient" | "packaging" | "other"
 type CompanyTab = "brands" | "markets" | "company-type" | "users"
 type BillingTab = "invoices" | "subscription" | "billing-info" | "upgrade"
@@ -179,6 +198,11 @@ export function AccountPage() {
   const [selectedFilling, setSelectedFilling] = useState<string[]>(["Cold Fill"])
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>(["Glass"])
 
+  // Regulatory settings state
+  const [guardrails, setGuardrails] = useState<RegulatoryGuardrails>(defaultGuardrails)
+  const [marketSelection, setMarketSelection] = useState<MarketSelection>(defaultMarketSelection)
+  const [activeRuleIds, setActiveRuleIds] = useState<string[]>(regulatoryRules.map(r => r.id))
+
   const toggleSelection = (item: string, current: string[], setter: (v: string[]) => void) => {
     if (current.includes(item)) {
       setter(current.filter(i => i !== item))
@@ -191,6 +215,8 @@ export function AccountPage() {
     { id: "profile" as const, label: "Profile Settings", icon: User },
     { id: "company" as const, label: "Company Settings", icon: Building2 },
     { id: "preferences" as const, label: "Preferences", icon: Sliders },
+    { id: "regulatory" as const, label: "Regulatory Guardrails", icon: Shield },
+    { id: "markets" as const, label: "Target Markets", icon: Globe },
     { id: "ai-settings" as const, label: "AI Settings", icon: Bot },
     { id: "developer" as const, label: "Developer Portal", icon: Code2 },
     { id: "billing" as const, label: "Billing", icon: CreditCard },
@@ -229,6 +255,8 @@ export function AccountPage() {
           {activeSection === "profile" && "Profile Settings"}
           {activeSection === "company" && "Company Settings"}
           {activeSection === "preferences" && "Preferences"}
+          {activeSection === "regulatory" && "Regulatory Guardrails"}
+          {activeSection === "markets" && "Target Markets"}
           {activeSection === "ai-settings" && "AI Settings"}
           {activeSection === "developer" && "Developer Portal"}
           {activeSection === "billing" && "Billing"}
@@ -1002,6 +1030,232 @@ export function AccountPage() {
                   Configure Webhooks →
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Regulatory Guardrails ──────────────────────────────────────────── */}
+        {activeSection === "regulatory" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Compliance Settings</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Configure how regulatory compliance is enforced across your products and ingredients.
+              </p>
+            </div>
+
+            {/* Master Toggles */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">General Settings</h3>
+              
+              <GuardrailsToggle
+                label="Enable Regulatory Guardrails"
+                description="Automatically check products and ingredients against applicable regulations"
+                enabled={guardrails.enabled}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, enabled })}
+              />
+
+              <GuardrailsToggle
+                label="Auto-Block Non-Compliant Products"
+                description="Automatically prevent products with critical violations from being published"
+                enabled={guardrails.autoBlock}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, autoBlock: enabled })}
+              />
+
+              <GuardrailsToggle
+                label="Notify on Violations"
+                description="Send notifications when compliance issues are detected"
+                enabled={guardrails.notifyOnViolation}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, notifyOnViolation: enabled })}
+              />
+            </div>
+
+            {/* Severity Threshold */}
+            <div className="pt-4 border-t border-slate-200">
+              <SeverityThresholdSelector
+                value={guardrails.severityThreshold}
+                onChange={(value) => setGuardrails({ ...guardrails, severityThreshold: value })}
+              />
+            </div>
+
+            {/* Enabled Rule Sets */}
+            <div className="pt-4 border-t border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">Enabled Rule Sources</h3>
+              <div className="flex flex-wrap gap-2">
+                {["FDA", "EFSA", "FSANZ", "Health Canada", "UK FSA", "Codex"].map((source) => (
+                  <button
+                    key={source}
+                    type="button"
+                    onClick={() => {
+                      if (guardrails.enabledRuleSets.includes(source)) {
+                        setGuardrails({
+                          ...guardrails,
+                          enabledRuleSets: guardrails.enabledRuleSets.filter((s) => s !== source),
+                        })
+                      } else {
+                        setGuardrails({
+                          ...guardrails,
+                          enabledRuleSets: [...guardrails.enabledRuleSets, source],
+                        })
+                      }
+                    }}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                      guardrails.enabledRuleSets.includes(source)
+                        ? "bg-blue-50 border-blue-300 text-blue-700"
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    <span className={`inline-block w-3 h-3 rounded mr-2 ${
+                      guardrails.enabledRuleSets.includes(source) ? "bg-blue-500" : "bg-slate-300"
+                    }`} />
+                    {source}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Active Rules */}
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Active Regulatory Rules</h3>
+                <span className="text-xs text-slate-500">{activeRuleIds.length} of {regulatoryRules.length} active</span>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {regulatoryRules.map((rule) => (
+                  <RegulatoryRuleCard
+                    key={rule.id}
+                    rule={rule}
+                    isActive={activeRuleIds.includes(rule.id)}
+                    onToggle={(id, active) => {
+                      if (active) {
+                        setActiveRuleIds([...activeRuleIds, id])
+                      } else {
+                        setActiveRuleIds(activeRuleIds.filter((r) => r !== id))
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Guardrail Settings
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Target Markets ────────────────────────────────────────────────── */}
+        {activeSection === "markets" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Target Markets</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Select the regions and countries where your products will be sold. This determines which regulatory rules apply.
+              </p>
+            </div>
+
+            {/* Markets Selector */}
+            <MarketsSelector
+              selectedRegions={marketSelection.regions}
+              selectedCountries={marketSelection.countries}
+              onRegionToggle={(regionCode) => {
+                const region = regions.find((r) => r.code === regionCode)
+                if (!region) return
+                
+                if (marketSelection.regions.includes(regionCode)) {
+                  // Remove region and all its countries
+                  setMarketSelection({
+                    regions: marketSelection.regions.filter((r) => r !== regionCode),
+                    countries: marketSelection.countries.filter(
+                      (c) => !region.countries.some((rc) => rc.code === c)
+                    ),
+                  })
+                } else {
+                  // Add region and all its countries
+                  setMarketSelection({
+                    regions: [...marketSelection.regions, regionCode],
+                    countries: [
+                      ...marketSelection.countries,
+                      ...region.countries.map((c) => c.code).filter((c) => !marketSelection.countries.includes(c)),
+                    ],
+                  })
+                }
+              }}
+              onCountryToggle={(countryCode) => {
+                if (marketSelection.countries.includes(countryCode)) {
+                  setMarketSelection({
+                    ...marketSelection,
+                    countries: marketSelection.countries.filter((c) => c !== countryCode),
+                  })
+                } else {
+                  setMarketSelection({
+                    ...marketSelection,
+                    countries: [...marketSelection.countries, countryCode],
+                  })
+                }
+              }}
+              onSelectAll={() => {
+                setMarketSelection({
+                  regions: regions.map((r) => r.code),
+                  countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
+                })
+              }}
+              onClearAll={() => {
+                setMarketSelection({ regions: [], countries: [] })
+              }}
+            />
+
+            {/* Selected Summary */}
+            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">Selection Summary</h3>
+              <div className="flex items-center gap-6">
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{marketSelection.regions.length}</p>
+                  <p className="text-xs text-slate-500">Regions</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{marketSelection.countries.length}</p>
+                  <p className="text-xs text-slate-500">Countries</p>
+                </div>
+              </div>
+              {marketSelection.countries.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 mb-2">Applicable regulatory bodies:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {marketSelection.regions.includes("NA") && (
+                      <>
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">FDA</span>
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">Health Canada</span>
+                      </>
+                    )}
+                    {marketSelection.regions.includes("EU") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">EFSA</span>
+                    )}
+                    {marketSelection.regions.includes("UK") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">UK FSA</span>
+                    )}
+                    {marketSelection.regions.includes("APAC") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">FSANZ</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Market Selection
+              </button>
             </div>
           </div>
         )}

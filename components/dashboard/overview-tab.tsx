@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   Lightbulb,
   Plus,
@@ -15,8 +15,20 @@ import {
   Sparkles,
   Package,
   Clock,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react"
 import { DeveloperPortalModal, DeveloperPortalCard } from "./developer-portal-modal"
+import {
+  RegulatorySummaryModal,
+  ComplianceStatusBar,
+} from "@/components/compliance/compliance-components"
+import {
+  productComplianceData,
+  getAllComplianceIssues,
+  type ComplianceIssue,
+} from "@/lib/compliance-data"
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -99,8 +111,33 @@ interface OverviewTabProps {
 
 export function OverviewTab({ onNavigate, userName = "Riana" }: OverviewTabProps) {
   const [showDevPortal, setShowDevPortal] = useState(false)
+  const [showComplianceModal, setShowComplianceModal] = useState(false)
+  const [hasSeenComplianceModal, setHasSeenComplianceModal] = useState(false)
   const carouselRef = useRef<HTMLDivElement>(null)
   const recentRef = useRef<HTMLDivElement>(null)
+
+  // Calculate compliance stats from product data
+  const productStatuses = Object.values(productComplianceData)
+  const totalProducts = productStatuses.length
+  const compliantCount = productStatuses.filter(p => p.overallStatus === "compliant").length
+  const reviewNeededCount = productStatuses.filter(p => p.overallStatus === "review-needed").length
+  const blockedCount = productStatuses.filter(p => p.overallStatus === "blocked").length
+  const allIssues = getAllComplianceIssues()
+  
+  // Determine overall status
+  const hasIssues = blockedCount > 0 || reviewNeededCount > 0
+  const overallStatus = blockedCount > 0 ? "blocked" : reviewNeededCount > 0 ? "review-needed" : "compliant"
+
+  // Show modal on first load if there are issues
+  useEffect(() => {
+    if (hasIssues && !hasSeenComplianceModal) {
+      const timer = setTimeout(() => {
+        setShowComplianceModal(true)
+        setHasSeenComplianceModal(true)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [hasIssues, hasSeenComplianceModal])
 
   const scrollCarousel = (direction: "left" | "right", ref: React.RefObject<HTMLDivElement | null>) => {
     if (ref.current) {
@@ -115,6 +152,68 @@ export function OverviewTab({ onNavigate, userName = "Riana" }: OverviewTabProps
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">Welcome Back, {userName}</h1>
         <p className="text-sm text-slate-500 mt-1">Manage your offerings and track their usage.</p>
+      </div>
+
+      {/* Regulatory Compliance Status Bar */}
+      {hasIssues && (
+        <div className="mb-6">
+          <ComplianceStatusBar
+            status={overallStatus}
+            issueCount={allIssues.length}
+            onClick={() => setShowComplianceModal(true)}
+          />
+        </div>
+      )}
+
+      {/* Regulatory Compliance Card */}
+      <div className="mb-6">
+        <button
+          type="button"
+          onClick={() => setShowComplianceModal(true)}
+          className={`w-full bg-white rounded-xl border p-5 text-left hover:shadow-md transition-all group ${
+            hasIssues ? "border-amber-200" : "border-slate-200 hover:border-slate-300"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                hasIssues ? "bg-amber-100" : "bg-green-100"
+              }`}>
+                <Shield className={`h-6 w-6 ${hasIssues ? "text-amber-600" : "text-green-600"}`} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-800 mb-1">Regulatory Compliance</h3>
+                <p className="text-sm text-slate-500">
+                  {hasIssues
+                    ? `${allIssues.length} issue${allIssues.length !== 1 ? "s" : ""} require attention across ${reviewNeededCount + blockedCount} product${reviewNeededCount + blockedCount !== 1 ? "s" : ""}`
+                    : "All products are compliant with applicable regulations"
+                  }
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex gap-3 text-center">
+                <div className="px-3 py-1 bg-green-50 rounded-lg border border-green-200">
+                  <p className="text-lg font-bold text-green-700">{compliantCount}</p>
+                  <p className="text-xs text-green-600">Compliant</p>
+                </div>
+                {reviewNeededCount > 0 && (
+                  <div className="px-3 py-1 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-lg font-bold text-amber-700">{reviewNeededCount}</p>
+                    <p className="text-xs text-amber-600">Review</p>
+                  </div>
+                )}
+                {blockedCount > 0 && (
+                  <div className="px-3 py-1 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-lg font-bold text-red-700">{blockedCount}</p>
+                    <p className="text-xs text-red-600">Blocked</p>
+                  </div>
+                )}
+              </div>
+              <ArrowRight className="h-5 w-5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </button>
       </div>
 
       {/* Quick Action Cards */}
@@ -365,6 +464,21 @@ export function OverviewTab({ onNavigate, userName = "Riana" }: OverviewTabProps
       <DeveloperPortalModal
         isOpen={showDevPortal}
         onClose={() => setShowDevPortal(false)}
+      />
+
+      {/* Regulatory Summary Modal */}
+      <RegulatorySummaryModal
+        isOpen={showComplianceModal}
+        onClose={() => setShowComplianceModal(false)}
+        totalProducts={totalProducts}
+        compliantCount={compliantCount}
+        reviewNeededCount={reviewNeededCount}
+        blockedCount={blockedCount}
+        topIssues={allIssues}
+        onViewAllIssues={() => {
+          setShowComplianceModal(false)
+          onNavigate?.("notifications")
+        }}
       />
     </div>
   )

@@ -18,6 +18,8 @@ import {
   Clock,
   Settings,
   X,
+  Shield,
+  Sparkles,
 } from "lucide-react"
 import { 
   type Notification, 
@@ -25,6 +27,17 @@ import {
   type NotificationSeverity,
   notificationsData 
 } from "./top-nav"
+import {
+  ComplianceBadge,
+  SeverityBadge,
+  RegionTag,
+} from "@/components/compliance/compliance-components"
+import {
+  getAllComplianceIssues,
+  getComplianceStatusColor,
+  getSeverityColor,
+  type ComplianceIssue,
+} from "@/lib/compliance-data"
 
 // ─── Helper Functions ─────────────────────────────────────────────────────────
 
@@ -216,12 +229,20 @@ function NotificationCard({
 
 // ─── Main Notifications Page ──────────────────────────────────────────────────
 
+type MainTab = "all" | "compliance"
+
 export function NotificationsPage() {
+  const [mainTab, setMainTab] = useState<MainTab>("all")
   const [notifications, setNotifications] = useState<Notification[]>(notificationsData)
   const [search, setSearch] = useState("")
   const [typeFilter, setTypeFilter] = useState<FilterType>("all")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  // Get compliance issues
+  const complianceIssues = getAllComplianceIssues()
+  const criticalComplianceCount = complianceIssues.filter(i => i.severity === "critical").length
+  const warningComplianceCount = complianceIssues.filter(i => i.severity === "warning").length
 
   // Filter notifications
   const filtered = notifications.filter((n) => {
@@ -307,7 +328,48 @@ export function NotificationsPage() {
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Main Tabs */}
+      <div className="flex gap-2 border-b border-slate-200">
+        <button
+          type="button"
+          onClick={() => setMainTab("all")}
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            mainTab === "all"
+              ? "border-slate-800 text-slate-800"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          <Bell className="h-4 w-4" />
+          All Notifications
+          {unreadCount > 0 && (
+            <span className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full">{unreadCount}</span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMainTab("compliance")}
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            mainTab === "compliance"
+              ? "border-slate-800 text-slate-800"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          <Shield className="h-4 w-4" />
+          Compliance
+          {complianceIssues.length > 0 && (
+            <span className={`px-1.5 py-0.5 text-xs rounded-full ${
+              criticalComplianceCount > 0 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+            }`}>
+              {complianceIssues.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* All Notifications Tab */}
+      {mainTab === "all" && (
+        <>
+          {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 p-4">
           <div className="flex items-center gap-3">
@@ -493,6 +555,177 @@ export function NotificationsPage() {
           </div>
         )}
       </div>
+        </>
+      )}
+
+      {/* Compliance Tab */}
+      {mainTab === "compliance" && (
+        <div className="space-y-6">
+          {/* Compliance Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{criticalComplianceCount}</p>
+                  <p className="text-xs text-slate-500">Critical Issues</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{warningComplianceCount}</p>
+                  <p className="text-xs text-slate-500">Warnings</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Shield className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{complianceIssues.length}</p>
+                  <p className="text-xs text-slate-500">Total Issues</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Issues List Grouped by Severity */}
+          {complianceIssues.length > 0 ? (
+            <div className="space-y-4">
+              {/* Critical Issues */}
+              {criticalComplianceCount > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-red-700 flex items-center gap-2 mb-3">
+                    <AlertTriangle className="h-4 w-4" />
+                    Critical Issues ({criticalComplianceCount})
+                  </h3>
+                  <div className="space-y-3">
+                    {complianceIssues.filter(i => i.severity === "critical").map((issue) => (
+                      <ComplianceIssueNotificationCard key={issue.id} issue={issue} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Warning Issues */}
+              {warningComplianceCount > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-amber-700 flex items-center gap-2 mb-3">
+                    <AlertTriangle className="h-4 w-4" />
+                    Warnings ({warningComplianceCount})
+                  </h3>
+                  <div className="space-y-3">
+                    {complianceIssues.filter(i => i.severity === "warning").map((issue) => (
+                      <ComplianceIssueNotificationCard key={issue.id} issue={issue} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Info Issues */}
+              {complianceIssues.filter(i => i.severity === "info").length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-blue-700 flex items-center gap-2 mb-3">
+                    <Shield className="h-4 w-4" />
+                    Informational ({complianceIssues.filter(i => i.severity === "info").length})
+                  </h3>
+                  <div className="space-y-3">
+                    {complianceIssues.filter(i => i.severity === "info").map((issue) => (
+                      <ComplianceIssueNotificationCard key={issue.id} issue={issue} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-slate-200">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-700">All Clear</h3>
+              <p className="text-sm text-slate-500 mt-1">
+                No regulatory compliance issues detected
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Compliance Issue Notification Card ───────────────────────────────────────
+
+function ComplianceIssueNotificationCard({ issue }: { issue: ComplianceIssue }) {
+  const [showFix, setShowFix] = useState(false)
+  const severityColors = getSeverityColor(issue.severity)
+  const statusColors = getComplianceStatusColor(issue.status)
+
+  return (
+    <div className={`p-4 rounded-xl border ${severityColors.border} ${severityColors.bg}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <SeverityBadge severity={issue.severity} size="sm" />
+            <span className="text-xs text-slate-500">{issue.source}</span>
+            <RegionTag regionCode={issue.region} size="sm" />
+            <ComplianceBadge status={issue.status} size="sm" />
+          </div>
+          <h4 className="font-medium text-slate-800 mt-2">{issue.ruleName}</h4>
+          <p className="text-sm text-slate-600 mt-1">{issue.description}</p>
+
+          {(issue.currentValue || issue.allowedValue) && (
+            <div className="flex items-center gap-4 mt-3 text-sm">
+              {issue.currentValue && (
+                <div>
+                  <span className="text-slate-500">Current: </span>
+                  <span className="font-medium text-red-600">{issue.currentValue}</span>
+                </div>
+              )}
+              {issue.allowedValue && (
+                <div>
+                  <span className="text-slate-500">Allowed: </span>
+                  <span className="font-medium text-green-600">{issue.allowedValue}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 mt-3 text-xs text-slate-500">
+            <span>Affected: {issue.affectedItem}</span>
+            <span>|</span>
+            <span>Detected: {new Date(issue.detectedAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      {issue.aiFix && (
+        <div className="mt-3 pt-3 border-t border-slate-200/50">
+          <button
+            type="button"
+            onClick={() => setShowFix(!showFix)}
+            className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+          >
+            <Sparkles className="h-4 w-4" />
+            AI Suggested Fix
+            <ChevronRight className={`h-4 w-4 transition-transform ${showFix ? "rotate-90" : ""}`} />
+          </button>
+          {showFix && (
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+              {issue.aiFix}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

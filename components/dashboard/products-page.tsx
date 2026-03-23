@@ -41,7 +41,20 @@ import {
   Users,
   Factory,
   Clock,
+  Shield,
 } from "lucide-react"
+import {
+  ComplianceBadge,
+  ComplianceSummaryRow,
+  ComplianceIssueCard,
+  RegionTag,
+} from "@/components/compliance/compliance-components"
+import {
+  productComplianceData,
+  type ProductComplianceStatus,
+  type ComplianceStatus,
+  getComplianceStatusColor,
+} from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -699,12 +712,23 @@ function EditProductPanel({ product, onClose, isNew = false }: { product?: Produ
 // ─── Product Detail View ──────────────────────────────────────────────────────
 
 function ProductDetailView({ product, onClose, onEdit }: { product: Product; onClose: () => void; onEdit: () => void }) {
-  const [activeTab, setActiveTab] = useState<"current" | "nutrition" | "label" | "packaging">("current")
+  const [activeTab, setActiveTab] = useState<"current" | "nutrition" | "label" | "packaging" | "compliance">("current")
   const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const [showComplianceDetails, setShowComplianceDetails] = useState(false)
+
+  // Get compliance data for this product
+  const complianceStatus: ProductComplianceStatus = productComplianceData[product.id] || {
+    productId: product.id,
+    overallStatus: "pending" as ComplianceStatus,
+    regions: ["NA"],
+    issues: [],
+    lastChecked: new Date().toISOString(),
+  }
 
   const tabs = [
     { id: "current", label: "Current Version" },
     { id: "nutrition", label: "Nutrition" },
+    { id: "compliance", label: "Compliance" },
     { id: "label", label: "Generate Label", isAction: true },
     { id: "packaging", label: "Matched Packaging" },
   ] as const
@@ -815,6 +839,14 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
             )}
           </div>
 
+          {/* Regulatory Compliance Summary */}
+          <ComplianceSummaryRow
+            status={complianceStatus.overallStatus}
+            regions={complianceStatus.regions}
+            issueCount={complianceStatus.issues.length}
+            onViewDetails={() => setActiveTab("compliance")}
+          />
+
           {/* Attributes Row */}
           <div className="bg-white rounded-xl border border-slate-200 p-5">
             <div className="grid grid-cols-5 gap-4 text-center">
@@ -878,74 +910,148 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
               </div>
             </div>
 
-            {/* Version Table */}
+            {/* Tab Content */}
             <div className="p-4">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-xs text-slate-500">
-                    <th className="text-left py-2 font-medium">Current version</th>
-                    <th className="text-center py-2 font-medium">—</th>
-                    <th className="text-center py-2 font-medium">—</th>
-                    <th className="text-center py-2 font-medium">—</th>
-                    <th className="text-center py-2 font-medium">—</th>
-                    <th className="text-center py-2 font-medium">—</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {versionHistory.map((v) => (
-                    <tr key={v.id} className="border-t border-slate-100">
-                      <td className="py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
-                            <span className="text-white text-[10px]">{v.id}</span>
-                          </div>
-                          <span className="text-xs text-slate-400">⚡</span>
-                          <span className="text-sm text-slate-600">{v.date}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
-                          Nutrition
-                        </span>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
-                          Supply Chain
-                        </span>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
-                          Cost
-                        </span>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
-                          Sustainability
-                        </span>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
-                          Popularity
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {/* Current Version / Nutrition / Packaging Tab */}
+              {(activeTab === "current" || activeTab === "nutrition" || activeTab === "packaging" || activeTab === "label") && (
+                <>
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-xs text-slate-500">
+                        <th className="text-left py-2 font-medium">Current version</th>
+                        <th className="text-center py-2 font-medium">-</th>
+                        <th className="text-center py-2 font-medium">-</th>
+                        <th className="text-center py-2 font-medium">-</th>
+                        <th className="text-center py-2 font-medium">-</th>
+                        <th className="text-center py-2 font-medium">-</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {versionHistory.map((v) => (
+                        <tr key={v.id} className="border-t border-slate-100">
+                          <td className="py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                                <span className="text-white text-[10px]">{v.id}</span>
+                              </div>
+                              <span className="text-xs text-slate-400">*</span>
+                              <span className="text-sm text-slate-600">{v.date}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
+                              Nutrition
+                            </span>
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
+                              Supply Chain
+                            </span>
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
+                              Cost
+                            </span>
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
+                              Sustainability
+                            </span>
+                          </td>
+                          <td className="py-3 text-center">
+                            <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-full">
+                              Popularity
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
 
-              {/* Version History Toggle */}
-              <button
-                type="button"
-                onClick={() => setShowVersionHistory(!showVersionHistory)}
-                className="flex items-center gap-2 mt-4 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                Version History
-                {showVersionHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </button>
+                  {/* Version History Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setShowVersionHistory(!showVersionHistory)}
+                    className="flex items-center gap-2 mt-4 px-4 py-2 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    Version History
+                    {showVersionHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
 
-              {showVersionHistory && (
-                <div className="mt-3 p-4 bg-slate-50 rounded-lg">
-                  <p className="text-sm text-slate-500">No previous versions available</p>
+                  {showVersionHistory && (
+                    <div className="mt-3 p-4 bg-slate-50 rounded-lg">
+                      <p className="text-sm text-slate-500">No previous versions available</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Compliance Tab */}
+              {activeTab === "compliance" && (
+                <div className="space-y-4">
+                  {/* Status Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Shield className={`h-5 w-5 ${getComplianceStatusColor(complianceStatus.overallStatus).text}`} />
+                      <h3 className="font-semibold text-slate-800">Regulatory Compliance</h3>
+                      <ComplianceBadge status={complianceStatus.overallStatus} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {complianceStatus.regions.map((r) => (
+                        <RegionTag key={r} regionCode={r} size="sm" />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Last Checked */}
+                  <p className="text-xs text-slate-500">
+                    Last checked: {new Date(complianceStatus.lastChecked).toLocaleDateString()} at {new Date(complianceStatus.lastChecked).toLocaleTimeString()}
+                  </p>
+
+                  {/* Issues List */}
+                  {complianceStatus.issues.length > 0 ? (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-medium text-slate-700">
+                        {complianceStatus.issues.length} Issue{complianceStatus.issues.length !== 1 ? "s" : ""} Found
+                      </h4>
+                      {complianceStatus.issues.map((issue) => (
+                        <ComplianceIssueCard key={issue.id} issue={issue} showAiFix={true} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                        <Shield className="h-6 w-6 text-green-600" />
+                      </div>
+                      <h4 className="font-medium text-slate-800">All Clear</h4>
+                      <p className="text-sm text-slate-500 mt-1">
+                        No regulatory compliance issues detected for this product.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Applicable Regulations */}
+                  <div className="mt-6 pt-4 border-t border-slate-200">
+                    <h4 className="text-sm font-medium text-slate-700 mb-3">Applicable Regulations</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-xs font-medium text-slate-600">FDA Food Labeling</span>
+                        <span className="text-xs text-slate-400">21 CFR</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-xs font-medium text-slate-600">EFSA Standards</span>
+                        <span className="text-xs text-slate-400">EU 1169/2011</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-xs font-medium text-slate-600">Health Canada</span>
+                        <span className="text-xs text-slate-400">Food & Drugs Act</span>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-xs font-medium text-slate-600">FSANZ Code</span>
+                        <span className="text-xs text-slate-400">Standard 1.2.7</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

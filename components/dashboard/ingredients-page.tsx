@@ -36,7 +36,21 @@ import {
   Apple,
   Droplets,
   Globe,
+  Shield,
+  CheckCircle,
 } from "lucide-react"
+import {
+  ComplianceBadge,
+  RegionTag,
+  SeverityBadge,
+} from "@/components/compliance/compliance-components"
+import {
+  ingredientComplianceData,
+  type IngredientComplianceStatus,
+  type ComplianceStatus,
+  getComplianceStatusColor,
+  getRegionByCode,
+} from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -227,8 +241,17 @@ function IngredientFullPageView({ ingredient, onBack }: { ingredient: Ingredient
   const [nutritionExpanded, setNutritionExpanded] = useState(true)
   const [sustainabilityExpanded, setSustainabilityExpanded] = useState(false)
   const [costExpanded, setCostExpanded] = useState(false)
+  const [regulatoryExpanded, setRegulatoryExpanded] = useState(false)
   
   const nutritionData = nutritionDataMap[ingredient.id] || nutritionDataMap["1"]
+
+  // Get compliance data for this ingredient
+  const complianceStatus: IngredientComplianceStatus = ingredientComplianceData[ingredient.id] || {
+    ingredientId: ingredient.id,
+    overallStatus: "pending" as ComplianceStatus,
+    regionStatuses: [{ regionCode: "NA", status: "pending" as ComplianceStatus, issues: [] }],
+    lastChecked: new Date().toISOString(),
+  }
 
   const countries = [
     { code: "US", name: "United States", flag: "🇺🇸" },
@@ -639,6 +662,93 @@ function IngredientFullPageView({ ingredient, onBack }: { ingredient: Ingredient
                     <p className="text-xs text-slate-500 mt-1">Origin: {ingredient.origin}</p>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Regulatory compliance accordion */}
+          <div className={`border rounded-xl overflow-hidden ${getComplianceStatusColor(complianceStatus.overallStatus).border}`}>
+            <button
+              type="button"
+              onClick={() => setRegulatoryExpanded(!regulatoryExpanded)}
+              className={`w-full flex items-center justify-between p-4 ${getComplianceStatusColor(complianceStatus.overallStatus).bg} hover:brightness-95 transition-colors`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${complianceStatus.overallStatus === "compliant" ? "bg-green-100" : complianceStatus.overallStatus === "review-needed" ? "bg-amber-100" : complianceStatus.overallStatus === "blocked" ? "bg-red-100" : "bg-slate-100"}`}>
+                  <Shield className={`h-5 w-5 ${complianceStatus.overallStatus === "compliant" ? "text-green-500" : complianceStatus.overallStatus === "review-needed" ? "text-amber-500" : complianceStatus.overallStatus === "blocked" ? "text-red-500" : "text-slate-500"}`} />
+                </div>
+                <span className="font-semibold text-slate-800">Regulatory compliance</span>
+                <ComplianceBadge status={complianceStatus.overallStatus} size="sm" />
+              </div>
+              {regulatoryExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+            {regulatoryExpanded && (
+              <div className="p-4 border-t border-slate-200 bg-white">
+                {/* Region compliance grid */}
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status by Region</p>
+                  {complianceStatus.regionStatuses.map((regionStatus) => {
+                    const region = getRegionByCode(regionStatus.regionCode)
+                    const statusColors = getComplianceStatusColor(regionStatus.status)
+                    return (
+                      <div key={regionStatus.regionCode} className={`flex items-center justify-between p-3 rounded-lg border ${statusColors.border} ${statusColors.bg}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{region?.flag}</span>
+                          <span className="text-sm font-medium text-slate-700">{region?.name || regionStatus.regionCode}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ComplianceBadge status={regionStatus.status} size="sm" />
+                          {regionStatus.issues.length > 0 && (
+                            <span className="text-xs text-slate-500">({regionStatus.issues.length} issue{regionStatus.issues.length !== 1 ? "s" : ""})</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Issues if any */}
+                {complianceStatus.regionStatuses.some(rs => rs.issues.length > 0) && (
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Issues Detected</p>
+                    <div className="space-y-2">
+                      {complianceStatus.regionStatuses.flatMap(rs => rs.issues).map((issue) => (
+                        <div key={issue.id} className={`p-3 rounded-lg border ${getComplianceStatusColor(issue.status).border} ${getComplianceStatusColor(issue.status).bg}`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-slate-800">{issue.ruleName}</span>
+                            <SeverityBadge severity={issue.severity} size="sm" />
+                          </div>
+                          <p className="text-xs text-slate-600">{issue.description}</p>
+                          {issue.aiFix && (
+                            <div className="mt-2 pt-2 border-t border-slate-200/50">
+                              <p className="text-xs text-blue-600 flex items-center gap-1">
+                                <Zap className="h-3 w-3" />
+                                AI Fix: {issue.aiFix}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* All clear message if no issues */}
+                {complianceStatus.overallStatus === "compliant" && (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    No regulatory issues detected for this ingredient.
+                  </div>
+                )}
+
+                {/* Last checked */}
+                <p className="mt-4 text-xs text-slate-400">
+                  Last checked: {new Date(complianceStatus.lastChecked).toLocaleDateString()}
+                </p>
               </div>
             )}
           </div>
