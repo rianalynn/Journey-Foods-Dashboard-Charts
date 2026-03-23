@@ -48,6 +48,7 @@ import { PackagingPage } from "@/components/dashboard/packaging-page"
 import { AccountPage } from "@/components/dashboard/account-page"
 import { IngredientsPage } from "@/components/dashboard/ingredients-page"
 import { ProductsPage } from "@/components/dashboard/products-page"
+import { NotificationsPage } from "@/components/dashboard/notifications-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1120,10 +1121,13 @@ export default function DashboardPage() {
         {/* ── Guava Page ───────────────────────────────────────── */}
         {activePage === "guava" && <GuavaPage />}
 
-        {/* ── Account Page ─────────────────────────────────────── */}
-        {activePage === "account" && <AccountPage />}
+{/* ── Account Page ─────────────────────────────────────── */}
+  {activePage === "account" && <AccountPage />}
 
-        {/* ── Generate Tab ─────────────────────────────────────── */}
+  {/* ── Notifications Page ─────────────────────────────────────── */}
+  {activePage === "notifications" && <NotificationsPage />}
+  
+  {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
         {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
