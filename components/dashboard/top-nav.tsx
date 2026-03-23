@@ -17,9 +17,10 @@ import {
   Check,
   LogOut,
   BookOpen,
+  Tv,
 } from "lucide-react"
 
-export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub"
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations" | "guava"
 
 const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
   { name: "Overview", id: "overview", icon: Home },
@@ -234,19 +235,45 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
           })}
 
         <div className="ml-auto flex items-center gap-1 pl-4 border-l border-slate-100 shrink-0">
-          {supportNav.map((item) => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.name}
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-slate-400 hover:text-slate-600 whitespace-nowrap transition-colors border-b-2 border-transparent"
-              >
-                <Icon className="h-4 w-4" />
-                {item.name}
-              </button>
-            )
-          })}
+          {/* Analytics - clickable */}
+          <button
+            type="button"
+            onClick={() => onNavigate("analytics")}
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              activePage === "analytics"
+                ? "border-slate-800 text-slate-900"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </button>
+          {/* Integrations - clickable */}
+          <button
+            type="button"
+            onClick={() => onNavigate("integrations")}
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              activePage === "integrations"
+                ? "border-slate-800 text-slate-900"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <Link2 className="h-4 w-4" />
+            Integrations
+          </button>
+          {/* Guava - clickable */}
+          <button
+            type="button"
+            onClick={() => onNavigate("guava")}
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              activePage === "guava"
+                ? "border-slate-800 text-slate-900"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <Tv className="h-4 w-4" />
+            Guava
+          </button>
         </div>
       </nav>
     </header>
