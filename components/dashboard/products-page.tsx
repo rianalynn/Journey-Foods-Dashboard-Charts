@@ -100,124 +100,165 @@ interface ProductVersion {
 
 const productsData: Product[] = [
   {
-    id: "1", name: "Sauce, whole berry cranberry", brand: "Giant Eagle", company: "ss", category: "Food", subCategory: "Condiments", type: "Retail",
-    status: "active", nutritionScore: 60, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America", "Europe"],
-    ingredients: [
-      { name: "potatoes", percentage: 65 },
-      { name: "Peanut Oil", percentage: 20 },
-      { name: "sugar", percentage: 5 },
-      { name: "FRUCTOSE", percentage: 3 },
-      { name: "molasses", percentage: 2 },
-    ],
-    ingredientCount: 8, upc: "0003003406461", sku: "0003003406461",
-    trend: "up", trendValue: 6.4, starred: false, tags: ["Retail"],
-    lastUpdated: "Tue Jan 13 2026", createdBy: "Huy Lee", dateCreated: "10/28/2025", fulfilmentDate: "",
-    servingSize: "28", servingUnit: "g", calories: 220, version: 1, flavor: "N/A", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "2", name: "Egg Salad", brand: "Giant Eagle", company: "ss", category: "Food", subCategory: "Deli", type: "Retail",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "Eggs", percentage: 45 },
-      { name: "Mayonnaise", percentage: 30 },
-      { name: "Celery", percentage: 10 },
-    ],
-    ingredientCount: 6, upc: "012345678902", sku: "GE-EGG-SAL-001",
-    trend: "stable", trendValue: 0, starred: false, tags: ["Retail"],
-    lastUpdated: "Mon Jan 12 2026", createdBy: "Huy Lee", dateCreated: "10/15/2025", fulfilmentDate: "",
-    servingSize: "100", servingUnit: "g", calories: 280, version: 1, flavor: "-", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "3", name: "Jasmine White Rice", brand: "Giant Eagle", company: "ss", category: "Food", subCategory: "Grains", type: "Retail",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "Jasmine Rice", percentage: 100 },
-    ],
-    ingredientCount: 1, upc: "012345678903", sku: "GE-RIC-JAS-001",
-    trend: "up", trendValue: 2.1, starred: false, tags: ["Retail"],
-    lastUpdated: "Sun Jan 11 2026", createdBy: "Huy Lee", dateCreated: "10/10/2025", fulfilmentDate: "",
-    servingSize: "45", servingUnit: "g", calories: 160, version: 1, flavor: "-", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "4", name: "Maraschino Cherries With Stems", brand: "Giant Eagle", company: "ss", category: "Food", subCategory: "Fruit", type: "Retail",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "Cherries", percentage: 70 },
-      { name: "Sugar Syrup", percentage: 30 },
-    ],
-    ingredientCount: 4, upc: "012345678904", sku: "GE-CHR-MAR-001",
-    trend: "stable", trendValue: 0, starred: false, tags: ["Retail"],
-    lastUpdated: "Sat Jan 10 2026", createdBy: "Huy Lee", dateCreated: "10/05/2025", fulfilmentDate: "",
-    servingSize: "30", servingUnit: "g", calories: 90, version: 1, flavor: "-", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "5", name: "Pasta sauce, vodka", brand: "Market District", company: "ss", category: "Food", subCategory: "Sauces", type: "Retail",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "Tomatoes", percentage: 50 },
-      { name: "Cream", percentage: 20 },
-      { name: "Vodka", percentage: 5 },
-    ],
-    ingredientCount: 8, upc: "012345678905", sku: "MD-SAU-VOD-001",
-    trend: "up", trendValue: 4.2, starred: false, tags: ["Retail"],
-    lastUpdated: "Fri Jan 09 2026", createdBy: "Huy Lee", dateCreated: "10/01/2025", fulfilmentDate: "",
-    servingSize: "125", servingUnit: "g", calories: 140, version: 1, flavor: "-", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "6", name: "Jimmy Chips", brand: "Jimmy John's", company: "ss", category: "Food", subCategory: "Snacks", type: "Retail",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costScore: 0, overallScore: 50,
-    price: 0, retailCost: 0, profitMargin: 0, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "potatoes", percentage: 65 },
-      { name: "Peanut Oil", percentage: 20 },
-      { name: "sugar", percentage: 5 },
-      { name: "FRUCTOSE", percentage: 3 },
-      { name: "molasses", percentage: 2 },
-    ],
-    ingredientCount: 8, upc: "37578800800", sku: "37578800800",
-    trend: "up", trendValue: 8.9, starred: false, tags: ["Retail"],
-    lastUpdated: "Thu Jan 22 2026", createdBy: "Đỗ Dương", dateCreated: "2024-02-22", fulfilmentDate: "2026-03-23",
-    servingSize: "28", servingUnit: "g", calories: 150, version: 1, flavor: "N/A", manufacturer: "ss",
-    objectives: [], countryFlag: "🇺🇸",
-  },
-  {
-    id: "7", name: "Ice cream, vanilla", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Frozen", type: "Concept",
-    status: "concept", nutritionScore: 65, sustainabilityScore: 70, costScore: 75, overallScore: 70,
-    price: 5.99, retailCost: 7.99, profitMargin: 25, currency: "USD", market: ["North America"],
-    ingredients: [
-      { name: "Milk", percentage: 40 },
-      { name: "Cream", percentage: 30 },
-      { name: "Sugar", percentage: 15 },
-      { name: "Vanilla Extract", percentage: 2 },
-    ],
-    ingredientCount: 6, upc: "", sku: "JF-ICE-VAN-001",
-    trend: "stable", trendValue: 0, starred: false, tags: ["Concept"],
-    lastUpdated: "Wed Jan 08 2026", createdBy: "Huy Lee", dateCreated: "09/15/2025", fulfilmentDate: "",
-    servingSize: "100", servingUnit: "g", calories: 207, version: 1, flavor: "Vanilla", manufacturer: "JourneyFoods",
-    objectives: ["Low Sugar", "Premium Quality"], countryFlag: "🇺🇸",
-  },
-  {
-    id: "8", name: "Organic Rotini Pasta", brand: "Whole Foods", company: "WF", category: "Food", subCategory: "Pasta", type: "Retail",
-    status: "active", nutritionScore: 72, sustainabilityScore: 85, costScore: 68, overallScore: 75,
+    id: "1", name: "Organic Protein Bar — Chocolate Fudge", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Bars", type: "Retail",
+    status: "active", nutritionScore: 91, sustainabilityScore: 88, costScore: 79, overallScore: 88,
     price: 3.49, retailCost: 4.99, profitMargin: 30, currency: "USD", market: ["North America", "Europe"],
     ingredients: [
-      { name: "Organic Durum Wheat", percentage: 100 },
+      { name: "Organic Pea Protein", percentage: 35 },
+      { name: "Dark Chocolate", percentage: 25 },
+      { name: "Almonds", percentage: 15 },
+      { name: "Dates", percentage: 12 },
+      { name: "Cocoa Butter", percentage: 8 },
     ],
-    ingredientCount: 1, upc: "012345678908", sku: "WF-PAS-ROT-001",
-    trend: "up", trendValue: 3.5, starred: true, tags: ["Organic", "Retail"],
+    ingredientCount: 8, upc: "0003003406461", sku: "JF-PRO-CHO-001",
+    trend: "up", trendValue: 6.4, starred: true, tags: ["Vegan", "Gluten-Free", "Non-GMO"],
+    lastUpdated: "Tue Jan 13 2026", createdBy: "Huy Lee", dateCreated: "10/28/2025", fulfilmentDate: "",
+    servingSize: "60", servingUnit: "g", calories: 220, version: 1, flavor: "Chocolate Fudge", manufacturer: "JourneyFoods",
+    objectives: ["High Protein", "Clean Label"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "2", name: "Green Smoothie Mix", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Powders", type: "Retail",
+    status: "active", nutritionScore: 94, sustainabilityScore: 91, costScore: 83, overallScore: 91,
+    price: 29.99, retailCost: 39.99, profitMargin: 25, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Organic Spinach Powder", percentage: 30 },
+      { name: "Organic Kale Powder", percentage: 25 },
+      { name: "Pea Protein", percentage: 20 },
+      { name: "Spirulina", percentage: 10 },
+    ],
+    ingredientCount: 8, upc: "012345678902", sku: "JF-SMO-GRN-001",
+    trend: "up", trendValue: 12.1, starred: true, tags: ["Vegan", "Keto-Friendly", "High Protein"],
+    lastUpdated: "Mon Jan 12 2026", createdBy: "Huy Lee", dateCreated: "10/15/2025", fulfilmentDate: "",
+    servingSize: "30", servingUnit: "g", calories: 110, version: 1, flavor: "Natural Green", manufacturer: "JourneyFoods",
+    objectives: ["Superfood Blend"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "3", name: "Turmeric Ginger Latte Blend", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Latte Mix", type: "Concept",
+    status: "concept", nutritionScore: 86, sustainabilityScore: 80, costScore: 74, overallScore: 82,
+    price: 24.99, retailCost: 32.99, profitMargin: 24, currency: "USD", market: ["North America", "Europe"],
+    ingredients: [
+      { name: "Organic Turmeric", percentage: 35 },
+      { name: "Ginger Root Extract", percentage: 20 },
+      { name: "Coconut Milk Powder", percentage: 25 },
+      { name: "Black Pepper", percentage: 2 },
+    ],
+    ingredientCount: 6, upc: "", sku: "JF-LAT-TUR-001",
+    trend: "stable", trendValue: 0, starred: false, tags: ["Anti-Inflammatory", "Vegan", "Adaptogenic"],
+    alert: "Pending regulatory review for EU market",
+    lastUpdated: "Sun Jan 11 2026", createdBy: "Huy Lee", dateCreated: "10/10/2025", fulfilmentDate: "",
+    servingSize: "15", servingUnit: "g", calories: 60, version: 1, flavor: "Golden Spice", manufacturer: "JourneyFoods",
+    objectives: ["Wellness", "Functional"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "4", name: "Recovery Electrolyte Drink", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Electrolytes", type: "Retail",
+    status: "active", nutritionScore: 88, sustainabilityScore: 85, costScore: 91, overallScore: 88,
+    price: 2.99, retailCost: 3.99, profitMargin: 25, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Coconut Water Powder", percentage: 40 },
+      { name: "Magnesium Citrate", percentage: 15 },
+      { name: "Potassium Chloride", percentage: 10 },
+      { name: "Pink Himalayan Salt", percentage: 5 },
+    ],
+    ingredientCount: 7, upc: "012345678904", sku: "JF-ELE-REC-001",
+    trend: "up", trendValue: 3.8, starred: false, tags: ["Electrolytes", "Low Sugar", "Non-GMO"],
+    lastUpdated: "Sat Jan 10 2026", createdBy: "Huy Lee", dateCreated: "10/05/2025", fulfilmentDate: "",
+    servingSize: "12", servingUnit: "g", calories: 25, version: 1, flavor: "Citrus", manufacturer: "JourneyFoods",
+    objectives: ["Hydration", "Athletic Performance"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "5", name: "Buckwheat Pancake Mix", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Baking", type: "Retail",
+    status: "active", nutritionScore: 83, sustainabilityScore: 87, costScore: 92, overallScore: 86,
+    price: 8.99, retailCost: 11.99, profitMargin: 25, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Organic Buckwheat Flour", percentage: 60 },
+      { name: "Oat Flour", percentage: 20 },
+      { name: "Flaxseed Meal", percentage: 10 },
+      { name: "Baking Powder", percentage: 5 },
+    ],
+    ingredientCount: 6, upc: "012345678905", sku: "JF-PAN-BUC-001",
+    trend: "stable", trendValue: 0, starred: false, tags: ["Gluten-Free", "Vegan", "High Fiber"],
+    lastUpdated: "Fri Jan 09 2026", createdBy: "Huy Lee", dateCreated: "10/01/2025", fulfilmentDate: "",
+    servingSize: "40", servingUnit: "g", calories: 150, version: 1, flavor: "Original", manufacturer: "JourneyFoods",
+    objectives: ["Whole Grain", "Plant-Based"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "6", name: "Matcha Energy Bites", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Snacks", type: "Concept",
+    status: "concept", nutritionScore: 87, sustainabilityScore: 89, costScore: 71, overallScore: 84,
+    price: 12.99, retailCost: 16.99, profitMargin: 24, currency: "USD", market: ["North America", "Asia Pacific"],
+    ingredients: [
+      { name: "Organic Dates", percentage: 35 },
+      { name: "Cashews", percentage: 25 },
+      { name: "Matcha Powder", percentage: 8 },
+      { name: "Coconut Oil", percentage: 10 },
+    ],
+    ingredientCount: 7, upc: "", sku: "JF-SNK-MAT-001",
+    trend: "up", trendValue: 4.2, starred: false, tags: ["Vegan", "Antioxidant", "Non-GMO"],
+    lastUpdated: "Thu Jan 22 2026", createdBy: "Huy Lee", dateCreated: "2024-02-22", fulfilmentDate: "2026-03-23",
+    servingSize: "28", servingUnit: "g", calories: 120, version: 1, flavor: "Matcha Green Tea", manufacturer: "JourneyFoods",
+    objectives: ["Natural Energy", "Clean Label"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "7", name: "Collagen Peptides Powder", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Supplements", type: "Retail",
+    status: "active", nutritionScore: 78, sustainabilityScore: 72, costScore: 85, overallScore: 78,
+    price: 34.99, retailCost: 44.99, profitMargin: 22, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Grass-Fed Collagen Peptides", percentage: 95 },
+      { name: "Natural Flavoring", percentage: 3 },
+      { name: "Stevia", percentage: 2 },
+    ],
+    ingredientCount: 3, upc: "012345678907", sku: "JF-COL-PEP-001",
+    trend: "up", trendValue: 8.5, starred: false, tags: ["Grass-Fed", "Keto", "Paleo"],
+    lastUpdated: "Wed Jan 08 2026", createdBy: "Huy Lee", dateCreated: "09/15/2025", fulfilmentDate: "",
+    servingSize: "10", servingUnit: "g", calories: 35, version: 1, flavor: "Unflavored", manufacturer: "JourneyFoods",
+    objectives: ["Skin Health", "Joint Support"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "8", name: "Adaptogenic Mushroom Blend", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Powders", type: "Concept",
+    status: "concept", nutritionScore: 82, sustainabilityScore: 90, costScore: 68, overallScore: 80,
+    price: 39.99, retailCost: 54.99, profitMargin: 27, currency: "USD", market: ["North America", "Europe"],
+    ingredients: [
+      { name: "Lion's Mane", percentage: 30 },
+      { name: "Reishi", percentage: 25 },
+      { name: "Chaga", percentage: 20 },
+      { name: "Cordyceps", percentage: 15 },
+    ],
+    ingredientCount: 5, upc: "", sku: "JF-MSH-ADP-001",
+    trend: "stable", trendValue: 0, starred: true, tags: ["Organic", "Adaptogenic", "Nootropic"],
     lastUpdated: "Tue Jan 07 2026", createdBy: "Admin", dateCreated: "08/20/2025", fulfilmentDate: "2026-02-15",
-    servingSize: "85", servingUnit: "g", calories: 310, version: 2, flavor: "-", manufacturer: "Whole Foods",
-    objectives: ["Organic Certified"], countryFlag: "🇺🇸",
+    servingSize: "5", servingUnit: "g", calories: 15, version: 2, flavor: "Earthy", manufacturer: "JourneyFoods",
+    objectives: ["Cognitive Support", "Stress Relief"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "9", name: "Plant-Based Protein Crunch", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Cereal", type: "Retail",
+    status: "active", nutritionScore: 85, sustainabilityScore: 88, costScore: 76, overallScore: 84,
+    price: 7.49, retailCost: 9.99, profitMargin: 25, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Pea Protein Crisps", percentage: 45 },
+      { name: "Organic Oats", percentage: 30 },
+      { name: "Coconut Sugar", percentage: 10 },
+      { name: "Almonds", percentage: 8 },
+    ],
+    ingredientCount: 7, upc: "012345678909", sku: "JF-CER-PRO-001",
+    trend: "up", trendValue: 5.2, starred: false, tags: ["High Protein", "Vegan", "Low Sugar"],
+    lastUpdated: "Mon Jan 06 2026", createdBy: "Huy Lee", dateCreated: "08/10/2025", fulfilmentDate: "",
+    servingSize: "55", servingUnit: "g", calories: 210, version: 1, flavor: "Vanilla Almond", manufacturer: "JourneyFoods",
+    objectives: ["Breakfast", "High Protein"], countryFlag: "🇺🇸",
+  },
+  {
+    id: "10", name: "Prebiotic Fiber Gummies", brand: "JourneyFoods", company: "JF", category: "Food", subCategory: "Supplements", type: "Retail",
+    status: "active", nutritionScore: 79, sustainabilityScore: 82, costScore: 88, overallScore: 82,
+    price: 19.99, retailCost: 27.99, profitMargin: 29, currency: "USD", market: ["North America"],
+    ingredients: [
+      { name: "Chicory Root Fiber", percentage: 40 },
+      { name: "Pectin", percentage: 25 },
+      { name: "Natural Fruit Juice", percentage: 20 },
+      { name: "Citric Acid", percentage: 5 },
+    ],
+    ingredientCount: 6, upc: "012345678910", sku: "JF-GUM-PRE-001",
+    trend: "up", trendValue: 7.8, starred: false, tags: ["Gut Health", "Vegan", "Sugar-Free"],
+    lastUpdated: "Sun Jan 05 2026", createdBy: "Admin", dateCreated: "07/25/2025", fulfilmentDate: "",
+    servingSize: "10", servingUnit: "g", calories: 30, version: 1, flavor: "Mixed Berry", manufacturer: "JourneyFoods",
+    objectives: ["Digestive Health", "Immune Support"], countryFlag: "🇺🇸",
   },
 ]
 
@@ -957,45 +998,150 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
   )
 }
 
+// ─── Score Ring Component ─────────────────────────────────────────────────────
+
+function ScoreRing({ value, size = 40 }: { value: number; size?: number }) {
+  const radius = (size - 6) / 2
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (value / 100) * circumference
+  const getColor = (v: number) => v >= 85 ? "#10B981" : v >= 70 ? "#3B82F6" : v >= 50 ? "#F59E0B" : "#EF4444"
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#E2E8F0" strokeWidth="3" />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={getColor(value)} strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-700">{value}</span>
+    </div>
+  )
+}
+
+// ─── Product Grid Card ────────────────────────────────────────────────────────
+
+function ProductGridCard({ product, onView }: { product: Product; onView: () => void }) {
+  return (
+    <div 
+      className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
+      onClick={onView}
+    >
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+          <Package className="h-6 w-6 text-blue-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-slate-800 truncate">{product.name}</h3>
+            <div className="flex items-center gap-1 shrink-0">
+              {product.starred && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />}
+              <ScoreRing value={product.overallScore} size={36} />
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">{product.brand} · {product.subCategory}</p>
+        </div>
+      </div>
+
+      {/* Alert */}
+      {product.alert && (
+        <div className="flex items-center gap-2 p-2 bg-amber-50 border border-amber-200 rounded-lg mb-4 text-xs text-amber-700">
+          <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+          <span className="truncate">{product.alert}</span>
+        </div>
+      )}
+
+      {/* Scores */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="text-center">
+          <p className="text-lg font-bold text-slate-800">{product.nutritionScore}</p>
+          <p className="text-xs text-slate-400">Nutrition</p>
+        </div>
+        <div className="text-center border-x border-slate-100">
+          <p className="text-lg font-bold text-slate-800">{product.sustainabilityScore}</p>
+          <p className="text-xs text-slate-400">Sustain.</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold text-slate-800">{product.costScore || "-"}</p>
+          <p className="text-xs text-slate-400">Cost</p>
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {product.tags.slice(0, 3).map((tag) => (
+          <span key={tag} className="px-2 py-0.5 text-xs bg-blue-50 text-blue-600 rounded-md font-medium">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex items-center gap-1">
+          <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+          <span className="text-sm font-semibold text-slate-700">{product.price > 0 ? product.price.toFixed(2) : "-"}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+            product.status === "active" ? "bg-green-100 text-green-700" :
+            product.status === "concept" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+          }`}>
+            {product.status}
+          </span>
+          {product.trend !== "stable" && (
+            <span className={`flex items-center gap-0.5 text-xs font-medium ${
+              product.trend === "up" ? "text-green-600" : "text-red-600"
+            }`}>
+              {product.trend === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {product.trendValue}%
+            </span>
+          )}
+          {product.trend === "stable" && (
+            <span className="text-xs text-slate-400">Stable</span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Product List Row ─────────────────────────────────────────────────────────
 
 function ProductListRow({ product, onView }: { product: Product; onView: () => void }) {
   return (
     <div className="flex items-center gap-4 px-4 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100 last:border-0 group" onClick={onView}>
-      <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
-        <Package className="h-5 w-5 text-slate-300" />
+      <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+        <Package className="h-5 w-5 text-blue-500" />
       </div>
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-slate-800 truncate">{product.name}</p>
+        <p className="text-xs text-slate-500">{product.brand} · {product.subCategory}</p>
       </div>
 
-      <div className="w-28 text-sm text-slate-600 truncate">{product.brand}</div>
-      <div className="w-16 text-sm text-slate-500 text-center">-</div>
-      <div className="w-16 text-sm text-slate-500 text-center">-</div>
-      <div className="w-14 text-center">
-        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-indigo-100 text-indigo-700 text-xs font-medium">
-          v{product.version}
-        </span>
+      <div className="flex items-center gap-6">
+        <div className="text-center w-16">
+          <p className="text-sm font-semibold text-slate-700">{product.nutritionScore}</p>
+          <p className="text-xs text-slate-400">Nutrition</p>
+        </div>
+        <div className="text-center w-16">
+          <p className="text-sm font-semibold text-slate-700">{product.sustainabilityScore}</p>
+          <p className="text-xs text-slate-400">Sustain.</p>
+        </div>
+        <div className="text-center w-16">
+          <p className="text-sm font-semibold text-slate-700">{product.costScore || "-"}</p>
+          <p className="text-xs text-slate-400">Cost</p>
+        </div>
       </div>
-      <div className="w-12 text-center text-lg">{product.countryFlag}</div>
-      <div className="w-16 text-center">
-        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-          product.status === "active" ? "bg-blue-100 text-blue-700" :
+
+      <div className="flex items-center gap-3">
+        <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+          product.status === "active" ? "bg-green-100 text-green-700" :
           product.status === "concept" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
         }`}>
-          {product.type.toUpperCase()}
+          {product.status}
         </span>
-      </div>
-      <div className="w-14 text-center text-sm font-medium text-slate-700">{product.overallScore}%</div>
-      <div className="w-20">
-        <button
-          type="button"
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <ExternalLink className="h-3 w-3" />
-          View
-        </button>
+        <ScoreRing value={product.overallScore} size={36} />
       </div>
     </div>
   )
@@ -1004,31 +1150,27 @@ function ProductListRow({ product, onView }: { product: Product; onView: () => v
 // ─── Main ProductsPage ────────────────────────────────────────────────────────
 
 export function ProductsPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
-  const [marketFilter, setMarketFilter] = useState("All")
-  const [brandFilter, setBrandFilter] = useState("All")
-  const [typeFilter, setTypeFilter] = useState("All")
+  const [categoryFilter, setCategoryFilter] = useState("All")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [showEditPanel, setShowEditPanel] = useState(false)
   const [isNewProduct, setIsNewProduct] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [activeChip, setActiveChip] = useState<"retail" | "concept" | "updates" | "ai" | null>("retail")
+  const [showFilters, setShowFilters] = useState(false)
 
   const filtered = productsData.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.brand.toLowerCase().includes(search.toLowerCase()) ||
       p.sku.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === "All" || p.status === statusFilter.toLowerCase()
-    const matchMarket = marketFilter === "All" || p.market.includes(marketFilter)
-    const matchChip = activeChip === null ||
-      (activeChip === "retail" && p.type === "Retail") ||
-      (activeChip === "concept" && p.status === "concept")
-    return matchSearch && matchStatus && matchMarket && matchChip
+    const matchCategory = categoryFilter === "All" || p.subCategory === categoryFilter
+    return matchSearch && matchStatus && matchCategory
   })
 
   const activeCount = productsData.filter((p) => p.status === "active").length
+  const conceptCount = productsData.filter((p) => p.status === "concept").length
+  const totalCount = productsData.length
 
   const handleAddProduct = () => {
     setIsNewProduct(true)
@@ -1062,173 +1204,179 @@ export function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Recently Viewed */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <RecentlyViewedCarousel products={productsData} onSelect={setSelectedProduct} />
-      </div>
-
-      {/* Active Products Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-slate-800">Active Products</h2>
-          <span className="text-xl font-bold text-blue-600">{activeCount.toLocaleString()}</span>
-
-          {/* Filter Chips */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveChip(activeChip === "retail" ? null : "retail")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                activeChip === "retail" ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <ShoppingCart className="h-3.5 w-3.5" />
-              Retail
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveChip(activeChip === "concept" ? null : "concept")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                activeChip === "concept" ? "bg-amber-500 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Lightbulb className="h-3.5 w-3.5" />
-              Concept
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveChip(activeChip === "updates" ? null : "updates")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                activeChip === "updates" ? "bg-red-500 text-white" : "bg-white border border-red-200 text-red-600 hover:bg-red-50"
-              }`}
-            >
-              <Bell className="h-3.5 w-3.5" />
-              Latest updates
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveChip(activeChip === "ai" ? null : "ai")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                activeChip === "ai" ? "bg-emerald-500 text-white" : "bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-              }`}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Journey AI
-            </button>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Product Actions Card */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Bell className="h-4 w-4 text-slate-400" />
+            <h3 className="text-sm font-semibold text-slate-700">Product Actions</h3>
+          </div>
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-600">Notifications Pending</span>
+              <span className="text-sm font-semibold text-slate-800">6</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-600">Actions Pending</span>
+              <span className="text-sm font-semibold text-slate-800">0</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-600">Concept Products</span>
+              <span className="text-sm font-semibold text-blue-600">{conceptCount}</span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 rounded-full transition-all" 
+                style={{ width: `${(activeCount / totalCount) * 100}%` }} 
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-1.5">{activeCount}/{totalCount} active</p>
           </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
-          <button
-            type="button"
-            onClick={() => setViewMode("grid")}
-            className={`p-2 transition-colors ${viewMode === "grid" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("list")}
-            className={`p-2 transition-colors ${viewMode === "list" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}
-          >
-            <List className="h-4 w-4" />
-          </button>
+        {/* Active Products Card */}
+        <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-5 text-white relative overflow-hidden">
+          <div className="absolute top-4 right-4 opacity-20">
+            <Package className="h-20 w-20" />
+          </div>
+          <p className="text-sm font-medium text-green-100">Active Products</p>
+          <p className="text-4xl font-bold mt-1">{activeCount}</p>
+          <p className="text-sm text-green-100 mt-1">In your catalog</p>
+          <div className="flex items-center gap-1 mt-2 text-sm text-green-100">
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="text-green-200 font-medium">+2.4% this period</span>
+          </div>
+        </div>
+
+        {/* Concept Products Card */}
+        <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl p-5 text-white relative overflow-hidden">
+          <div className="absolute top-4 right-4 opacity-20">
+            <Lightbulb className="h-20 w-20" />
+          </div>
+          <p className="text-sm font-medium text-slate-300">Concept Products</p>
+          <p className="text-4xl font-bold mt-1">{conceptCount}</p>
+          <p className="text-sm text-slate-300 mt-1">In development</p>
+          <div className="flex items-center gap-1 mt-2 text-sm text-slate-300">
+            <TrendingUp className="h-3.5 w-3.5" />
+            <span className="text-green-400 font-medium">+8% this period</span>
+          </div>
         </div>
       </div>
 
-      {/* Filters Row */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <Filter className="h-4 w-4" />
-          <span>Filters:</span>
-        </div>
-        <select
-          value={marketFilter}
-          onChange={(e) => setMarketFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none bg-white"
-        >
-          <option value="All">Ma...</option>
-          {MARKETS.slice(1).map((m) => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <select
-          value={brandFilter}
-          onChange={(e) => setBrandFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none bg-white"
-        >
-          <option value="All">Bra...</option>
-          <option value="Giant Eagle">Giant Eagle</option>
-          <option value="JourneyFoods">JourneyFoods</option>
-        </select>
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none bg-white"
-        >
-          <option value="All">Type</option>
-          <option value="Retail">Retail</option>
-          <option value="Concept">Concept</option>
-        </select>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-end">
-        <div className="flex items-center gap-1 text-sm">
-          <button type="button" className="px-3 py-1 text-slate-400 hover:text-slate-600 transition-colors flex items-center gap-1">
-            <ChevronLeft className="h-4 w-4" /> Previous
-          </button>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              type="button"
-              onClick={() => setCurrentPage(page)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === page ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button type="button" className="px-3 py-1 text-slate-600 hover:text-slate-800 transition-colors flex items-center gap-1">
-            Next <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Products Table */}
+      {/* All Products Section */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        {/* Table Header */}
-        <div className="flex items-center gap-4 px-4 py-3 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-          <div className="w-10">IMAGE</div>
-          <div className="flex-1">PRODUCT NAME</div>
-          <div className="w-28">BRAND</div>
-          <div className="w-16 text-center">TYPE</div>
-          <div className="w-16 text-center">FLAVOR</div>
-          <div className="w-14 text-center">VERSION</div>
-          <div className="w-12 text-center">COUNTRY</div>
-          <div className="w-16 text-center">STATUS</div>
-          <div className="w-14 text-center">SCORE</div>
-          <div className="w-20 text-center">ACTIONS</div>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <h2 className="text-base font-semibold text-slate-800">All Products</h2>
+            <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded-full font-medium">
+              {filtered.length} items
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 pr-4 py-2 w-48 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none bg-white"
+            >
+              <option value="All">All</option>
+              <option value="Condiments">Condiments</option>
+              <option value="Snacks">Snacks</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Deli">Deli</option>
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none bg-white"
+            >
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+
+            {/* Filters Button */}
+            <button
+              type="button"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-3 py-2 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <Filter className="h-4 w-4 text-slate-500" />
+              Filters
+            </button>
+
+            {/* Add Button */}
+            <button
+              type="button"
+              onClick={handleAddProduct}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Add
+            </button>
+
+            {/* View Toggle */}
+            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white">
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={`p-2 transition-colors ${viewMode === "grid" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={`p-2 transition-colors ${viewMode === "list" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Table Body */}
-        {filtered.map((product) => (
-          <ProductListRow
-            key={product.id}
-            product={product}
-            onView={() => setSelectedProduct(product)}
-          />
-        ))}
+        {/* Content */}
+        {viewMode === "grid" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {filtered.map((product) => (
+              <ProductGridCard
+                key={product.id}
+                product={product}
+                onView={() => setSelectedProduct(product)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div>
+            {filtered.map((product) => (
+              <ProductListRow
+                key={product.id}
+                product={product}
+                onView={() => setSelectedProduct(product)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Floating Add Button */}
-      <button
-        type="button"
-        onClick={handleAddProduct}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-slate-900 text-white rounded-full shadow-lg hover:bg-slate-700 transition-colors flex items-center justify-center"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
 
       {/* Edit Panel */}
       {showEditPanel && (
