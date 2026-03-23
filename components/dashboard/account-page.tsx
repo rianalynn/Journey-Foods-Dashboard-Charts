@@ -15,11 +15,20 @@ import {
   FileText,
   Code,
   Zap,
+  Bot,
+  Check,
 } from "lucide-react"
+import { 
+  type AIModel, 
+  BASIC_MODEL, 
+  GENERAL_MODELS, 
+  JOURNEY_MODELS, 
+  ALL_MODELS 
+} from "./generate-tab"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AccountSection = "profile" | "company" | "preferences" | "billing"
+type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings"
 type PreferenceTab = "product" | "ingredient" | "packaging" | "other"
 type CompanyTab = "brands" | "markets" | "company-type" | "users"
 type BillingTab = "invoices" | "subscription" | "billing-info" | "upgrade"
@@ -136,6 +145,7 @@ export function AccountPage() {
   const [preferenceTab, setPreferenceTab] = useState<PreferenceTab>("product")
   const [companyTab, setCompanyTab] = useState<CompanyTab>("brands")
   const [billingTab, setBillingTab] = useState<BillingTab>("subscription")
+  const [selectedDefaultModel, setSelectedDefaultModel] = useState<AIModel>(BASIC_MODEL)
   
   // Profile form state
   const [profile, setProfile] = useState({
@@ -178,6 +188,7 @@ export function AccountPage() {
     { id: "profile" as const, label: "Profile Settings", icon: User },
     { id: "company" as const, label: "Company Settings", icon: Building2 },
     { id: "preferences" as const, label: "Preferences", icon: Sliders },
+    { id: "ai-settings" as const, label: "AI Settings", icon: Bot },
     { id: "billing" as const, label: "Billing", icon: CreditCard },
   ]
 
@@ -210,7 +221,13 @@ export function AccountPage() {
 
       {/* Main content */}
       <div className="flex-1 bg-white rounded-r-xl border border-slate-200 border-l-0 p-8">
-        <h1 className="text-xl font-semibold text-slate-800 mb-6">Profile Settings</h1>
+        <h1 className="text-xl font-semibold text-slate-800 mb-6">
+          {activeSection === "profile" && "Profile Settings"}
+          {activeSection === "company" && "Company Settings"}
+          {activeSection === "preferences" && "Preferences"}
+          {activeSection === "ai-settings" && "AI Settings"}
+          {activeSection === "billing" && "Billing"}
+        </h1>
 
         {/* ── Profile Settings ─────────────────────────────────────────────── */}
         {activeSection === "profile" && (
@@ -791,6 +808,153 @@ export function AccountPage() {
             {billingTab === "upgrade" && (
               <div className="text-sm text-slate-500">Plan upgrade options will appear here.</div>
             )}
+          </div>
+        )}
+
+        {/* ── AI Settings ──────────────────────────────────────────────────── */}
+        {activeSection === "ai-settings" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Default AI Model</h2>
+              <p className="text-sm text-slate-500 mb-4">
+                Choose your default AI model for the Generate tab. You can always switch models within the chat.
+              </p>
+            </div>
+
+            {/* General Models */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">General Models</h3>
+              <div className="grid gap-3">
+                {GENERAL_MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => setSelectedDefaultModel(model)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      selectedDefaultModel.id === model.id
+                        ? `border-transparent ring-2 ${model.ring} bg-slate-50`
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-lg font-bold shrink-0`}>
+                        {model.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-bold text-slate-800">{model.label}</span>
+                          {model.sub && (
+                            <>
+                              <span className="text-slate-300">·</span>
+                              <span className={`font-semibold bg-gradient-to-r ${model.color} bg-clip-text text-transparent text-sm`}>
+                                {model.sub}
+                              </span>
+                              <span className="text-slate-400 text-xs tracking-widest">{model.subtag}</span>
+                            </>
+                          )}
+                          {model.live ? (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Coming Soon</span>
+                          )}
+                          {selectedDefaultModel.id === model.id && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Default</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 leading-snug">{model.desc}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {model.tags.map((t) => (
+                            <span key={t} className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-1 flex items-center justify-center ${
+                        selectedDefaultModel.id === model.id
+                          ? `bg-gradient-to-br ${model.color} border-transparent`
+                          : "border-slate-300"
+                      }`}>
+                        {selectedDefaultModel.id === model.id && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Journey AI Models */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">Journey AI Models</h3>
+              <div className="grid gap-3">
+                {JOURNEY_MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => model.live && setSelectedDefaultModel(model)}
+                    disabled={!model.live}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      !model.live
+                        ? "border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed"
+                        : selectedDefaultModel.id === model.id
+                        ? `border-transparent ring-2 ${model.ring} bg-slate-50`
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-lg font-bold shrink-0`}>
+                        {model.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-bold text-slate-800">{model.label}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className={`font-semibold bg-gradient-to-r ${model.color} bg-clip-text text-transparent text-sm`}>
+                            {model.sub}
+                          </span>
+                          <span className="text-slate-400 text-xs tracking-widest">{model.subtag}</span>
+                          {model.live ? (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Forging</span>
+                          )}
+                          {selectedDefaultModel.id === model.id && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Default</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 leading-snug">{model.desc}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {model.tags.map((t) => (
+                            <span key={t} className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-1 flex items-center justify-center ${
+                        selectedDefaultModel.id === model.id
+                          ? `bg-gradient-to-br ${model.color} border-transparent`
+                          : "border-slate-300"
+                      }`}>
+                        {selectedDefaultModel.id === model.id && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Save button */}
+            <div className="pt-4 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save AI Preferences
+              </button>
+            </div>
           </div>
         )}
       </div>
