@@ -50,7 +50,7 @@ import { IngredientsPage } from "@/components/dashboard/ingredients-page"
 import { ProductsPage } from "@/components/dashboard/products-page"
 import { NotificationsPage } from "@/components/dashboard/notifications-page"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
-import { SuppliersPage } from "@/components/dashboard/suppliers-page"
+import { SuppliersPage, SupplierIngredientsPage } from "@/components/dashboard/suppliers-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1144,6 +1144,9 @@ export default function DashboardPage() {
 
         {/* ── Ingredients Page ─────────────────────────────────── */}
         {!isSupplierMode && activePage === "ingredients" && <IngredientsPage />}
+
+        {/* ── Supplier Mode: Ingredients Management ────────────── */}
+        {isSupplierMode && activePage === "ingredients" && <SupplierIngredientsPage />}
 
         {/* ── Products Page ─────────────────────────────────────── */}
         {!isSupplierMode && activePage === "products" && <ProductsPage />}

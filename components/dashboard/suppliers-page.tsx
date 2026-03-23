@@ -39,6 +39,8 @@ import {
   Filter,
   MoreHorizontal,
   ExternalLink,
+  Plus,
+  Leaf,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1177,6 +1179,829 @@ function SupplierDashboard() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Supplier Ingredients Page ───────────────────────────────────────────────
+
+type IngredientStatus = "active" | "concept" | "flagged"
+
+interface SupplierIngredient {
+  id: string
+  name: string
+  category: string
+  form: string
+  price: number | null
+  unit: string
+  status: IngredientStatus
+  certifications: string[]
+  activeProducts: number
+  conceptProducts: number
+  lastUpdated: string
+  alert?: string
+  origin: string
+  minOrder: string
+  leadTime: string
+  starred: boolean
+}
+
+const supplierIngredients: SupplierIngredient[] = [
+  {
+    id: "1", name: "Organic Mango Puree", category: "Fruit", form: "Puree",
+    price: 4.50, unit: "kg", status: "active",
+    certifications: ["USDA Organic", "Non-GMO", "Fair Trade"],
+    activeProducts: 12, conceptProducts: 5, lastUpdated: "2 days ago",
+    origin: "Mexico", minOrder: "25 kg", leadTime: "2–3 weeks", starred: true,
+  },
+  {
+    id: "2", name: "Buckwheat Flour", category: "Grain", form: "Powder",
+    price: 2.75, unit: "kg", status: "active",
+    certifications: ["Gluten-Free", "Non-GMO"],
+    activeProducts: 8, conceptProducts: 15, lastUpdated: "1 week ago",
+    origin: "USA", minOrder: "50 kg", leadTime: "1–2 weeks", starred: false,
+  },
+  {
+    id: "3", name: "Turmeric Extract", category: "Spice", form: "Powder",
+    price: null, unit: "kg", status: "flagged",
+    certifications: ["USDA Organic"],
+    activeProducts: 25, conceptProducts: 3, lastUpdated: "3 days ago",
+    origin: "India", minOrder: "10 kg", leadTime: "4–6 weeks",
+    alert: "Supply chain disruption — 3-week delay expected", starred: false,
+  },
+  {
+    id: "4", name: "Eco-Friendly Pouch", category: "Packaging", form: "Unit",
+    price: 0.85, unit: "unit", status: "active",
+    certifications: ["FSC Certified", "Recyclable"],
+    activeProducts: 3, conceptProducts: 22, lastUpdated: "5 days ago",
+    origin: "Germany", minOrder: "500 units", leadTime: "2–4 weeks", starred: false,
+  },
+  {
+    id: "5", name: "Pea Protein Isolate", category: "Protein", form: "Powder",
+    price: 7.20, unit: "kg", status: "active",
+    certifications: [],
+    activeProducts: 18, conceptProducts: 9, lastUpdated: "1 day ago",
+    origin: "Canada", minOrder: "25 kg", leadTime: "1–3 weeks", starred: true,
+    alert: "Certifications missing — brands filtering by Non-GMO cannot find this ingredient",
+  },
+  {
+    id: "6", name: "Himalayan Pink Salt", category: "Mineral", form: "Crystal",
+    price: 1.20, unit: "kg", status: "active",
+    certifications: ["Natural", "Non-GMO"],
+    activeProducts: 32, conceptProducts: 7, lastUpdated: "2 weeks ago",
+    origin: "Pakistan", minOrder: "100 kg", leadTime: "1–2 weeks", starred: true,
+  },
+  {
+    id: "7", name: "Avocado Oil", category: "Oil", form: "Liquid",
+    price: 12.40, unit: "kg", status: "active",
+    certifications: ["USDA Organic", "Non-GMO"],
+    activeProducts: 9, conceptProducts: 4, lastUpdated: "1 day ago",
+    origin: "Mexico", minOrder: "20 kg", leadTime: "2–3 weeks", starred: true,
+  },
+  {
+    id: "8", name: "Chicory Root Fiber", category: "Fiber", form: "Powder",
+    price: 6.10, unit: "kg", status: "concept",
+    certifications: ["Non-GMO", "EU Organic"],
+    activeProducts: 0, conceptProducts: 8, lastUpdated: "6 days ago",
+    origin: "Belgium", minOrder: "10 kg", leadTime: "3–4 weeks", starred: false,
+  },
+]
+
+const SUPPLIER_CATEGORIES = ["All", "Fruit", "Grain", "Spice", "Protein", "Oil", "Mineral", "Fiber", "Packaging"]
+const SUPPLIER_STATUSES: Array<{ key: "all" | IngredientStatus; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "active", label: "Active" },
+  { key: "concept", label: "Concept" },
+  { key: "flagged", label: "Flagged" },
+]
+
+function getStatusStyles(status: IngredientStatus) {
+  switch (status) {
+    case "active": return { badge: "bg-green-100 text-green-700", dot: "bg-green-500" }
+    case "concept": return { badge: "bg-amber-100 text-amber-700", dot: "bg-amber-500" }
+    case "flagged": return { badge: "bg-red-100 text-red-700", dot: "bg-red-500" }
+  }
+}
+
+// ─── Add / Edit Ingredient Modal ──────────────────────────────────────────────
+
+function IngredientFormModal({
+  ingredient,
+  onClose,
+  onSave,
+}: {
+  ingredient?: SupplierIngredient | null
+  onClose: () => void
+  onSave: (data: Partial<SupplierIngredient>) => void
+}) {
+  const isEdit = !!ingredient
+  const [name, setName] = useState(ingredient?.name ?? "")
+  const [category, setCategory] = useState(ingredient?.category ?? "")
+  const [form, setForm] = useState(ingredient?.form ?? "")
+  const [price, setPrice] = useState(ingredient?.price?.toString() ?? "")
+  const [unit, setUnit] = useState(ingredient?.unit ?? "kg")
+  const [status, setStatus] = useState<IngredientStatus>(ingredient?.status ?? "concept")
+  const [origin, setOrigin] = useState(ingredient?.origin ?? "")
+  const [minOrder, setMinOrder] = useState(ingredient?.minOrder ?? "")
+  const [leadTime, setLeadTime] = useState(ingredient?.leadTime ?? "")
+  const [certInput, setCertInput] = useState("")
+  const [certifications, setCertifications] = useState<string[]>(ingredient?.certifications ?? [])
+
+  const addCert = () => {
+    const t = certInput.trim()
+    if (t && !certifications.includes(t)) {
+      setCertifications(prev => [...prev, t])
+      setCertInput("")
+    }
+  }
+
+  const removeCert = (cert: string) => {
+    setCertifications(prev => prev.filter(c => c !== cert))
+  }
+
+  const handleSave = () => {
+    if (!name.trim()) return
+    onSave({
+      name: name.trim(),
+      category: category.trim(),
+      form: form.trim(),
+      price: price ? parseFloat(price) : null,
+      unit,
+      status,
+      origin: origin.trim(),
+      minOrder: minOrder.trim(),
+      leadTime: leadTime.trim(),
+      certifications,
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">{isEdit ? "Edit Ingredient" : "Add New Ingredient"}</h2>
+            <p className="text-sm text-slate-500 mt-0.5">
+              {isEdit ? `Editing ${ingredient.name}` : "Add a new ingredient to your portfolio"}
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <X className="h-5 w-5 text-slate-500" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ingredient Name *</label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="e.g. Organic Mango Puree"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Category + Form */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Category</label>
+              <input
+                type="text"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                placeholder="e.g. Fruit, Protein"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Form</label>
+              <input
+                type="text"
+                value={form}
+                onChange={e => setForm(e.target.value)}
+                placeholder="e.g. Powder, Liquid"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Price + Unit */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Price (est.)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="0.00"
+                  min={0}
+                  step={0.01}
+                  className="w-full pl-7 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Unit</label>
+              <select
+                value={unit}
+                onChange={e => setUnit(e.target.value)}
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+                <option value="L">L</option>
+                <option value="unit">unit</option>
+                <option value="g">g</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
+            <div className="flex gap-2">
+              {(["active", "concept", "flagged"] as IngredientStatus[]).map(s => {
+                const styles = getStatusStyles(s)
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStatus(s)}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border-2 transition-colors capitalize ${
+                      status === s
+                        ? `${styles.badge} border-current`
+                        : "border-slate-200 text-slate-500 hover:border-slate-300"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Origin + Min Order */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Origin</label>
+              <input
+                type="text"
+                value={origin}
+                onChange={e => setOrigin(e.target.value)}
+                placeholder="e.g. Mexico, USA"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Min Order</label>
+              <input
+                type="text"
+                value={minOrder}
+                onChange={e => setMinOrder(e.target.value)}
+                placeholder="e.g. 25 kg"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Lead Time */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Lead Time</label>
+            <input
+              type="text"
+              value={leadTime}
+              onChange={e => setLeadTime(e.target.value)}
+              placeholder="e.g. 2–3 weeks"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Certifications */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Certifications</label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={certInput}
+                onChange={e => setCertInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addCert() } }}
+                placeholder="e.g. USDA Organic"
+                className="flex-1 px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={addCert}
+                className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                Add
+              </button>
+            </div>
+            {certifications.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {certifications.map(cert => (
+                  <span key={cert} className="flex items-center gap-1.5 px-3 py-1 text-sm bg-green-50 text-green-700 border border-green-200 rounded-full font-medium">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    {cert}
+                    <button type="button" onClick={() => removeCert(cert)} className="ml-0.5 hover:text-green-900">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-slate-200 flex gap-3">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="flex-1 py-3 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            {isEdit ? "Save Changes" : "Add Ingredient"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-3 border border-slate-200 font-medium text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Ingredient Detail Panel ──────────────────────────────────────────────────
+
+function SupplierIngredientPanel({
+  ingredient,
+  onClose,
+  onEdit,
+}: {
+  ingredient: SupplierIngredient
+  onClose: () => void
+  onEdit: (ingredient: SupplierIngredient) => void
+}) {
+  const styles = getStatusStyles(ingredient.status)
+
+  return (
+    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
+      {/* Header */}
+      <div className="p-5 border-b border-slate-200">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-emerald-50 border border-green-200 flex items-center justify-center">
+              <Leaf className="h-6 w-6 text-green-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-800 leading-tight">{ingredient.name}</h2>
+                {ingredient.starred && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 shrink-0" />}
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${styles.badge}`}>
+                  {ingredient.status}
+                </span>
+                <span className="text-xs text-slate-400">{ingredient.category} · {ingredient.form}</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+            <X className="h-5 w-5 text-slate-500" />
+          </button>
+        </div>
+      </div>
+
+      {/* Alert */}
+      {ingredient.alert && (
+        <div className="mx-5 mt-4 flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{ingredient.alert}</p>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {/* Key Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-slate-800">
+              {ingredient.price !== null ? `$${ingredient.price.toFixed(2)}` : "—"}
+            </p>
+            <p className="text-[10px] text-slate-500 mt-0.5">per {ingredient.unit}</p>
+          </div>
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-green-600">{ingredient.activeProducts}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Active</p>
+          </div>
+          <div className="text-center p-3 bg-slate-50 rounded-xl">
+            <p className="text-xl font-bold text-amber-600">{ingredient.conceptProducts}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Concept</p>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Details</h3>
+          <div className="space-y-2">
+            {[
+              { label: "Origin", value: ingredient.origin || "—" },
+              { label: "Min Order", value: ingredient.minOrder || "—" },
+              { label: "Lead Time", value: ingredient.leadTime || "—" },
+              { label: "Last Updated", value: ingredient.lastUpdated },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                <span className="text-sm text-slate-500">{label}</span>
+                <span className="text-sm font-medium text-slate-800">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Certifications */}
+        <div>
+          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Certifications</h3>
+          {ingredient.certifications.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {ingredient.certifications.map(cert => (
+                <span key={cert} className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg font-medium">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {cert}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg w-fit">
+              <AlertCircle className="h-4 w-4 text-amber-500" />
+              <span className="text-sm text-amber-700 font-medium">No certifications — add them to improve discoverability</span>
+            </div>
+          )}
+        </div>
+
+        {/* Usage bar */}
+        <div>
+          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Usage Breakdown</h3>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-500">Active products</span>
+              <span className="font-semibold text-slate-800">{ingredient.activeProducts}</span>
+            </div>
+            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-green-500 rounded-full"
+                style={{ width: `${Math.min(100, (ingredient.activeProducts / (ingredient.activeProducts + ingredient.conceptProducts + 1)) * 100)}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-500">Concept products</span>
+              <span className="font-semibold text-slate-800">{ingredient.conceptProducts}</span>
+            </div>
+            <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-amber-400 rounded-full"
+                style={{ width: `${Math.min(100, (ingredient.conceptProducts / (ingredient.activeProducts + ingredient.conceptProducts + 1)) * 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer actions */}
+      <div className="p-5 border-t border-slate-200 bg-slate-50">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => onEdit(ingredient)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Edit Details
+          </button>
+          <button
+            type="button"
+            className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 bg-white text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            <ExternalLink className="h-4 w-4" />
+            View Analytics
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Supplier Ingredients Page ────────────────────────────────────────────────
+
+export function SupplierIngredientsPage() {
+  const [ingredients, setIngredients] = useState<SupplierIngredient[]>(supplierIngredients)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("All")
+  const [selectedStatus, setSelectedStatus] = useState<"all" | IngredientStatus>("all")
+  const [selectedIngredient, setSelectedIngredient] = useState<SupplierIngredient | null>(null)
+  const [editingIngredient, setEditingIngredient] = useState<SupplierIngredient | null | undefined>(undefined)
+  const [showAddModal, setShowAddModal] = useState(false)
+
+  const filtered = ingredients.filter(ing => {
+    const matchesSearch = ing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ing.category.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === "All" || ing.category === selectedCategory
+    const matchesStatus = selectedStatus === "all" || ing.status === selectedStatus
+    return matchesSearch && matchesCategory && matchesStatus
+  })
+
+  const stats = {
+    total: ingredients.length,
+    active: ingredients.filter(i => i.status === "active").length,
+    concept: ingredients.filter(i => i.status === "concept").length,
+    flagged: ingredients.filter(i => i.status === "flagged").length,
+    totalActive: ingredients.reduce((sum, i) => sum + i.activeProducts, 0),
+    totalConcept: ingredients.reduce((sum, i) => sum + i.conceptProducts, 0),
+  }
+
+  const handleSave = (data: Partial<SupplierIngredient>) => {
+    if (editingIngredient) {
+      // Edit existing
+      setIngredients(prev => prev.map(i => i.id === editingIngredient.id ? { ...i, ...data, lastUpdated: "Just now" } : i))
+      setEditingIngredient(undefined)
+      setSelectedIngredient(prev => prev?.id === editingIngredient.id ? { ...prev, ...data, lastUpdated: "Just now" } : prev)
+    } else {
+      // Add new
+      const newIng: SupplierIngredient = {
+        id: `new-${Date.now()}`,
+        name: data.name ?? "",
+        category: data.category ?? "",
+        form: data.form ?? "",
+        price: data.price ?? null,
+        unit: data.unit ?? "kg",
+        status: data.status ?? "concept",
+        certifications: data.certifications ?? [],
+        activeProducts: 0,
+        conceptProducts: 0,
+        lastUpdated: "Just now",
+        origin: data.origin ?? "",
+        minOrder: data.minOrder ?? "",
+        leadTime: data.leadTime ?? "",
+        starred: false,
+      }
+      setIngredients(prev => [newIng, ...prev])
+      setShowAddModal(false)
+    }
+  }
+
+  const toggleStar = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIngredients(prev => prev.map(i => i.id === id ? { ...i, starred: !i.starred } : i))
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">My Ingredients</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage your ingredient portfolio and track how brands are using them.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => { setEditingIngredient(null); setShowAddModal(true) }}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Add Ingredient
+        </button>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {[
+          { label: "Total", value: stats.total, color: "text-slate-800" },
+          { label: "Active", value: stats.active, color: "text-green-600" },
+          { label: "Concept", value: stats.concept, color: "text-amber-600" },
+          { label: "Flagged", value: stats.flagged, color: "text-red-600" },
+          { label: "Active Uses", value: stats.totalActive, color: "text-blue-600" },
+          { label: "Concept Uses", value: stats.totalConcept, color: "text-violet-600" },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
+            <p className={`text-2xl font-bold ${color}`}>{value}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search ingredients..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {SUPPLIER_STATUSES.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSelectedStatus(key)}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                selectedStatus === key
+                  ? "bg-slate-900 text-white"
+                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Category pills */}
+      <div className="flex gap-2 flex-wrap">
+        {SUPPLIER_CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+              selectedCategory === cat
+                ? "bg-blue-600 text-white"
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        {/* Table header */}
+        <div className="grid grid-cols-12 gap-4 px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide border-b border-slate-100 bg-slate-50">
+          <span className="col-span-4">Ingredient</span>
+          <span className="col-span-1">Status</span>
+          <span className="col-span-2">Usage</span>
+          <span className="col-span-2">Certifications</span>
+          <span className="col-span-1">Price/unit</span>
+          <span className="col-span-1">Origin</span>
+          <span className="col-span-1 text-right">Actions</span>
+        </div>
+
+        <div className="divide-y divide-slate-100">
+          {filtered.length === 0 ? (
+            <div className="text-center py-16 text-slate-400">
+              <Leaf className="h-12 w-12 mx-auto mb-3 text-slate-200" />
+              <p className="font-medium text-slate-600">No ingredients found</p>
+              <p className="text-sm mt-1">Try adjusting your filters or add a new ingredient</p>
+            </div>
+          ) : (
+            filtered.map(ing => {
+              const statusStyles = getStatusStyles(ing.status)
+              return (
+                <div
+                  key={ing.id}
+                  className="grid grid-cols-12 gap-4 items-center px-5 py-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedIngredient(ing)}
+                >
+                  {/* Ingredient name */}
+                  <div className="col-span-4 flex items-center gap-3 min-w-0">
+                    {ing.alert ? (
+                      <span className="h-5 w-5 rounded-full border-2 border-red-400 flex items-center justify-center shrink-0">
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                      </span>
+                    ) : (
+                      <span className="h-5 w-5 shrink-0" />
+                    )}
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-green-100 to-emerald-50 border border-green-100 flex items-center justify-center shrink-0">
+                      <Leaf className="h-4 w-4 text-green-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{ing.name}</p>
+                      <p className="text-xs text-slate-400 truncate">{ing.category} · {ing.form}</p>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-span-1">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full capitalize ${statusStyles.badge}`}>
+                      {ing.status}
+                    </span>
+                  </div>
+
+                  {/* Usage */}
+                  <div className="col-span-2 text-sm">
+                    <span className="block text-slate-700 font-medium">{ing.activeProducts} Active</span>
+                    <span className="block text-slate-400 text-xs">{ing.conceptProducts} Concept</span>
+                  </div>
+
+                  {/* Certifications */}
+                  <div className="col-span-2">
+                    {ing.certifications.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {ing.certifications.slice(0, 2).map(cert => (
+                          <span key={cert} className="px-1.5 py-0.5 text-[10px] bg-green-50 text-green-700 rounded border border-green-100 font-medium truncate max-w-[80px]">
+                            {cert}
+                          </span>
+                        ))}
+                        {ing.certifications.length > 2 && (
+                          <span className="px-1.5 py-0.5 text-[10px] bg-slate-100 text-slate-600 rounded font-medium">
+                            +{ing.certifications.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-amber-600 font-medium">None</span>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="col-span-1 text-sm">
+                    {ing.price !== null ? (
+                      <span className="font-semibold text-slate-800">${ing.price.toFixed(2)}</span>
+                    ) : (
+                      <span className="text-slate-400">No data</span>
+                    )}
+                  </div>
+
+                  {/* Origin */}
+                  <div className="col-span-1">
+                    <span className="text-xs text-slate-500 truncate block">{ing.origin || "—"}</span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="col-span-1 flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={e => toggleStar(ing.id, e)}
+                      className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                      aria-label={ing.starred ? "Unstar" : "Star"}
+                    >
+                      <Star className={`h-4 w-4 ${ing.starred ? "text-yellow-400 fill-yellow-400" : "text-slate-300"}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); setEditingIngredient(ing); setShowAddModal(true) }}
+                      className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                      aria-label="Edit ingredient"
+                    >
+                      <MoreHorizontal className="h-4 w-4 text-slate-400" />
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Upload CTA */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-6 flex items-center justify-between gap-6 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white/10 rounded-xl">
+            <Upload className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Upload Your Ingredient Catalog</h3>
+            <p className="text-sm text-slate-300 mt-0.5">Import a CSV or spreadsheet to add multiple ingredients at once.</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white text-slate-900 text-sm font-semibold rounded-lg hover:bg-slate-100 transition-colors shrink-0"
+        >
+          <Upload className="h-4 w-4" />
+          Upload Catalog
+        </button>
+      </div>
+
+      {/* Detail Panel */}
+      {selectedIngredient && !showAddModal && (
+        <>
+          <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setSelectedIngredient(null)} />
+          <SupplierIngredientPanel
+            ingredient={selectedIngredient}
+            onClose={() => setSelectedIngredient(null)}
+            onEdit={ing => { setEditingIngredient(ing); setShowAddModal(true) }}
+          />
+        </>
+      )}
+
+      {/* Add / Edit Modal */}
+      {showAddModal && (
+        <IngredientFormModal
+          ingredient={editingIngredient}
+          onClose={() => { setShowAddModal(false); setEditingIngredient(undefined) }}
+          onSave={handleSave}
+        />
+      )}
     </div>
   )
 }
