@@ -41,6 +41,7 @@ import {
 import { TopNav, type PageType } from "@/components/dashboard/top-nav"
 import { GenerateTab } from "@/components/dashboard/generate-tab"
 import { KnowledgeHub } from "@/components/dashboard/knowledge-hub"
+import { AnalyticsPage } from "@/components/dashboard/analytics-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1097,18 +1098,21 @@ export default function DashboardPage() {
 
       <main className="p-6">
         {/* ── Supplier mode welcome banner ───────────────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "knowledge-hub" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "knowledge-hub" && activePage !== "analytics" && (
           <h1 className="text-2xl font-bold text-slate-800 mb-6">Welcome, Supplier!</h1>
         )}
 
         {/* ── Knowledge Hub ─────────────────────────────────────── */}
         {activePage === "knowledge-hub" && <KnowledgeHub />}
 
+        {/* ── Analytics Page ───────────────────────────────────── */}
+        {activePage === "analytics" && <AnalyticsPage />}
+
         {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
         {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && activePage !== "analytics" && (
           <SupplierIngredientPortfolio />
         )}
 
