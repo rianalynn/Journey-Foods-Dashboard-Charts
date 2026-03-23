@@ -590,7 +590,14 @@ function SupplierCard({
 
   if (viewMode === "list") {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
+      <div
+        className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-4 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer"
+        onClick={() => onConnect(supplier)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && onConnect(supplier)}
+        aria-label={`View ${supplier.name} supplier profile`}
+      >
         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0">
           <Box className="h-6 w-6 text-amber-600" />
         </div>
@@ -607,7 +614,7 @@ function SupplierCard({
           </div>
         </div>
         <div className="text-sm text-slate-600">Score: {supplier.score}/100</div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
             onClick={() => onActivity(supplier)}
@@ -616,20 +623,21 @@ function SupplierCard({
             <Sparkles className="h-3.5 w-3.5" />
             Activity
           </button>
-          <button
-            type="button"
-            onClick={() => onConnect(supplier)}
-            className="px-4 py-1.5 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-          >
-            Connect
-          </button>
+          <ChevronRight className="h-4 w-4 text-slate-400" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg transition-shadow">
+    <div
+      className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:border-slate-300 transition-all cursor-pointer"
+      onClick={() => onConnect(supplier)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && onConnect(supplier)}
+      aria-label={`View ${supplier.name} supplier profile`}
+    >
       <div className="flex items-start gap-3 mb-3">
         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0">
           <Box className="h-6 w-6 text-amber-600" />
@@ -679,7 +687,7 @@ function SupplierCard({
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100" onClick={(e) => e.stopPropagation()}>
         {supplier.phone ? (
           <a
             href={formatWhatsAppLink(supplier.phone)}
@@ -708,13 +716,10 @@ function SupplierCard({
             <Sparkles className="h-3.5 w-3.5" />
             Activity
           </button>
-          <button
-            type="button"
-            onClick={() => onConnect(supplier)}
-            className="px-4 py-1.5 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-          >
-            Connect
-          </button>
+          <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+            View Profile
+            <ChevronRight className="h-3.5 w-3.5" />
+          </span>
         </div>
       </div>
     </div>
