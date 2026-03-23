@@ -1,0 +1,142 @@
+"use client"
+
+import {
+  Home,
+  Zap,
+  Leaf,
+  Package,
+  Box,
+  ImageIcon,
+  BarChart3,
+  Link2,
+  Search,
+  Bell,
+  ChevronDown,
+} from "lucide-react"
+
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging"
+
+const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
+  { name: "Overview", id: "overview", icon: Home },
+  { name: "Generate", id: "generate", icon: Zap },
+  { name: "Ingredients", id: "ingredients", icon: Leaf, badge: "10+" },
+  { name: "Products", id: "products", icon: Package },
+  { name: "Suppliers", id: "suppliers", icon: Box },
+  { name: "Packaging", id: "packaging", icon: ImageIcon },
+]
+
+const supportNav = [
+  { name: "Analytics", icon: BarChart3 },
+  { name: "Integrations", icon: Link2 },
+]
+
+interface TopNavProps {
+  activePage: PageType
+  onNavigate: (page: PageType) => void
+}
+
+export function TopNav({ activePage, onNavigate }: TopNavProps) {
+  return (
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
+      {/* Brand + Search + User row */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-base">J</span>
+          </div>
+          <span className="font-semibold text-slate-800 text-base">JourneyFoods</span>
+        </div>
+
+        <div className="flex-1 max-w-xl mx-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search ingredients, suppliers, and more"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <Box className="h-4 w-4" />
+            All brands
+            <ChevronDown className="h-3 w-3" />
+          </button>
+          <button
+            type="button"
+            className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Notifications"
+          >
+            <Bell className="h-5 w-5 text-slate-600" />
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-medium">
+              8
+            </span>
+          </button>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-medium">
+              RL
+            </div>
+            <div className="hidden md:block">
+              <p className="text-sm font-medium text-slate-700">Riana Lynn</p>
+              <p className="text-xs text-slate-500">Manufacturer view</p>
+            </div>
+            <ChevronDown className="h-4 w-4 text-slate-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* Tab navigation row */}
+      <nav className="flex items-center gap-1 px-6 overflow-x-auto" aria-label="Main navigation">
+        {mainNav.map((item) => {
+          const Icon = item.icon
+          const isActive = activePage === item.id
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onNavigate(item.id)}
+              className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                isActive
+                  ? "border-slate-800 text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {item.name}
+              {item.badge && (
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"
+                  }`}
+                >
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          )
+        })}
+
+        <div className="ml-auto flex items-center gap-1 pl-4 border-l border-slate-100 shrink-0">
+          {supportNav.map((item) => {
+            const Icon = item.icon
+            return (
+              <button
+                key={item.name}
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-slate-400 hover:text-slate-600 whitespace-nowrap transition-colors border-b-2 border-transparent"
+              >
+                <Icon className="h-4 w-4" />
+                {item.name}
+              </button>
+            )
+          })}
+        </div>
+      </nav>
+    </header>
+  )
+}
