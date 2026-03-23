@@ -960,11 +960,144 @@ function SupplierProfilePanel() {
   )
 }
 
+// ─── Supplier Ingredient Portfolio (Supplier Mode view) ───────────────────────
+
+const ingredientPortfolio = [
+  { name: "Organic Mango Puree", active: 12, concept: 5, certifications: 3, hasDatasheet: true, price: "$4.50", alert: false },
+  { name: "Buckwheat Flour", active: 8, concept: 15, certifications: 1, hasDatasheet: false, price: "$2.75", alert: false },
+  { name: "Turmeric Extract", active: 25, concept: 3, certifications: 1, hasDatasheet: true, price: null, alert: true },
+  { name: "Eco-Friendly Pouch", active: 3, concept: 22, certifications: 2, hasDatasheet: true, price: "$0.85", alert: false },
+  { name: "Pea Protein Isolate", active: 18, concept: 9, certifications: 0, hasDatasheet: false, price: "$7.20", alert: true },
+]
+
+const starredIngredients = ["Organic Mango Puree", "Turmeric Extract", "Himalayan Pink Salt", "Avocado Oil"]
+
+function SupplierIngredientPortfolio() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Left: portfolio table */}
+      <div className="lg:col-span-2">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">Ingredient Portfolio</h1>
+              <p className="text-sm text-slate-500 mt-0.5">Manage your offerings and track their usage.</p>
+            </div>
+            <button
+              type="button"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+            >
+              <span className="text-base leading-none">+</span>
+              Upload More Ingredients
+            </button>
+          </div>
+
+          {/* Table header */}
+          <div className="grid grid-cols-5 gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-100">
+            <span className="col-span-2">Ingredient Name</span>
+            <span>Usage</span>
+            <span>Certifications</span>
+            <span>Price/kg (est.)</span>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {ingredientPortfolio.map((item) => (
+              <div key={item.name} className="grid grid-cols-5 gap-4 items-center px-3 py-4 hover:bg-slate-50 transition-colors">
+                <div className="col-span-2 flex items-center gap-3">
+                  {item.alert && (
+                    <span className="h-4 w-4 rounded-full border-2 border-red-400 flex items-center justify-center shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    </span>
+                  )}
+                  {!item.alert && <span className="h-4 w-4 shrink-0" />}
+                  <div className="h-9 w-9 rounded-lg bg-slate-100 shrink-0" />
+                  <span className="text-sm font-medium text-slate-800">{item.name}</span>
+                </div>
+                <div className="text-sm text-slate-700">
+                  <span className="block">{item.active} Active</span>
+                  <span className="block text-slate-400">{item.concept} Concept</span>
+                </div>
+                <div className="text-sm font-semibold text-slate-800">{item.certifications}</div>
+                <div className="text-sm text-slate-700">
+                  {item.price ?? <span className="text-slate-400">No data</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: panels */}
+      <div className="flex flex-col gap-6">
+        {/* Account Completion */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-3">Account Completion</h2>
+          <p className="text-sm font-medium text-red-500 mb-3">Your account is incomplete</p>
+          <div className="w-full bg-slate-100 rounded-full h-2.5 mb-4">
+            <div className="bg-slate-800 h-2.5 rounded-full" style={{ width: "35%" }} />
+          </div>
+          <button
+            type="button"
+            className="w-full py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            Set your contact information
+          </button>
+        </div>
+
+        {/* Ingredient Usage Analytics */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Ingredient Usage Analytics</h2>
+          <div className="space-y-3">
+            {[
+              { month: "JUL", active: 65, concept: 30 },
+              { month: "AUG", active: 55, concept: 40 },
+              { month: "SEP", active: 60, concept: 28 },
+              { month: "OCT", active: 75, concept: 38 },
+            ].map(({ month, active, concept }) => (
+              <div key={month} className="flex items-center gap-3">
+                <span className="w-8 text-xs font-medium text-slate-500 text-right shrink-0">{month}</span>
+                <div className="flex-1 flex rounded overflow-hidden h-5">
+                  <div className="bg-blue-500 h-full" style={{ width: `${(active / 120) * 100}%` }} />
+                  <div className="bg-violet-400 h-full" style={{ width: `${(concept / 120) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+            <div className="flex items-center gap-1 pt-1 text-xs text-slate-500 justify-between">
+              <span />
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-500 inline-block" />Active</span>
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-violet-400 inline-block" />Concept</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" className="mt-4 text-sm font-medium text-slate-700 flex items-center gap-1 hover:text-slate-900 transition-colors">
+            View Full Analytics <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Starred Ingredients */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Starred Ingredients</h2>
+          <ul className="space-y-3">
+            {starredIngredients.map((name) => (
+              <li key={name} className="flex items-center gap-3 text-sm text-slate-700">
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 shrink-0" />
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const [activePage, setActivePage] = useState<PageType>("suppliers")
   const [supplierView, setSupplierView] = useState<SupplierView>("manufacturer")
+  const [isSupplierMode, setIsSupplierMode] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -995,11 +1128,26 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <TopNav activePage={activePage} onNavigate={setActivePage} />
+      <TopNav
+        activePage={activePage}
+        onNavigate={setActivePage}
+        isSupplierMode={isSupplierMode}
+        onToggleSupplierMode={() => setIsSupplierMode((prev) => !prev)}
+      />
 
       <main className="p-6">
+        {/* ── Supplier mode welcome banner ───────────────────────── */}
+        {isSupplierMode && activePage !== "generate" && (
+          <h1 className="text-2xl font-bold text-slate-800 mb-6">Welcome, Supplier!</h1>
+        )}
+
         {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
+
+        {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
+        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && (
+          <SupplierIngredientPortfolio />
+        )}
 
         {/* ── Suppliers Tab ─────────────────────────────────────── */}
         {activePage === "suppliers" && (
@@ -1066,7 +1214,7 @@ export default function DashboardPage() {
         )}
 
         {/* ── Overview / Ingredients / Products tabs ─────────── */}
-        {activePage !== "suppliers" && activePage !== "generate" && activePage !== "packaging" && (
+        {!isSupplierMode && activePage !== "suppliers" && activePage !== "generate" && activePage !== "packaging" && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {(activePage === "ingredients" || activePage === "overview") && (

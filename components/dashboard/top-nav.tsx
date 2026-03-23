@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Home,
   Zap,
@@ -12,6 +13,9 @@ import {
   Search,
   Bell,
   ChevronDown,
+  User,
+  Check,
+  LogOut,
 } from "lucide-react"
 
 export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging"
@@ -33,9 +37,13 @@ const supportNav = [
 interface TopNavProps {
   activePage: PageType
   onNavigate: (page: PageType) => void
+  isSupplierMode: boolean
+  onToggleSupplierMode: () => void
 }
 
-export function TopNav({ activePage, onNavigate }: TopNavProps) {
+export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplierMode }: TopNavProps) {
+  const [profileOpen, setProfileOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
       {/* Brand + Search + User row */}
@@ -67,6 +75,19 @@ export function TopNav({ activePage, onNavigate }: TopNavProps) {
             All brands
             <ChevronDown className="h-3 w-3" />
           </button>
+
+          {/* Supplier Mode pill — visible when active */}
+          {isSupplierMode && (
+            <button
+              type="button"
+              onClick={onToggleSupplierMode}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-pink-600 bg-pink-50 border border-pink-200 hover:bg-pink-100 transition-colors"
+            >
+              <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+              Supplier Mode
+            </button>
+          )}
+
           <button
             type="button"
             className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -74,18 +95,87 @@ export function TopNav({ activePage, onNavigate }: TopNavProps) {
           >
             <Bell className="h-5 w-5 text-slate-600" />
             <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-medium">
-              8
+              10
             </span>
           </button>
-          <div className="flex items-center gap-2 cursor-pointer">
-            <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-medium">
-              RL
-            </div>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium text-slate-700">Riana Lynn</p>
-              <p className="text-xs text-slate-500">Manufacturer view</p>
-            </div>
-            <ChevronDown className="h-4 w-4 text-slate-400" />
+
+          {/* Profile dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setProfileOpen((prev) => !prev)}
+              className="flex items-center gap-2 cursor-pointer rounded-lg px-2 py-1.5 hover:bg-slate-50 transition-colors"
+              aria-haspopup="true"
+              aria-expanded={profileOpen}
+            >
+              <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-medium shrink-0">
+                RL
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-medium text-slate-700">Riana Lynn</p>
+                <p className="text-xs text-slate-500">
+                  {isSupplierMode ? "Supplier view" : "Manufacturer view"}
+                </p>
+              </div>
+              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {profileOpen && (
+              <>
+                {/* backdrop */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setProfileOpen(false)}
+                  aria-hidden="true"
+                />
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 z-50 py-2">
+                  {/* User info */}
+                  <div className="px-4 py-3 border-b border-slate-100">
+                    <p className="text-sm font-semibold text-slate-800">Natalie</p>
+                    <p className="text-xs text-slate-500">natalie@journeyfoods.io</p>
+                  </div>
+
+                  {/* Profile link */}
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    <User className="h-4 w-4 text-slate-400" />
+                    Profile
+                  </button>
+
+                  {/* Toggle supplier mode */}
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => {
+                      onToggleSupplierMode()
+                      setProfileOpen(false)
+                    }}
+                  >
+                    {isSupplierMode ? (
+                      <Check className="h-4 w-4 text-slate-700" />
+                    ) : (
+                      <span className="h-4 w-4" />
+                    )}
+                    <Box className="h-4 w-4 text-slate-400" />
+                    View Supplier Mode
+                  </button>
+
+                  <div className="border-t border-slate-100 mt-1 pt-1">
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      <LogOut className="h-4 w-4 text-slate-400" />
+                      Log out
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
