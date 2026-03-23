@@ -50,6 +50,7 @@ import { IngredientsPage } from "@/components/dashboard/ingredients-page"
 import { ProductsPage } from "@/components/dashboard/products-page"
 import { NotificationsPage } from "@/components/dashboard/notifications-page"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
+import { SuppliersPage } from "@/components/dashboard/suppliers-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1131,57 +1132,14 @@ export default function DashboardPage() {
   {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
-        {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && activePage !== "account" && (
+        {/* ── Supplier Mode: Ingredient Portfolio (Overview) ───────────────── */}
+        {isSupplierMode && activePage === "overview" && (
           <SupplierIngredientPortfolio />
         )}
 
-        {/* ── Suppliers Tab (Manufacturer mode only) ────────────── */}
-        {activePage === "suppliers" && !isSupplierMode && (
-          <>
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <h1 className="text-2xl font-bold text-slate-800">Supplier List</h1>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  aria-label="Grid view"
-                >
-                  <LayoutGrid className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  aria-label="List view"
-                >
-                  <List className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="lg:col-span-1">
-                <EmailTrackingPanel emails={emailTracking} />
-              </div>
-            </div>
-          </>
+        {/* ── Suppliers Tab ─────────────────────────────────────── */}
+        {activePage === "suppliers" && (
+          <SuppliersPage isSupplierMode={isSupplierMode} />
         )}
 
         {/* ── Ingredients Page ─────────────────────────────────── */}
