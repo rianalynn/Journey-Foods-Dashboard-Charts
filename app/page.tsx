@@ -46,6 +46,8 @@ import { IntegrationsPage } from "@/components/dashboard/integrations-page"
 import { GuavaPage } from "@/components/dashboard/guava-page"
 import { PackagingPage } from "@/components/dashboard/packaging-page"
 import { AccountPage } from "@/components/dashboard/account-page"
+import { IngredientsPage } from "@/components/dashboard/ingredients-page"
+import { ProductsPage } from "@/components/dashboard/products-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1177,95 +1179,38 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* ── Overview / Ingredients / Products tabs ─────────── */}
-        {!isSupplierMode && activePage !== "suppliers" && activePage !== "generate" && activePage !== "packaging" && (
+        {/* ── Ingredients Page ─────────────────────────────────── */}
+        {!isSupplierMode && activePage === "ingredients" && <IngredientsPage />}
+
+        {/* ── Products Page ─────────────────────────────────────── */}
+        {!isSupplierMode && activePage === "products" && <ProductsPage />}
+
+        {/* ── Overview quick tip (overview only) ───────────────── */}
+        {!isSupplierMode && activePage === "overview" && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {(activePage === "ingredients" || activePage === "overview") && (
-                <>
-                  <ActionCard
-                    title="Ingredient Actions"
-                    icon={<Bell className="h-4 w-4" />}
-                    completed={8}
-                    total={10}
-                    actions={[
-                      { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
-                      { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                    ]}
-                  />
-                  <StatCard
-                    title="Active Product Ingredients"
-                    value={92}
-                    subtitle="Across all products"
-                    trend={{ value: 12, isPositive: true }}
-                    icon={<Leaf className="h-4 w-4" />}
-                    gradientFrom="#1e40af"
-                    gradientTo="#3b82f6"
-                    chartColor="#ffffff"
-                  />
-                  <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
-                </>
-              )}
-              {activePage === "products" && (
-                <>
-                  <ActionCard
-                    title="Product Actions"
-                    icon={<Bell className="h-4 w-4" />}
-                    completed={4}
-                    total={10}
-                    actions={[
-                      { id: "n", label: "Notifications Pending", count: 6, priority: "medium" },
-                      { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                    ]}
-                  />
-                  <StatCard
-                    title="Active Products"
-                    value={488009}
-                    subtitle="In your catalog"
-                    trend={{ value: 2.4, isPositive: true }}
-                    icon={<Package className="h-4 w-4" />}
-                    gradientFrom="#1e40af"
-                    gradientTo="#3b82f6"
-                    chartColor="#ffffff"
-                  />
-                  <StatCard
-                    title="Concept Products"
-                    value={172}
-                    subtitle="In development"
-                    trend={{ value: 8, isPositive: true }}
-                    icon={<Lightbulb className="h-4 w-4" />}
-                    gradientFrom="#d97706"
-                    gradientTo="#f59e0b"
-                    chartColor="#fef3c7"
-                  />
-                </>
-              )}
+              <ActionCard
+                title="Ingredient Actions"
+                icon={<Bell className="h-4 w-4" />}
+                completed={8}
+                total={10}
+                actions={[
+                  { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
+                  { id: "a", label: "Actions Pending", count: 0, priority: "high" },
+                ]}
+              />
+              <StatCard
+                title="Active Product Ingredients"
+                value={92}
+                subtitle="Across all products"
+                trend={{ value: 12, isPositive: true }}
+                icon={<Leaf className="h-4 w-4" />}
+                gradientFrom="#1e40af"
+                gradientTo="#3b82f6"
+                chartColor="#ffffff"
+              />
+              <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
             </div>
-
-            {/* Recently Viewed */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
-              <h2 className="text-lg font-semibold text-slate-800 mb-4">Recently Viewed</h2>
-              <div className="relative flex gap-4 overflow-x-auto pb-2">
-                <button type="button" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
-                  <ChevronLeft className="h-4 w-4 text-slate-600" />
-                </button>
-                {["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"].map((name, i) => (
-                  <div key={i} className="flex-shrink-0 w-40 group cursor-pointer">
-                    <div className="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
-                      <div className="w-24 h-24 bg-slate-200 rounded-lg flex items-center justify-center">
-                        <Package className="h-8 w-8 text-slate-400" />
-                      </div>
-                    </div>
-                    <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
-                  </div>
-                ))}
-                <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
-                  <ChevronRight className="h-4 w-4 text-slate-600" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Tips */}
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-blue-100 rounded-lg">
@@ -1273,11 +1218,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
-                  <p className="text-sm text-slate-600">
-                    {activePage === "ingredients" && "Monitor ingredient alerts for supply chain issues, price changes, and quality score updates. Set up notifications to stay ahead of potential disruptions."}
-                    {activePage === "products" && "Use concept products to experiment with formulations before moving them to production. Track ingredient costs and nutritional data in real-time."}
-                    {activePage === "overview" && "Welcome to JourneyFoods! Use the navigation above to explore ingredients, products, and suppliers in your network."}
-                  </p>
+                  <p className="text-sm text-slate-600">Welcome to JourneyFoods! Use the navigation above to explore ingredients, products, and suppliers in your network.</p>
                 </div>
               </div>
             </div>
