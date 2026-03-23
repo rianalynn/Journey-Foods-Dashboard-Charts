@@ -1,22 +1,8 @@
 "use client"
 
 import React from "react"
-
 import { useState, useMemo } from "react"
 import {
-  Home,
-  Zap,
-  Leaf,
-  Package,
-  Box,
-  ImageIcon,
-  BarChart3,
-  Link2,
-  Search,
-  Bell,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
   Info,
@@ -29,22 +15,35 @@ import {
   Clock,
   X,
   Lightbulb,
-  Sparkles,
+  Zap,
   LayoutGrid,
   List,
   MapPin,
   Phone,
   Mail,
   Globe,
-  FileText,
+  Package,
   Users,
   Send,
   Eye,
   CheckCircle,
   XCircle,
+  ChevronRight,
+  ChevronLeft,
+  Bell,
+  Box,
+  Leaf,
+  Building2,
+  Star,
+  TrendingUp as TrendUp,
 } from "lucide-react"
 
-type PageType = "overview" | "ingredients" | "products" | "suppliers"
+import { TopNav, type PageType } from "@/components/dashboard/top-nav"
+
+import { GenerateTab } from "@/components/dashboard/generate-tab"
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 type TimeRange = "7d" | "30d" | "3m" | "6m" | "1y"
 type AlertType = "supply" | "score" | "price" | "delivery"
 type AlertSeverity = "critical" | "warning" | "info"
@@ -74,35 +73,36 @@ interface Supplier {
   website: string | null
   certifications: string[]
   description: string
+  categories?: string[]
+  minOrder?: string
+  leadTime?: string
 }
 
+interface EmailTracking {
+  id: string
+  supplierName: string
+  sentAt: string
+  opened: boolean
+  openedAt: string | null
+  clicked: boolean
+  replied: boolean
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
 const suppliersData: Supplier[] = [
-  { id: "1", name: "Journey Foods Test", location: "Unknown Location", score: 72.73, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Blueberry", "Papaya", "hibiscus flow", "Mango", "Acai", "Spirulina", "Chlorella", "Matcha"], phone: null, email: "contact@journeyfoods.com", website: "journeyfoods.com", certifications: ["USDA Organic", "Non-GMO"], description: "A leading supplier of organic superfoods and functional ingredients." },
-  { id: "2", name: "check12345", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: [], phone: null, email: "check@example.com", website: null, certifications: [], description: "New supplier pending verification." },
-  { id: "3", name: "abhi34", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: [], phone: null, email: "abhi@example.com", website: null, certifications: [], description: "New supplier pending verification." },
-  { id: "4", name: "LinkOne Ingredient Solutions", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Oils", "Eggs", "Nuts", "Seeds", "Dairy", "Proteins", "Flavors", "Colors", "Preservatives", "Emulsifiers", "Stabilizers"], phone: "+1 417-236-9602", email: "info@linkone.com", website: "linkone.com", certifications: ["FDA Approved", "GFSI"], description: "Comprehensive ingredient solutions for food manufacturers." },
-  { id: "5", name: "Pharmore Ingredients Inc", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Chondroitin Sulfate Sodium", "Glucosamine HCl", "Glucosamine Sulfate 2KCl", "MSM", "Collagen", "Hyaluronic Acid"], phone: "+1 801-446-8188", email: "sales@pharmore.com", website: "pharmore.com", certifications: ["GMP Certified", "NSF"], description: "Specialty ingredients for nutraceuticals and dietary supplements." },
-  { id: "6", name: "HPS Food & Ingredients Inc.", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Hulled Hempseeds", "Roasted Whole Hempseed", "Cold Pressed Hempseed Oil", "Hemp Protein Powder", "Hemp Flour", "Hemp Hearts"], phone: "+1 844-436-7477", email: "info@hpsfoods.com", website: "hpsfoods.com", certifications: ["Organic", "Kosher", "Halal"], description: "Premium hemp-based ingredients for food and beverage applications." },
-  { id: "7", name: "SIGNO Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Amino Acids", "Nucleotides for Infant Formula", "Phosphates", "Vitamins", "Minerals"], phone: "+1 832-406-7165", email: "contact@signofoods.com", website: "signofoods.com", certifications: ["ISO 22000", "FSSC 22000"], description: "Specialized ingredients for infant nutrition and functional foods." },
-  { id: "8", name: "Del-Val Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Clean Label Initiatives", "Taste Indulgence", "Health/Wellness Promotion", "Texture Enhancement", "Shelf Life Extension"], phone: "+1 856-778-6623", email: "sales@delval.com", website: "delval.com", certifications: ["SQF Certified", "Kosher"], description: "Innovative ingredient solutions for clean label products." },
-  { id: "9", name: "Tisdale Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Sweeteners", "Starches", "Fibers"], phone: null, email: "info@tisdale.com", website: "tisdale.com", certifications: ["BRC Certified"], description: "Quality ingredients for bakery and confectionery applications." },
-  { id: "10", name: "Ingredients Corporation of America", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Flavorings", "Seasonings", "Spice Blends"], phone: null, email: "contact@icafoods.com", website: "icafoods.com", certifications: ["FDA Registered"], description: "Custom flavor and seasoning solutions." },
-  { id: "11", name: "Alexandra Foods", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Dried Fruits", "Nuts", "Seeds"], phone: null, email: "info@alexandrafoods.com", website: "alexandrafoods.com", certifications: ["Organic", "Fair Trade"], description: "Premium dried fruits and nuts from sustainable sources." },
-  { id: "12", name: "Nexcel Natural Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Plant Extracts", "Botanicals", "Essential Oils"], phone: null, email: "sales@nexcel.com", website: "nexcel.com", certifications: ["USDA Organic", "Non-GMO Project Verified"], description: "Natural and organic plant-based ingredients." },
-]
-
-const navigation = [
-  { name: "Overview", icon: Home },
-  { name: "Generate", icon: Zap },
-  { name: "Ingredients", icon: Leaf, badge: "10+" },
-  { name: "Products", icon: Package },
-  { name: "Suppliers", icon: Box },
-  { name: "Packaging", icon: ImageIcon },
-]
-
-const supportNav = [
-  { name: "Analytics", icon: BarChart3 },
-  { name: "Integrations", icon: Link2 },
+  { id: "1", name: "Journey Foods Test", location: "Unknown Location", score: 72.73, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Blueberry", "Papaya", "hibiscus flow", "Mango", "Acai", "Spirulina", "Chlorella", "Matcha"], phone: null, email: "contact@journeyfoods.com", website: "journeyfoods.com", certifications: ["USDA Organic", "Non-GMO"], description: "A leading supplier of organic superfoods and functional ingredients.", categories: ["Superfoods", "Botanicals"], minOrder: "5kg", leadTime: "2–3 weeks" },
+  { id: "2", name: "check12345", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: [], phone: null, email: "check@example.com", website: null, certifications: [], description: "New supplier pending verification.", categories: [], minOrder: "TBD", leadTime: "TBD" },
+  { id: "3", name: "abhi34", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: [], phone: null, email: "abhi@example.com", website: null, certifications: [], description: "New supplier pending verification.", categories: [], minOrder: "TBD", leadTime: "TBD" },
+  { id: "4", name: "LinkOne Ingredient Solutions", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Oils", "Eggs", "Nuts", "Seeds", "Dairy", "Proteins", "Flavors", "Colors", "Preservatives", "Emulsifiers", "Stabilizers"], phone: "+1 417-236-9602", email: "info@linkone.com", website: "linkone.com", certifications: ["FDA Approved", "GFSI"], description: "Comprehensive ingredient solutions for food manufacturers.", categories: ["Proteins", "Emulsifiers", "Flavors"], minOrder: "25kg", leadTime: "1–2 weeks" },
+  { id: "5", name: "Pharmore Ingredients Inc", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Chondroitin Sulfate Sodium", "Glucosamine HCl", "Glucosamine Sulfate 2KCl", "MSM", "Collagen", "Hyaluronic Acid"], phone: "+1 801-446-8188", email: "sales@pharmore.com", website: "pharmore.com", certifications: ["GMP Certified", "NSF"], description: "Specialty ingredients for nutraceuticals and dietary supplements.", categories: ["Nutraceuticals", "Supplements"], minOrder: "10kg", leadTime: "2–4 weeks" },
+  { id: "6", name: "HPS Food & Ingredients Inc.", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Hulled Hempseeds", "Roasted Whole Hempseed", "Cold Pressed Hempseed Oil", "Hemp Protein Powder", "Hemp Flour", "Hemp Hearts"], phone: "+1 844-436-7477", email: "info@hpsfoods.com", website: "hpsfoods.com", certifications: ["Organic", "Kosher", "Halal"], description: "Premium hemp-based ingredients for food and beverage applications.", categories: ["Hemp", "Plant Protein"], minOrder: "5kg", leadTime: "1–3 weeks" },
+  { id: "7", name: "SIGNO Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Amino Acids", "Nucleotides for Infant Formula", "Phosphates", "Vitamins", "Minerals"], phone: "+1 832-406-7165", email: "contact@signofoods.com", website: "signofoods.com", certifications: ["ISO 22000", "FSSC 22000"], description: "Specialized ingredients for infant nutrition and functional foods.", categories: ["Infant Nutrition", "Vitamins"], minOrder: "10kg", leadTime: "3–5 weeks" },
+  { id: "8", name: "Del-Val Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Clean Label Initiatives", "Taste Indulgence", "Health/Wellness Promotion", "Texture Enhancement", "Shelf Life Extension"], phone: "+1 856-778-6623", email: "sales@delval.com", website: "delval.com", certifications: ["SQF Certified", "Kosher"], description: "Innovative ingredient solutions for clean label products.", categories: ["Clean Label", "Texture"], minOrder: "20kg", leadTime: "2–3 weeks" },
+  { id: "9", name: "Tisdale Food Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Sweeteners", "Starches", "Fibers"], phone: null, email: "info@tisdale.com", website: "tisdale.com", certifications: ["BRC Certified"], description: "Quality ingredients for bakery and confectionery applications.", categories: ["Sweeteners", "Bakery"], minOrder: "50kg", leadTime: "1–2 weeks" },
+  { id: "10", name: "Ingredients Corporation of America", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Flavorings", "Seasonings", "Spice Blends"], phone: null, email: "contact@icafoods.com", website: "icafoods.com", certifications: ["FDA Registered"], description: "Custom flavor and seasoning solutions.", categories: ["Flavors", "Seasonings"], minOrder: "10kg", leadTime: "2–4 weeks" },
+  { id: "11", name: "Alexandra Foods", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Dried Fruits", "Nuts", "Seeds"], phone: null, email: "info@alexandrafoods.com", website: "alexandrafoods.com", certifications: ["Organic", "Fair Trade"], description: "Premium dried fruits and nuts from sustainable sources.", categories: ["Dried Fruits", "Nuts"], minOrder: "10kg", leadTime: "1–3 weeks" },
+  { id: "12", name: "Nexcel Natural Ingredients", location: "Unknown Location", score: 90, status: "Pending", lastUpdated: "Invalid Date", ingredients: ["Plant Extracts", "Botanicals", "Essential Oils"], phone: null, email: "sales@nexcel.com", website: "nexcel.com", certifications: ["USDA Organic", "Non-GMO Project Verified"], description: "Natural and organic plant-based ingredients.", categories: ["Botanicals", "Extracts"], minOrder: "5kg", leadTime: "2–3 weeks" },
 ]
 
 const timeRanges: Array<{ key: TimeRange; label: string }> = [
@@ -127,6 +127,8 @@ const ingredientAlerts: Alert[] = [
   { id: "4", type: "price", severity: "info", title: "Price Decrease", description: "Bulk pricing now available from new supplier", ingredient: "Oat Flour", timestamp: "2 days ago", change: { from: 3.2, to: 2.85, unit: "/kg" } },
 ]
 
+// ─── Utility Functions ────────────────────────────────────────────────────────
+
 function seededRandom(seed: number) {
   const x = Math.sin(seed) * 10000
   return x - Math.floor(x)
@@ -140,6 +142,8 @@ function generateTrendData(baseValue: number, count: number, seed: number = 0) {
   }
   return data
 }
+
+// ─── Chart Component ──────────────────────────────────────────────────────────
 
 function SparklineChart({ data, color, id }: { data: Array<{ value: number }>; color: string; id: string }) {
   const pathData = useMemo(() => {
@@ -172,6 +176,8 @@ function SparklineChart({ data, color, id }: { data: Array<{ value: number }>; c
   )
 }
 
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+
 function StatCard({ title, value, subtitle, trend, icon, gradientFrom, gradientTo, chartColor }: {
   title: string
   value: number
@@ -185,7 +191,7 @@ function StatCard({ title, value, subtitle, trend, icon, gradientFrom, gradientT
   const [range, setRange] = useState<TimeRange>("7d")
   const data = useMemo(() => {
     const count = range === "7d" ? 7 : range === "30d" ? 30 : 12
-    const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    const seed = title.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
     return generateTrendData(value, count, seed)
   }, [value, range, title])
 
@@ -233,6 +239,8 @@ function StatCard({ title, value, subtitle, trend, icon, gradientFrom, gradientT
     </div>
   )
 }
+
+// ─── ActionCard ───────────────────────────────────────────────────────────────
 
 function ActionCard({ title, icon, actions, completed, total }: {
   title: string
@@ -300,6 +308,8 @@ function ActionCard({ title, icon, actions, completed, total }: {
     </div>
   )
 }
+
+// ─── AlertsCard ───────────────────────────────────────────────────────────────
 
 function AlertsCard({ title, alerts: initialAlerts }: { title: string; alerts: Alert[] }) {
   const [alerts, setAlerts] = useState(initialAlerts)
@@ -432,7 +442,13 @@ function AlertsCard({ title, alerts: initialAlerts }: { title: string; alerts: A
   )
 }
 
-function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; onConnect: (supplier: Supplier) => void; viewMode: ViewMode }) {
+// ─── SupplierCard ─────────────────────────────────────────────────────────────
+
+function SupplierCard({ supplier, onConnect, viewMode }: {
+  supplier: Supplier
+  onConnect: (supplier: Supplier) => void
+  viewMode: ViewMode
+}) {
   const formatWhatsAppLink = (phone: string) => {
     const cleaned = phone.replace(/[^0-9]/g, "")
     return `https://wa.me/${cleaned}`
@@ -512,9 +528,9 @@ function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; o
         <p className="text-xs text-slate-500 mb-1.5">Ingredients:</p>
         {supplier.ingredients.length > 0 ? (
           <div className="flex flex-wrap gap-1">
-            {supplier.ingredients.slice(0, 3).map((ing, i) => (
+            {supplier.ingredients.slice(0, 3).map((item, i) => (
               <span key={i} className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full border border-blue-200">
-                {ing}
+                {item}
               </span>
             ))}
             {supplier.ingredients.length > 3 && (
@@ -557,7 +573,13 @@ function SupplierCard({ supplier, onConnect, viewMode }: { supplier: Supplier; o
   )
 }
 
-function SupplierDetailModal({ supplier, onClose, onSendEmail }: { supplier: Supplier; onClose: () => void; onSendEmail: (supplier: Supplier) => void }) {
+// ─── SupplierDetailModal ──────────────────────────────────────────────────────
+
+function SupplierDetailModal({ supplier, onClose, onSendEmail }: {
+  supplier: Supplier
+  onClose: () => void
+  onSendEmail: (supplier: Supplier) => void
+}) {
   const formatWhatsAppLink = (phone: string) => {
     const cleaned = phone.replace(/[^0-9]/g, "")
     return `https://wa.me/${cleaned}`
@@ -697,17 +719,13 @@ function SupplierDetailModal({ supplier, onClose, onSendEmail }: { supplier: Sup
   )
 }
 
-interface EmailTracking {
-  id: string
-  supplierName: string
-  sentAt: string
-  opened: boolean
-  openedAt: string | null
-  clicked: boolean
-  replied: boolean
-}
+// ─── EmailOutreachModal ───────────────────────────────────────────────────────
 
-function EmailOutreachModal({ supplier, onClose, onSend }: { supplier: Supplier; onClose: () => void; onSend: (supplier: Supplier, subject: string, body: string) => void }) {
+function EmailOutreachModal({ supplier, onClose, onSend }: {
+  supplier: Supplier
+  onClose: () => void
+  onSend: (supplier: Supplier, subject: string, body: string) => void
+}) {
   const [subject, setSubject] = useState(`Partnership Inquiry - JourneyFoods`)
   const [body, setBody] = useState(
     `Hi ${supplier.name} Team,\n\nI hope this message finds you well. My name is Riana Lynn from JourneyFoods, and I'm reaching out because we're impressed with your ingredient offerings.\n\nWe're currently looking for suppliers who can provide high-quality ingredients for our food manufacturing partners. Based on your profile, we believe there could be a great opportunity for collaboration.\n\nWould you be interested in setting up a call to discuss potential partnership opportunities?\n\nAdditionally, we'd love to invite you to create a supplier profile on our platform, which will help streamline communication and enable us to better match your products with our clients' needs.\n\nLooking forward to hearing from you.\n\nBest regards,\nRiana Lynn\nJourneyFoods`
@@ -794,6 +812,8 @@ function EmailOutreachModal({ supplier, onClose, onSend }: { supplier: Supplier;
   )
 }
 
+// ─── EmailTrackingPanel ───────────────────────────────────────────────────────
+
 function EmailTrackingPanel({ emails }: { emails: EmailTracking[] }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
@@ -855,8 +875,189 @@ function EmailTrackingPanel({ emails }: { emails: EmailTracking[] }) {
   )
 }
 
+// ─── SupplierProfilePanel ─────────────────────────────────────────────────────
+
+function SupplierProfilePanel() {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Building2 className="h-5 w-5 text-slate-600" />
+        <h3 className="font-semibold text-slate-800">Your Supplier Profile</h3>
+      </div>
+      <div className="space-y-3">
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-xs font-semibold text-amber-800">Profile Completion: 60%</p>
+          <div className="h-1.5 bg-amber-200 rounded-full mt-2 overflow-hidden">
+            <div className="h-full bg-amber-500 rounded-full" style={{ width: "60%" }} />
+          </div>
+          <p className="text-[11px] text-amber-700 mt-1.5">Complete your profile to increase visibility with manufacturers.</p>
+        </div>
+        <div className="space-y-2 text-xs text-slate-600">
+          <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+            <span>Certifications uploaded</span>
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+            <span>Ingredient catalog</span>
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          </div>
+          <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+            <span>Pricing info</span>
+            <X className="h-4 w-4 text-slate-300" />
+          </div>
+          <div className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
+            <span>Lead time info</span>
+            <X className="h-4 w-4 text-slate-300" />
+          </div>
+        </div>
+        <button
+          type="button"
+          className="w-full py-2 text-sm font-medium bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Complete Profile
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Supplier Ingredient Portfolio (Supplier Mode view) ───────────────────────
+
+const ingredientPortfolio = [
+  { name: "Organic Mango Puree", active: 12, concept: 5, certifications: 3, hasDatasheet: true, price: "$4.50", alert: false },
+  { name: "Buckwheat Flour", active: 8, concept: 15, certifications: 1, hasDatasheet: false, price: "$2.75", alert: false },
+  { name: "Turmeric Extract", active: 25, concept: 3, certifications: 1, hasDatasheet: true, price: null, alert: true },
+  { name: "Eco-Friendly Pouch", active: 3, concept: 22, certifications: 2, hasDatasheet: true, price: "$0.85", alert: false },
+  { name: "Pea Protein Isolate", active: 18, concept: 9, certifications: 0, hasDatasheet: false, price: "$7.20", alert: true },
+]
+
+const starredIngredients = ["Organic Mango Puree", "Turmeric Extract", "Himalayan Pink Salt", "Avocado Oil"]
+
+function SupplierIngredientPortfolio() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Left: portfolio table */}
+      <div className="lg:col-span-2">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">Ingredient Portfolio</h1>
+              <p className="text-sm text-slate-500 mt-0.5">Manage your offerings and track their usage.</p>
+            </div>
+            <button
+              type="button"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+            >
+              <span className="text-base leading-none">+</span>
+              Upload More Ingredients
+            </button>
+          </div>
+
+          {/* Table header */}
+          <div className="grid grid-cols-5 gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-100">
+            <span className="col-span-2">Ingredient Name</span>
+            <span>Usage</span>
+            <span>Certifications</span>
+            <span>Price/kg (est.)</span>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {ingredientPortfolio.map((item) => (
+              <div key={item.name} className="grid grid-cols-5 gap-4 items-center px-3 py-4 hover:bg-slate-50 transition-colors">
+                <div className="col-span-2 flex items-center gap-3">
+                  {item.alert && (
+                    <span className="h-4 w-4 rounded-full border-2 border-red-400 flex items-center justify-center shrink-0">
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    </span>
+                  )}
+                  {!item.alert && <span className="h-4 w-4 shrink-0" />}
+                  <div className="h-9 w-9 rounded-lg bg-slate-100 shrink-0" />
+                  <span className="text-sm font-medium text-slate-800">{item.name}</span>
+                </div>
+                <div className="text-sm text-slate-700">
+                  <span className="block">{item.active} Active</span>
+                  <span className="block text-slate-400">{item.concept} Concept</span>
+                </div>
+                <div className="text-sm font-semibold text-slate-800">{item.certifications}</div>
+                <div className="text-sm text-slate-700">
+                  {item.price ?? <span className="text-slate-400">No data</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right: panels */}
+      <div className="flex flex-col gap-6">
+        {/* Account Completion */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-3">Account Completion</h2>
+          <p className="text-sm font-medium text-red-500 mb-3">Your account is incomplete</p>
+          <div className="w-full bg-slate-100 rounded-full h-2.5 mb-4">
+            <div className="bg-slate-800 h-2.5 rounded-full" style={{ width: "35%" }} />
+          </div>
+          <button
+            type="button"
+            className="w-full py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            Set your contact information
+          </button>
+        </div>
+
+        {/* Ingredient Usage Analytics */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Ingredient Usage Analytics</h2>
+          <div className="space-y-3">
+            {[
+              { month: "JUL", active: 65, concept: 30 },
+              { month: "AUG", active: 55, concept: 40 },
+              { month: "SEP", active: 60, concept: 28 },
+              { month: "OCT", active: 75, concept: 38 },
+            ].map(({ month, active, concept }) => (
+              <div key={month} className="flex items-center gap-3">
+                <span className="w-8 text-xs font-medium text-slate-500 text-right shrink-0">{month}</span>
+                <div className="flex-1 flex rounded overflow-hidden h-5">
+                  <div className="bg-blue-500 h-full" style={{ width: `${(active / 120) * 100}%` }} />
+                  <div className="bg-violet-400 h-full" style={{ width: `${(concept / 120) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+            <div className="flex items-center gap-1 pt-1 text-xs text-slate-500 justify-between">
+              <span />
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-500 inline-block" />Active</span>
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-violet-400 inline-block" />Concept</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" className="mt-4 text-sm font-medium text-slate-700 flex items-center gap-1 hover:text-slate-900 transition-colors">
+            View Full Analytics <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Starred Ingredients */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <h2 className="text-lg font-bold text-slate-800 mb-4">Starred Ingredients</h2>
+          <ul className="space-y-3">
+            {starredIngredients.map((name) => (
+              <li key={name} className="flex items-center gap-3 text-sm text-slate-700">
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 shrink-0" />
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function DashboardPage() {
-  const [activePage, setActivePage] = useState<PageType>("suppliers")
+  const [activePage, setActivePage] = useState<PageType>("overview")
+  const [isSupplierMode, setIsSupplierMode] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -887,261 +1088,195 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">J</span>
-            </div>
-            <span className="font-semibold text-slate-800 text-lg">JourneyFoods</span>
-          </div>
-          <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search ingredients, suppliers, and more"
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <button type="button" className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-              <Box className="h-4 w-4" />
-              All brands
-              <ChevronDown className="h-3 w-3" />
-            </button>
-            <button type="button" className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-              <Bell className="h-5 w-5 text-slate-600" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-medium">8</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-xs font-medium">RL</div>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-slate-700">Riana Lynn</p>
-                <p className="text-xs text-slate-500">Manufacturer view</p>
+      <TopNav
+        activePage={activePage}
+        onNavigate={setActivePage}
+        isSupplierMode={isSupplierMode}
+        onToggleSupplierMode={() => setIsSupplierMode((prev) => !prev)}
+      />
+
+      <main className="p-6">
+        {/* ── Supplier mode welcome banner ───────────────────────── */}
+        {isSupplierMode && activePage !== "generate" && (
+          <h1 className="text-2xl font-bold text-slate-800 mb-6">Welcome, Supplier!</h1>
+        )}
+
+        {/* ── Generate Tab ─────────────────────────────────────── */}
+        {activePage === "generate" && <GenerateTab />}
+
+        {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
+        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && (
+          <SupplierIngredientPortfolio />
+        )}
+
+        {/* ── Suppliers Tab (Manufacturer mode only) ────────────── */}
+        {activePage === "suppliers" && !isSupplierMode && (
+          <>
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+              <h1 className="text-2xl font-bold text-slate-800">Supplier List</h1>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                  aria-label="Grid view"
+                >
+                  <LayoutGrid className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                  aria-label="List view"
+                >
+                  <List className="h-5 w-5" />
+                </button>
               </div>
-              <ChevronDown className="h-4 w-4 text-slate-400" />
             </div>
-          </div>
-        </div>
-      </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-slate-200 min-h-[calc(100vh-65px)] sticky top-[65px]">
-          <nav className="p-4">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Menu</p>
-            <ul className="space-y-1">
-              {navigation.map((item) => {
-                const isActive = item.name.toLowerCase() === activePage
-                const Icon = item.icon
-                return (
-                  <li key={item.name}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (["overview", "ingredients", "products", "suppliers"].includes(item.name.toLowerCase())) {
-                          setActivePage(item.name.toLowerCase() as PageType)
-                        }
-                      }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        isActive ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                      {item.name}
-                      {item.badge && (
-                        <span className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"}`}>
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-            <div className="border-t border-slate-200 mt-4 pt-4">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Support</p>
-              <ul className="space-y-1">
-                {supportNav.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <li key={item.name}>
-                      <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
-                        <Icon className="h-5 w-5" />
-                        {item.name}
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                {viewMode === "grid" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {suppliersData.map((supplier) => (
+                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {suppliersData.map((supplier) => (
+                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="lg:col-span-1">
+                <EmailTrackingPanel emails={emailTracking} />
+              </div>
             </div>
-          </nav>
-        </aside>
+          </>
+        )}
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Stats Grid - Only show for non-supplier pages */}
-          {activePage !== "suppliers" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {(activePage === "ingredients" || activePage === "overview") && (
-              <>
-                <ActionCard
-                  title="Ingredient Actions"
-                  icon={<Bell className="h-4 w-4" />}
-                  completed={8}
-                  total={10}
-                  actions={[
-                    { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
-                    { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                  ]}
-                />
-                <StatCard
-                  title="Active Product Ingredients"
-                  value={92}
-                  subtitle="Across all products"
-                  trend={{ value: 12, isPositive: true }}
-                  icon={<Leaf className="h-4 w-4" />}
-                  gradientFrom="#1e40af"
-                  gradientTo="#3b82f6"
-                  chartColor="#ffffff"
-                />
-                <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
-              </>
-            )}
-            {activePage === "products" && (
-              <>
-                <ActionCard
-                  title="Product Actions"
-                  icon={<Bell className="h-4 w-4" />}
-                  completed={4}
-                  total={10}
-                  actions={[
-                    { id: "n", label: "Notifications Pending", count: 6, priority: "medium" },
-                    { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                  ]}
-                />
-                <StatCard
-                  title="Active Products"
-                  value={488009}
-                  subtitle="In your catalog"
-                  trend={{ value: 2.4, isPositive: true }}
-                  icon={<Package className="h-4 w-4" />}
-                  gradientFrom="#1e40af"
-                  gradientTo="#3b82f6"
-                  chartColor="#ffffff"
-                />
-                <StatCard
-                  title="Concept Products"
-                  value={172}
-                  subtitle="In development"
-                  trend={{ value: 8, isPositive: true }}
-                  icon={<Lightbulb className="h-4 w-4" />}
-                  gradientFrom="#d97706"
-                  gradientTo="#f59e0b"
-                  chartColor="#fef3c7"
-                />
-              </>
-            )}
-          </div>
-          )}
+        {/* ── Overview / Ingredients / Products tabs ─────────── */}
+        {!isSupplierMode && activePage !== "suppliers" && activePage !== "generate" && activePage !== "packaging" && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              {(activePage === "ingredients" || activePage === "overview") && (
+                <>
+                  <ActionCard
+                    title="Ingredient Actions"
+                    icon={<Bell className="h-4 w-4" />}
+                    completed={8}
+                    total={10}
+                    actions={[
+                      { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
+                      { id: "a", label: "Actions Pending", count: 0, priority: "high" },
+                    ]}
+                  />
+                  <StatCard
+                    title="Active Product Ingredients"
+                    value={92}
+                    subtitle="Across all products"
+                    trend={{ value: 12, isPositive: true }}
+                    icon={<Leaf className="h-4 w-4" />}
+                    gradientFrom="#1e40af"
+                    gradientTo="#3b82f6"
+                    chartColor="#ffffff"
+                  />
+                  <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
+                </>
+              )}
+              {activePage === "products" && (
+                <>
+                  <ActionCard
+                    title="Product Actions"
+                    icon={<Bell className="h-4 w-4" />}
+                    completed={4}
+                    total={10}
+                    actions={[
+                      { id: "n", label: "Notifications Pending", count: 6, priority: "medium" },
+                      { id: "a", label: "Actions Pending", count: 0, priority: "high" },
+                    ]}
+                  />
+                  <StatCard
+                    title="Active Products"
+                    value={488009}
+                    subtitle="In your catalog"
+                    trend={{ value: 2.4, isPositive: true }}
+                    icon={<Package className="h-4 w-4" />}
+                    gradientFrom="#1e40af"
+                    gradientTo="#3b82f6"
+                    chartColor="#ffffff"
+                  />
+                  <StatCard
+                    title="Concept Products"
+                    value={172}
+                    subtitle="In development"
+                    trend={{ value: 8, isPositive: true }}
+                    icon={<Lightbulb className="h-4 w-4" />}
+                    gradientFrom="#d97706"
+                    gradientTo="#f59e0b"
+                    chartColor="#fef3c7"
+                  />
+                </>
+              )}
+            </div>
 
-          {/* Suppliers Page Content */}
-          {activePage === "suppliers" && (
-            <>
-              <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-slate-800">Supplier List</h1>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <LayoutGrid className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  >
-                    <List className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div className="lg:col-span-2">
-                  {viewMode === "grid" ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {suppliersData.map((supplier) => (
-                        <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {suppliersData.map((supplier) => (
-                        <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="lg:col-span-1">
-                  <EmailTrackingPanel emails={emailTracking} />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Non-Suppliers Content */}
-          {activePage !== "suppliers" && (
-            <>
-              {/* Recently Viewed */}
-              <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
-                <h2 className="text-lg font-semibold text-slate-800 mb-4">Recently Viewed</h2>
-                <div className="relative flex gap-4 overflow-x-auto pb-2">
-                  <button type="button" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
-                    <ChevronLeft className="h-4 w-4 text-slate-600" />
-                  </button>
-                  {["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"].map((name, i) => (
-                    <div key={i} className="flex-shrink-0 w-40 group cursor-pointer">
-                      <div className="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
-                        <div className="w-24 h-24 bg-slate-200 rounded-lg flex items-center justify-center">
-                          <Package className="h-8 w-8 text-slate-400" />
-                        </div>
+            {/* Recently Viewed */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6 mt-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Recently Viewed</h2>
+              <div className="relative flex gap-4 overflow-x-auto pb-2">
+                <button type="button" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                  <ChevronLeft className="h-4 w-4 text-slate-600" />
+                </button>
+                {["#1 Fine Dark Chocolate", "Freeze Dried Blueberry", "Blueberry Powder", "Filets De Salmon"].map((name, i) => (
+                  <div key={i} className="flex-shrink-0 w-40 group cursor-pointer">
+                    <div className="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors">
+                      <div className="w-24 h-24 bg-slate-200 rounded-lg flex items-center justify-center">
+                        <Package className="h-8 w-8 text-slate-400" />
                       </div>
-                      <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
                     </div>
-                  ))}
-                  <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
-                    <ChevronRight className="h-4 w-4 text-slate-600" />
-                  </button>
+                    <p className="mt-2 text-sm font-medium text-slate-700 truncate text-center">{name}</p>
+                  </div>
+                ))}
+                <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors">
+                  <ChevronRight className="h-4 w-4 text-slate-600" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Tips */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <Zap className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
+                  <p className="text-sm text-slate-600">
+                    {activePage === "ingredients" && "Monitor ingredient alerts for supply chain issues, price changes, and quality score updates. Set up notifications to stay ahead of potential disruptions."}
+                    {activePage === "products" && "Use concept products to experiment with formulations before moving them to production. Track ingredient costs and nutritional data in real-time."}
+                    {activePage === "overview" && "Welcome to JourneyFoods! Use the navigation above to explore ingredients, products, and suppliers in your network."}
+                  </p>
                 </div>
               </div>
+            </div>
+          </>
+        )}
 
-              {/* Quick Tips */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Zap className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
-                    <p className="text-sm text-slate-600">
-                      {activePage === "ingredients" && "Monitor ingredient alerts for supply chain issues, price changes, and quality score updates. Set up notifications to stay ahead of potential disruptions."}
-                      {activePage === "products" && "Use concept products to experiment with formulations before moving them to production. Track ingredient costs and nutritional data in real-time."}
-                      {activePage === "overview" && "Welcome to JourneyFoods! Use the navigation menu to explore ingredients, products, and suppliers in your network."}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </main>
-      </div>
+        {/* ── Packaging placeholder ─────────────────────────────── */}
+        {activePage === "packaging" && (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="p-4 bg-slate-100 rounded-2xl mb-4">
+              <Package className="h-10 w-10 text-slate-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-slate-700">Packaging</h2>
+            <p className="text-sm text-slate-500 mt-2 max-w-xs">Packaging management and design tools are coming soon.</p>
+          </div>
+        )}
+      </main>
 
-      {/* Supplier Detail Modal */}
+      {/* Modals */}
       {selectedSupplier && !showEmailModal && (
         <SupplierDetailModal
           supplier={selectedSupplier}
@@ -1149,8 +1284,6 @@ export default function DashboardPage() {
           onSendEmail={handleSendEmail}
         />
       )}
-
-      {/* Email Outreach Modal */}
       {showEmailModal && selectedSupplier && (
         <EmailOutreachModal
           supplier={selectedSupplier}
