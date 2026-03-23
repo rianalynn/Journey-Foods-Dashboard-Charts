@@ -5,26 +5,27 @@ import {
   Search,
   LayoutGrid,
   List,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Package,
-  Star,
-  Leaf,
-  DollarSign,
-  ArrowRight,
+  Filter,
   Plus,
-  ShoppingCart,
-  Lightbulb,
+  ChevronDown,
+  X,
   Bell,
-  Calendar,
-  Save,
-  Share2,
-  FileText,
+  Package,
+  AlertTriangle,
   TrendingUp,
-  ChevronUp,
-  Edit3,
+  TrendingDown,
+  Star,
+  Download,
+  ExternalLink,
+  ChevronRight,
+  Leaf,
+  Zap,
+  DollarSign,
+  BarChart3,
+  Lightbulb,
+  Tag,
+  Globe,
+  ShoppingCart,
 } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,539 +34,358 @@ interface Product {
   id: string
   name: string
   brand: string
-  company: string
   category: string
-  type: string
   subCategory: string
-  flavor: string
   status: "active" | "concept" | "discontinued"
   nutritionScore: number
   sustainabilityScore: number
-  costPerKg: number
-  version: number
-  country: string
-  countryFlag: string
-  ingredients: { name: string; percentage: number }[]
+  costScore: number
+  overallScore: number
+  price: number
+  currency: string
+  market: string[]
+  ingredients: string[]
   ingredientCount: number
   upc: string
   sku: string
-  servingSize: number
-  profitMargin: number
-  manufacturer: string
-  dateCreated: string
-  fulfillmentDate: string
+  trend: "up" | "down" | "stable"
+  trendValue: number
+  starred: boolean
+  alert?: string
+  tags: string[]
   lastUpdated: string
-  createdBy: string
-  guavaEnabled: boolean
-  guavaScore: number
-  retailCost: number
-  cost: number
-  currency: string
-  notes: string
-  objectives: string[]
-  hasAdditives: boolean
+  servingSize: string
+  calories: number
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const productsData: Product[] = [
   {
-    id: "1", name: "Sauce, whole berry cranberry", brand: "Giant Eagle", company: "ss",
-    category: "Food", type: "Sauce", subCategory: "Condiments", flavor: "",
-    status: "active", nutritionScore: 60, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [
-      { name: "potatoes", percentage: 65 },
-      { name: "Peanut Oil", percentage: 20 },
-      { name: "sugar", percentage: 5 },
-      { name: "FRUCTOSE", percentage: 3 },
-      { name: "molasses", percentage: 2 },
-    ],
-    ingredientCount: 0, upc: "0003003406461", sku: "0003003406461",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-10-28", fulfillmentDate: "", lastUpdated: "Tue Jan 13 2026",
-    createdBy: "Huy Lee", guavaEnabled: true, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "1", name: "Organic Protein Bar — Chocolate Fudge", brand: "JourneyFoods", category: "Food", subCategory: "Bars",
+    status: "active", nutritionScore: 91, sustainabilityScore: 88, costScore: 79, overallScore: 88,
+    price: 3.49, currency: "USD", market: ["North America", "Europe"],
+    ingredients: ["Pea Protein Isolate", "Organic Mango Puree", "Coconut Sugar", "Oat Flour", "Avocado Oil"],
+    ingredientCount: 14, upc: "012345678901", sku: "JF-BAR-CHF-001",
+    trend: "up", trendValue: 6.4, starred: true, tags: ["Vegan", "Gluten-Free", "Non-GMO"],
+    lastUpdated: "1 day ago", servingSize: "60g", calories: 220,
   },
   {
-    id: "2", name: "Jimmy Chips", brand: "Jimmy John's", company: "ss",
-    category: "Food", type: "Snack", subCategory: "Chips", flavor: "",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [
-      { name: "potatoes", percentage: 65 },
-      { name: "Peanut Oil", percentage: 20 },
-      { name: "sugar", percentage: 5 },
-      { name: "FRUCTOSE", percentage: 3 },
-      { name: "molasses", percentage: 2 },
-    ],
-    ingredientCount: 8, upc: "37578800800", sku: "37578800800",
-    servingSize: 28, profitMargin: 0, manufacturer: "ss",
-    dateCreated: "2024-02-22", fulfillmentDate: "2026-03-23", lastUpdated: "Thu Jan 22 2026",
-    createdBy: "Đỗ Dương", guavaEnabled: true, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "2", name: "Green Smoothie Mix", brand: "JourneyFoods", category: "Beverages", subCategory: "Powders",
+    status: "active", nutritionScore: 94, sustainabilityScore: 91, costScore: 83, overallScore: 91,
+    price: 29.99, currency: "USD", market: ["North America"],
+    ingredients: ["Matcha Powder", "Pea Protein Isolate", "Chicory Root Fiber"],
+    ingredientCount: 9, upc: "012345678902", sku: "JF-SMO-GRN-001",
+    trend: "up", trendValue: 12.1, starred: true, tags: ["Vegan", "Keto-Friendly", "High Protein"],
+    lastUpdated: "3 hours ago", servingSize: "30g", calories: 120,
   },
   {
-    id: "3", name: "Egg Salad", brand: "Giant Eagle", company: "ss",
-    category: "Food", type: "Prepared", subCategory: "Salads", flavor: "",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [], ingredientCount: 5, upc: "", sku: "",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-08-15", fulfillmentDate: "", lastUpdated: "2 days ago",
-    createdBy: "Admin", guavaEnabled: false, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "3", name: "Turmeric Ginger Latte Blend", brand: "JourneyFoods", category: "Beverages", subCategory: "Latte Mix",
+    status: "concept", nutritionScore: 86, sustainabilityScore: 80, costScore: 74, overallScore: 82,
+    price: 24.99, currency: "USD", market: ["North America", "Europe", "Asia Pacific"],
+    ingredients: ["Turmeric Extract", "Coconut Sugar", "Himalayan Pink Salt"],
+    ingredientCount: 7, upc: "", sku: "JF-LAT-TGI-001",
+    trend: "stable", trendValue: 0, starred: false, tags: ["Anti-Inflammatory", "Vegan", "Adaptogenic"],
+    lastUpdated: "1 week ago", servingSize: "15g", calories: 60,
+    alert: "Pending regulatory review for EU market",
   },
   {
-    id: "4", name: "Jasmine White Rice", brand: "Giant Eagle", company: "ss",
-    category: "Food", type: "Grain", subCategory: "Rice", flavor: "",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [], ingredientCount: 1, upc: "", sku: "",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-06-10", fulfillmentDate: "", lastUpdated: "1 week ago",
-    createdBy: "Admin", guavaEnabled: false, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "4", name: "Recovery Electrolyte Drink", brand: "JourneyFoods", category: "Beverages", subCategory: "Electrolytes",
+    status: "active", nutritionScore: 88, sustainabilityScore: 85, costScore: 91, overallScore: 88,
+    price: 2.99, currency: "USD", market: ["North America"],
+    ingredients: ["Himalayan Pink Salt", "Coconut Sugar", "Freeze Dried Blueberry"],
+    ingredientCount: 6, upc: "012345678904", sku: "JF-ELC-RCV-001",
+    trend: "up", trendValue: 3.8, starred: false, tags: ["Electrolytes", "Low Sugar", "Non-GMO"],
+    lastUpdated: "2 days ago", servingSize: "20g", calories: 80,
   },
   {
-    id: "5", name: "Maraschino Cherries With Stems", brand: "Giant Eagle", company: "ss",
-    category: "Food", type: "Fruit", subCategory: "Preserved", flavor: "",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [], ingredientCount: 4, upc: "", sku: "",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-05-20", fulfillmentDate: "", lastUpdated: "3 days ago",
-    createdBy: "Admin", guavaEnabled: false, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "5", name: "Buckwheat Pancake Mix", brand: "JourneyFoods", category: "Food", subCategory: "Baking",
+    status: "active", nutritionScore: 83, sustainabilityScore: 87, costScore: 92, overallScore: 86,
+    price: 8.99, currency: "USD", market: ["North America", "Europe"],
+    ingredients: ["Buckwheat Flour", "Oat Flour", "Himalayan Pink Salt", "Sunflower Lecithin"],
+    ingredientCount: 8, upc: "012345678905", sku: "JF-BAK-PCK-001",
+    trend: "stable", trendValue: 0, starred: false, tags: ["Gluten-Free", "Vegan", "High Fiber"],
+    lastUpdated: "5 days ago", servingSize: "45g", calories: 170,
   },
   {
-    id: "6", name: "Pasta sauce, vodka", brand: "Market District", company: "ss",
-    category: "Food", type: "Sauce", subCategory: "Pasta", flavor: "",
-    status: "active", nutritionScore: 50, sustainabilityScore: 50, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [], ingredientCount: 12, upc: "", sku: "",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-04-15", fulfillmentDate: "", lastUpdated: "5 days ago",
-    createdBy: "Admin", guavaEnabled: false, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "6", name: "Matcha Energy Bites", brand: "JourneyFoods", category: "Food", subCategory: "Snacks",
+    status: "concept", nutritionScore: 87, sustainabilityScore: 89, costScore: 71, overallScore: 84,
+    price: 12.99, currency: "USD", market: ["North America", "Asia Pacific"],
+    ingredients: ["Matcha Powder", "Coconut Sugar", "Oat Flour", "Avocado Oil"],
+    ingredientCount: 10, upc: "", sku: "JF-SNK-MEB-001",
+    trend: "up", trendValue: 4.2, starred: false, tags: ["Vegan", "Antioxidant", "Non-GMO"],
+    lastUpdated: "2 weeks ago", servingSize: "35g", calories: 140,
   },
   {
-    id: "7", name: "Ice cream, vanilla", brand: "JourneyFoods", company: "ss",
-    category: "Food", type: "Frozen", subCategory: "Dessert", flavor: "Vanilla",
-    status: "concept", nutritionScore: 45, sustainabilityScore: 60, costPerKg: 0,
-    version: 1, country: "US", countryFlag: "🇺🇸",
-    ingredients: [], ingredientCount: 8, upc: "", sku: "",
-    servingSize: 0, profitMargin: 0, manufacturer: "",
-    dateCreated: "2025-03-01", fulfillmentDate: "", lastUpdated: "2 weeks ago",
-    createdBy: "Admin", guavaEnabled: false, guavaScore: 0,
-    retailCost: 0, cost: 0, currency: "USD", notes: "",
-    objectives: [], hasAdditives: false,
+    id: "7", name: "Blueberry Antioxidant Smoothie", brand: "JourneyFoods", category: "Beverages", subCategory: "Ready-to-Mix",
+    status: "active", nutritionScore: 93, sustainabilityScore: 90, costScore: 76, overallScore: 90,
+    price: 34.99, currency: "USD", market: ["North America"],
+    ingredients: ["Freeze Dried Blueberry", "Pea Protein Isolate", "Chicory Root Fiber"],
+    ingredientCount: 7, upc: "012345678907", sku: "JF-SMO-BLB-001",
+    trend: "up", trendValue: 8.9, starred: true, tags: ["Antioxidant", "High Protein", "Vegan"],
+    lastUpdated: "6 hours ago", servingSize: "30g", calories: 130,
+  },
+  {
+    id: "8", name: "Coconut Avocado Dressing", brand: "JourneyFoods", category: "Food", subCategory: "Condiments",
+    status: "active", nutritionScore: 85, sustainabilityScore: 88, costScore: 80, overallScore: 85,
+    price: 7.49, currency: "USD", market: ["North America", "Europe"],
+    ingredients: ["Avocado Oil", "Coconut Sugar", "Himalayan Pink Salt"],
+    ingredientCount: 5, upc: "012345678908", sku: "JF-CON-CAD-001",
+    trend: "down", trendValue: -1.4, starred: false, tags: ["Keto-Friendly", "Paleo", "Vegan"],
+    lastUpdated: "3 days ago", servingSize: "30ml", calories: 110,
+  },
+  {
+    id: "9", name: "Pea Protein Powder — Vanilla", brand: "JourneyFoods", category: "Supplements", subCategory: "Protein",
+    status: "active", nutritionScore: 96, sustainabilityScore: 93, costScore: 82, overallScore: 93,
+    price: 44.99, currency: "USD", market: ["North America", "Europe", "Asia Pacific"],
+    ingredients: ["Pea Protein Isolate", "Coconut Sugar", "Sunflower Lecithin"],
+    ingredientCount: 6, upc: "012345678909", sku: "JF-PRO-VAN-001",
+    trend: "up", trendValue: 14.3, starred: true, tags: ["Vegan", "High Protein", "Non-GMO"],
+    lastUpdated: "1 day ago", servingSize: "35g", calories: 130,
+  },
+  {
+    id: "10", name: "Overnight Oat Mix — Berry", brand: "JourneyFoods", category: "Food", subCategory: "Breakfast",
+    status: "concept", nutritionScore: 84, sustainabilityScore: 86, costScore: 88, overallScore: 85,
+    price: 11.99, currency: "USD", market: ["North America"],
+    ingredients: ["Oat Flour", "Freeze Dried Blueberry", "Coconut Sugar", "Buckwheat Flour"],
+    ingredientCount: 8, upc: "", sku: "JF-BRK-OOB-001",
+    trend: "up", trendValue: 2.1, starred: false, tags: ["High Fiber", "Vegan", "Gluten-Free"],
+    lastUpdated: "4 days ago", servingSize: "60g", calories: 230,
   },
 ]
 
-const recentlyViewed = productsData.slice(0, 12)
+const CATEGORIES = ["All", "Food", "Beverages", "Supplements"]
+const STATUSES = ["All", "Active", "Concept", "Discontinued"]
+const MARKETS = ["All", "North America", "Europe", "Asia Pacific"]
 
-// ─── Product Edit Modal ───────────────────────────────────────────────────────
+// ─── Score Bar ────────────────────────────────────────────────────────────────
 
-function ProductEditModal({
-  product,
-  onClose,
-  onSave,
-  isNew,
-}: {
-  product: Product | null
-  onClose: () => void
-  onSave: (product: Product) => void
-  isNew: boolean
-}) {
-  const [formData, setFormData] = useState<Partial<Product>>(
-    product || {
-      name: "",
-      brand: "",
-      company: "",
-      category: "",
-      type: "",
-      subCategory: "",
-      flavor: "",
-      status: "active",
-      sku: "",
-      manufacturer: "",
-      dateCreated: new Date().toISOString().split("T")[0],
-      fulfillmentDate: "",
-      servingSize: 0,
-      guavaEnabled: false,
-      guavaScore: 0,
-      hasAdditives: false,
-      upc: "",
-      cost: 0,
-      retailCost: 0,
-      profitMargin: 0,
-      country: "US",
-      currency: "USD",
-      notes: "",
-      objectives: [],
-    }
+function ScoreBar({ value, label, color = "#22c55e" }: { value: number; label: string; color?: string }) {
+  return (
+    <div>
+      <div className="flex justify-between text-xs text-slate-500 mb-1">
+        <span>{label}</span><span className="font-semibold text-slate-700">{value}</span>
+      </div>
+      <div className="h-1.5 bg-slate-100 rounded-full">
+        <div className="h-1.5 rounded-full transition-all" style={{ width: `${value}%`, backgroundColor: color }} />
+      </div>
+    </div>
   )
+}
 
-  const handleSubmit = () => {
-    onSave(formData as Product)
-    onClose()
-  }
+// ─── Product Detail Drawer ────────────────────────────────────────────────────
+
+function ProductDetailDrawer({ product, onClose }: { product: Product; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState<"overview" | "nutrition" | "ingredients" | "markets">("overview")
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex">
+      <div className="flex-1 bg-black/40" onClick={onClose} />
+      <div className="w-full max-w-xl bg-white shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="h-5 w-5 text-blue-600" />
+        <div className="flex items-start justify-between p-6 border-b border-slate-200">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-50 border border-blue-200 flex items-center justify-center">
+              <Package className="h-7 w-7 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">
-              {isNew ? "Add Product" : "Edit Product"}
-            </h2>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-800 leading-tight">{product.name}</h2>
+                {product.starred && <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 shrink-0" />}
+              </div>
+              <p className="text-sm text-slate-500 mt-0.5">{product.brand} · {product.subCategory}</p>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  product.status === "active" ? "bg-green-100 text-green-700" :
+                  product.status === "concept" ? "bg-amber-100 text-amber-700" :
+                  "bg-slate-100 text-slate-600"
+                }`}>{product.status}</span>
+                {product.tags.slice(0, 2).map((t) => (
+                  <span key={t} className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">{t}</span>
+                ))}
+              </div>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
+          <button type="button" onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors shrink-0">
             <X className="h-5 w-5 text-slate-500" />
           </button>
         </div>
 
-        {/* Form body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Company */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Select Company</label>
-            <select
-              value={formData.company || ""}
-              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ss">ss</option>
-              <option value="JourneyFoods">JourneyFoods</option>
-            </select>
+        {/* Alert */}
+        {product.alert && (
+          <div className="mx-6 mt-4 flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-700">{product.alert}</p>
           </div>
+        )}
 
-          {/* Category row */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Category</label>
-              <select
-                value={formData.category || ""}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Category</option>
-                <option value="Food">Food</option>
-                <option value="Beverages">Beverages</option>
-                <option value="Supplements">Supplements</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Product Type</label>
-              <select
-                value={formData.type || ""}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Product Type</option>
-                <option value="Snack">Snack</option>
-                <option value="Sauce">Sauce</option>
-                <option value="Prepared">Prepared</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Subcategory</label>
-              <select
-                value={formData.subCategory || ""}
-                onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Subcategory</option>
-                <option value="Chips">Chips</option>
-                <option value="Condiments">Condiments</option>
-              </select>
-            </div>
-          </div>
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 px-6 mt-4">
+          {(["overview", "nutrition", "ingredients", "markets"] as const).map((tab) => (
+            <button key={tab} type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 capitalize transition-colors ${
+                activeTab === tab ? "border-slate-800 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}>
+              {tab}
+            </button>
+          ))}
+        </div>
 
-          {/* SKU / Product Name / Brand */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">SKU / Code</label>
-              <input
-                type="text"
-                value={formData.sku || ""}
-                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter SKU"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Product Name</label>
-              <input
-                type="text"
-                value={formData.name || ""}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter product name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Brand</label>
-              <select
-                value={formData.brand || ""}
-                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Brand</option>
-                <option value="Giant Eagle">Giant Eagle</option>
-                <option value="JourneyFoods">JourneyFoods</option>
-                <option value="Market District">Market District</option>
-              </select>
-            </div>
-          </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          {activeTab === "overview" && (
+            <>
+              {/* Scores */}
+              <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Scores</p>
+                <ScoreBar value={product.overallScore} label="Overall Score" color="#3b82f6" />
+                <ScoreBar value={product.nutritionScore} label="Nutrition Score" color="#22c55e" />
+                <ScoreBar value={product.sustainabilityScore} label="Sustainability Score" color="#10b981" />
+                <ScoreBar value={product.costScore} label="Cost Score" color="#f59e0b" />
+              </div>
 
-          {/* Flavor / Manufacturer / Date Created */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Flavor</label>
-              <input
-                type="text"
-                value={formData.flavor || ""}
-                onChange={(e) => setFormData({ ...formData, flavor: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter flavor"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Manufacturer</label>
-              <select
-                value={formData.manufacturer || ""}
-                onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Manufacturer</option>
-                <option value="ss">ss</option>
-                <option value="JourneyFoods">JourneyFoods</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Date Created</label>
-              <input
-                type="date"
-                value={formData.dateCreated || ""}
-                onChange={(e) => setFormData({ ...formData, dateCreated: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+              {/* Key info */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><DollarSign className="h-3 w-3" />Price</p>
+                  <p className="text-2xl font-bold text-slate-800">${product.price.toFixed(2)}</p>
+                  <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${
+                    product.trend === "up" ? "text-green-500" : product.trend === "down" ? "text-red-500" : "text-slate-400"
+                  }`}>
+                    {product.trend === "up" ? <TrendingUp className="h-3 w-3" /> : product.trend === "down" ? <TrendingDown className="h-3 w-3" /> : null}
+                    {product.trendValue !== 0 ? `${Math.abs(product.trendValue)}% vs last period` : "No change"}
+                  </div>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4">
+                  <p className="text-xs text-slate-500 flex items-center gap-1 mb-1"><BarChart3 className="h-3 w-3" />Serving</p>
+                  <p className="text-2xl font-bold text-slate-800">{product.calories}</p>
+                  <p className="text-xs text-slate-500 mt-1">kcal · {product.servingSize}/serving</p>
+                </div>
+              </div>
 
-          {/* Fulfillment Date / Serving Size / Product Status */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Fulfillment Date</label>
-              <input
-                type="date"
-                value={formData.fulfillmentDate || ""}
-                onChange={(e) => setFormData({ ...formData, fulfillmentDate: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Serving Size</label>
-              <div className="flex">
-                <input
-                  type="number"
-                  value={formData.servingSize || 0}
-                  onChange={(e) => setFormData({ ...formData, servingSize: Number(e.target.value) })}
-                  className="flex-1 px-4 py-2.5 border border-slate-200 rounded-l-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="px-3 py-2.5 bg-slate-50 border border-l-0 border-slate-200 rounded-r-lg text-sm text-slate-500">g</span>
+              {/* IDs */}
+              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Product IDs</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">SKU</span>
+                  <span className="font-mono font-medium text-slate-700">{product.sku}</span>
+                </div>
+                {product.upc && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">UPC</span>
+                    <span className="font-mono font-medium text-slate-700">{product.upc}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Last Updated</span>
+                  <span className="text-slate-700">{product.lastUpdated}</span>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Tags</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {product.tags.map((t) => (
+                    <span key={t} className="px-2.5 py-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-medium">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === "nutrition" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  ["Calories", `${product.calories} kcal`],
+                  ["Serving Size", product.servingSize],
+                  ["Nutrition Score", `${product.nutritionScore}/100`],
+                  ["Processing Level", "Minimally processed"],
+                  ["Protein", "12g / serving"],
+                  ["Carbohydrates", "24g / serving"],
+                  ["Fat", "8g / serving"],
+                  ["Fiber", "6g / serving"],
+                  ["Sugar", "8g / serving"],
+                  ["Sodium", "140mg / serving"],
+                ].map(([k, v]) => (
+                  <div key={k} className="bg-slate-50 rounded-lg p-3">
+                    <p className="text-xs text-slate-500">{k}</p>
+                    <p className="font-semibold text-slate-800 text-sm mt-0.5">{v}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Score Breakdown</p>
+                <ScoreBar value={product.nutritionScore} label="Nutrition" color="#22c55e" />
+                <ScoreBar value={product.sustainabilityScore} label="Sustainability" color="#10b981" />
+                <ScoreBar value={product.costScore} label="Cost Efficiency" color="#f59e0b" />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Product Status</label>
-              <select
-                value={formData.status || "active"}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as Product["status"] })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">Active</option>
-                <option value="concept">Concept</option>
-                <option value="discontinued">Discontinued</option>
-              </select>
-            </div>
-          </div>
+          )}
 
-          {/* Guava Product / Additives */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Guava Product</label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.guavaEnabled || false}
-                  onChange={(e) => setFormData({ ...formData, guavaEnabled: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm text-slate-700">Enable Guava features for this product</span>
-              </label>
+          {activeTab === "ingredients" && (
+            <div className="space-y-3">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{product.ingredientCount} Ingredients</p>
+              {product.ingredients.map((name) => (
+                <div key={name} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                      <Leaf className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-800">{name}</p>
+                      <p className="text-xs text-slate-500">Primary ingredient</p>
+                    </div>
+                  </div>
+                  <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
+                </div>
+              ))}
+              {product.ingredientCount > product.ingredients.length && (
+                <button type="button" className="w-full text-center text-sm text-blue-600 hover:text-blue-700 py-2">
+                  +{product.ingredientCount - product.ingredients.length} more ingredients
+                </button>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Additives</label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.hasAdditives || false}
-                  onChange={(e) => setFormData({ ...formData, hasAdditives: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm text-slate-700">Product contains additives</span>
-              </label>
-            </div>
-          </div>
+          )}
 
-          {/* Guava Score / UPC Code */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Guava Score</label>
-              <input
-                type="text"
-                value={formData.guavaScore || ""}
-                onChange={(e) => setFormData({ ...formData, guavaScore: Number(e.target.value) })}
-                placeholder="Enter Guava Score"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-500 placeholder:text-blue-400"
-              />
+          {activeTab === "markets" && (
+            <div className="space-y-4">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Markets ({product.market.length})</p>
+              {product.market.map((m) => (
+                <div key={m} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <Globe className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{m}</p>
+                      <p className="text-xs text-slate-500">Distribution active</p>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Live</span>
+                </div>
+              ))}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-blue-800">Expand to new markets</p>
+                  <p className="text-xs text-blue-600 mt-0.5">Your product meets requirements for 3 more regions</p>
+                </div>
+                <button type="button" className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors">Explore</button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">UPC Code</label>
-              <input
-                type="text"
-                value={formData.upc || ""}
-                onChange={(e) => setFormData({ ...formData, upc: e.target.value })}
-                placeholder="Enter UPC Code"
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-blue-500 placeholder:text-blue-400"
-              />
-            </div>
-          </div>
-
-          {/* Cost / Retail Cost / Profit Margin */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Cost</label>
-              <input
-                type="number"
-                value={formData.cost || 0}
-                onChange={(e) => setFormData({ ...formData, cost: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Retail Cost</label>
-              <input
-                type="number"
-                value={formData.retailCost || 0}
-                onChange={(e) => setFormData({ ...formData, retailCost: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Profit Margin (%)</label>
-              <input
-                type="number"
-                value={formData.profitMargin || 0}
-                onChange={(e) => setFormData({ ...formData, profitMargin: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50"
-                readOnly
-              />
-            </div>
-          </div>
-
-          {/* Country / Currency */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Country</label>
-              <select
-                value={formData.country || "US"}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-                <option value="UK">United Kingdom</option>
-                <option value="DE">Germany</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Currency</label>
-              <select
-                value={formData.currency || "USD"}
-                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="USD">United States Dollar</option>
-                <option value="CAD">Canadian Dollar</option>
-                <option value="EUR">Euro</option>
-                <option value="GBP">British Pound</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Ingredients */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ingredients</label>
-            <div className="flex items-center border border-slate-200 rounded-lg px-4 py-2.5">
-              <input
-                type="text"
-                placeholder="Search Ingredient to add..."
-                className="flex-1 text-sm focus:outline-none"
-              />
-              <X className="h-4 w-4 text-slate-400 cursor-pointer" />
-            </div>
-          </div>
-
-          {/* Product Objectives */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Product Objectives</label>
-            <select className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">Select Product Objectives</option>
-              <option value="health">Health & Wellness</option>
-              <option value="sustainability">Sustainability</option>
-              <option value="cost">Cost Optimization</option>
-            </select>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
-            <textarea
-              value={formData.notes || ""}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              rows={4}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Add notes..."
-            />
-          </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-6 border-t border-slate-200">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2.5 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors"
-          >
-            <Save className="h-4 w-4" />
-            Save Detail
+        <div className="p-4 border-t border-slate-200 flex gap-3">
+          <button type="button" className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors">
+            <Zap className="h-4 w-4" />
+            Edit Product
+          </button>
+          <button type="button" className="px-4 py-2.5 border border-slate-200 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+            <Download className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -573,286 +393,130 @@ function ProductEditModal({
   )
 }
 
-// ─── Product Detail View ──────────────────────────────────────────────────────
+// ─── Product Grid Card ────────────────────────────────────────────────────────
 
-function ProductDetailView({
-  product,
-  onBack,
-  onEdit,
-}: {
-  product: Product
-  onBack: () => void
-  onEdit: (product: Product) => void
-}) {
-  const [activeTab, setActiveTab] = useState<"version" | "nutrition" | "label" | "packaging">("version")
-  const [expandedSection, setExpandedSection] = useState<string | null>(null)
+function ProductGridCard({ product, onView }: { product: Product; onView: () => void }) {
+  const scoreColor = product.overallScore >= 85 ? "text-green-600 bg-green-50 border-green-200" :
+    product.overallScore >= 70 ? "text-amber-600 bg-amber-50 border-amber-200" : "text-red-600 bg-red-50 border-red-200"
 
   return (
-    <div className="space-y-6">
-      {/* Back button */}
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Products
-      </button>
-
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">{product.name}</h1>
-          <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
-            <span>Company: <span className="text-slate-700">{product.company}</span></span>
-            <span>Brand: <span className="text-slate-700">{product.brand}</span></span>
-            <span>Version: <span className="text-slate-700">{product.version}</span></span>
+    <div className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-all cursor-pointer group" onClick={onView}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-50 border border-blue-200 flex items-center justify-center shrink-0">
+            <Package className="h-5 w-5 text-blue-600" />
           </div>
-          <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
-            <span>Created By: <span className="text-slate-700">{product.createdBy}</span></span>
-            <span>Last Updated: <span className="text-slate-700">{product.lastUpdated}</span></span>
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-slate-800 truncate leading-tight">{product.name}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{product.brand} · {product.subCategory}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onEdit(product)}
-            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-          >
-            <Edit3 className="h-5 w-5 text-slate-500" />
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 transition-colors"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            {product.status === "active" ? "Retail" : "Concept"}
-          </button>
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+          {product.starred && <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />}
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium border ${scoreColor}`}>
+            {product.overallScore}
+          </span>
         </div>
       </div>
 
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: product image and info */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <div className="flex gap-6">
-              {/* Product image */}
-              <div className="w-48 h-48 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
-                <Package className="h-16 w-16 text-slate-300" />
-              </div>
+      {product.alert && (
+        <div className="mb-3 flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 rounded-lg px-2.5 py-1.5">
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          <span className="truncate">{product.alert}</span>
+        </div>
+      )}
 
-              {/* Scores */}
-              <div className="flex-1 space-y-4">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-slate-500 mb-1">Nutrition</p>
-                    <div className="flex items-center gap-2">
-                      <Leaf className="h-5 w-5 text-orange-500" />
-                      <span className="text-2xl font-bold text-slate-800">{product.nutritionScore}%</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500 mb-1">Sustainability</p>
-                    <div className="flex items-center gap-2">
-                      <Leaf className="h-5 w-5 text-teal-500" />
-                      <span className="text-2xl font-bold text-slate-800">{product.sustainabilityScore}%</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500 mb-1">Cost</p>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-slate-500" />
-                    <span className="text-2xl font-bold text-slate-800">{product.costPerKg.toFixed(2)}/kg</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* SKU bar */}
-            <div className="mt-6 flex items-center gap-4 px-4 py-3 bg-slate-700 rounded-lg text-sm text-white">
-              <span>SKU/Code: <span className="font-medium">{product.sku}</span></span>
-              <span>Date Created: <span className="font-medium">{product.dateCreated}</span></span>
-              <span>Fulfillment Date: <span className="font-medium">{product.fulfillmentDate || "N/A"}</span></span>
-            </div>
-
-            {/* Objectives */}
-            <div className="mt-6">
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="font-medium text-slate-800">Objectives</h3>
-                <button type="button" className="p-1 hover:bg-slate-100 rounded-full">
-                  <span className="sr-only">Info</span>
-                  <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4M12 8h.01" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Metrics row */}
-            <div className="mt-6 grid grid-cols-5 gap-4">
-              <div className="text-center">
-                <p className="text-xs text-slate-500">Ingredients:</p>
-                <p className="text-lg font-semibold text-slate-800">{product.ingredientCount}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-slate-500">Flavor:</p>
-                <p className="text-lg font-semibold text-slate-800">{product.flavor || "N/A"}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-slate-500">Serving Size:</p>
-                <p className="text-lg font-semibold text-slate-800">{product.servingSize || "N/A"}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-slate-500">Profit Margin:</p>
-                <p className="text-lg font-semibold text-slate-800">{product.profitMargin} %</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-slate-500">Manufacturer:</p>
-                <p className="text-lg font-semibold text-slate-800">{product.manufacturer || "N/A"}</p>
-              </div>
-            </div>
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        {[
+          { label: "Nutrition", value: product.nutritionScore },
+          { label: "Sustain.", value: product.sustainabilityScore },
+          { label: "Cost", value: product.costScore },
+        ].map(({ label, value }) => (
+          <div key={label} className="text-center bg-slate-50 rounded-lg py-2">
+            <p className="text-xs font-bold text-slate-700">{value}</p>
+            <p className="text-[10px] text-slate-400">{label}</p>
           </div>
+        ))}
+      </div>
 
-          {/* Data Source + Tabs */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <button type="button" className="flex items-center gap-2 px-3 py-1.5 border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50">
-                <Share2 className="h-4 w-4" />
-                Data Source:
-              </button>
-            </div>
+      <div className="flex flex-wrap gap-1 mb-3">
+        {product.tags.slice(0, 3).map((t) => (
+          <span key={t} className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded font-medium">{t}</span>
+        ))}
+      </div>
 
-            {/* Tabs */}
-            <div className="flex items-center gap-2 mb-6">
-              {[
-                { id: "version", label: "Current Version" },
-                { id: "nutrition", label: "Nutrition" },
-                { id: "label", label: "Generate Label", highlight: true },
-                { id: "packaging", label: "Matched Packaging" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? tab.highlight
-                        ? "bg-teal-500 text-white"
-                        : "bg-slate-100 text-slate-800"
-                      : "text-slate-500 hover:bg-slate-50"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-              <div className="ml-auto flex items-center gap-2">
-                <button type="button" className="p-2 hover:bg-slate-100 rounded-lg">
-                  <Search className="h-4 w-4 text-slate-500" />
-                </button>
-                <button type="button" className="p-2 hover:bg-slate-100 rounded-lg">
-                  <Edit3 className="h-4 w-4 text-slate-500" />
-                </button>
-              </div>
-            </div>
-
-            {/* Version table */}
-            <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500">Current version</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">—</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">—</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">—</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">—</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-slate-500">—</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t border-slate-100">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <input type="radio" checked readOnly className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium text-slate-800">1</span>
-                        <span className="text-sm text-slate-500">{product.dateCreated?.slice(5)}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button type="button" className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium border border-blue-200">
-                        Nutrition
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button type="button" className="px-4 py-1.5 bg-teal-50 text-teal-600 rounded-lg text-sm font-medium border border-teal-200">
-                        Supply Chain
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button type="button" className="px-4 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-sm font-medium border border-amber-200">
-                        Cost
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button type="button" className="px-4 py-1.5 bg-green-50 text-green-600 rounded-lg text-sm font-medium border border-green-200">
-                        Sustainability
-                      </button>
-                    </td>
-                    <td className="px-4 py-4">
-                      <button type="button" className="px-4 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium border border-purple-200">
-                        Popularity
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Version History */}
-            <button type="button" className="flex items-center gap-2 mt-4 text-sm text-slate-600 hover:text-slate-800">
-              Version History
-              <ChevronDown className="h-4 w-4" />
-            </button>
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex items-center gap-1 text-sm font-semibold text-slate-700">
+          <DollarSign className="h-3.5 w-3.5 text-slate-400" />{product.price.toFixed(2)}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+            product.status === "active" ? "bg-green-100 text-green-700" :
+            product.status === "concept" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+          }`}>{product.status}</span>
+          <div className={`flex items-center gap-0.5 text-xs font-medium ${
+            product.trend === "up" ? "text-green-500" : product.trend === "down" ? "text-red-500" : "text-slate-400"
+          }`}>
+            {product.trend === "up" ? <TrendingUp className="h-3 w-3" /> : product.trend === "down" ? <TrendingDown className="h-3 w-3" /> : null}
+            {product.trendValue !== 0 ? `${Math.abs(product.trendValue)}%` : "Stable"}
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
 
-        {/* Right: recommendations + ingredients */}
-        <div className="space-y-6">
-          {/* Recommendations */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <button
-              type="button"
-              onClick={() => setExpandedSection(expandedSection === "recommendations" ? null : "recommendations")}
-              className="flex items-center justify-between w-full"
-            >
-              <span className="font-medium text-slate-800">Recommendations: <span className="text-blue-600">0</span></span>
-              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${expandedSection === "recommendations" ? "rotate-180" : ""}`} />
-            </button>
-          </div>
+// ─── Product List Row ─────────────────────────────────────────────────────────
 
-          {/* Ingredient percentages */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <h3 className="font-medium text-slate-800 mb-4">Top Ingredients</h3>
-            <div className="space-y-3">
-              {product.ingredients.slice(0, 5).map((ing, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                      <Leaf className="h-4 w-4 text-slate-400" />
-                    </div>
-                    <span className="text-sm text-slate-700">{ing.name}</span>
-                  </div>
-                  <span className="text-sm font-medium text-blue-600">{ing.percentage}%</span>
-                </div>
-              ))}
-            </div>
-            <button type="button" className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700">
-              View More
-            </button>
-          </div>
+function ProductListRow({ product, onView }: { product: Product; onView: () => void }) {
+  const scoreColor = product.overallScore >= 85 ? "text-green-600 bg-green-50" :
+    product.overallScore >= 70 ? "text-amber-600 bg-amber-50" : "text-red-600 bg-red-50"
+
+  return (
+    <div className="flex items-center gap-4 px-4 py-3.5 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100 last:border-0 group" onClick={onView}>
+      <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-50 border border-blue-200 flex items-center justify-center shrink-0">
+        <Package className="h-4 w-4 text-blue-600" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-slate-800 truncate">{product.name}</p>
+          {product.starred && <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 shrink-0" />}
+          {product.alert && <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />}
         </div>
+        <p className="text-xs text-slate-500">{product.brand} · {product.subCategory} · {product.sku}</p>
+      </div>
+
+      <div className="hidden md:flex items-center gap-6 text-xs text-slate-600 shrink-0">
+        <div className="text-center w-14">
+          <p className="text-[10px] text-slate-400">Nutrition</p>
+          <p className="font-semibold">{product.nutritionScore}</p>
+        </div>
+        <div className="text-center w-14">
+          <p className="text-[10px] text-slate-400">Sustain.</p>
+          <p className="font-semibold">{product.sustainabilityScore}</p>
+        </div>
+        <div className="text-center w-14">
+          <p className="text-[10px] text-slate-400">Cost</p>
+          <p className="font-semibold">{product.costScore}</p>
+        </div>
+        <div className="text-right w-16">
+          <p className="text-[10px] text-slate-400">Price</p>
+          <p className="font-semibold">${product.price.toFixed(2)}</p>
+        </div>
+        <div className="text-center w-16">
+          <p className="text-[10px] text-slate-400">Ingred.</p>
+          <p className="font-semibold">{product.ingredientCount}</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
+        <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${scoreColor}`}>{product.overallScore}</span>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${
+          product.status === "active" ? "bg-green-100 text-green-700" :
+          product.status === "concept" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+        }`}>{product.status}</span>
+        <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
       </div>
     </div>
   )
@@ -861,269 +525,215 @@ function ProductDetailView({
 // ─── Main ProductsPage ────────────────────────────────────────────────────────
 
 export function ProductsPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [search, setSearch] = useState("")
-  const [activeFilter, setActiveFilter] = useState<"all" | "retail" | "concept" | "latest" | "ai">("all")
+  const [categoryFilter, setCategoryFilter] = useState("All")
+  const [statusFilter, setStatusFilter] = useState("All")
+  const [marketFilter, setMarketFilter] = useState("All")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [isAddingNew, setIsAddingNew] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [showFilters, setShowFilters] = useState(false)
+  const [showAll, setShowAll] = useState(false)
 
-  const filteredProducts = productsData.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase())
-    const matchesFilter =
-      activeFilter === "all" ||
-      (activeFilter === "retail" && p.status === "active") ||
-      (activeFilter === "concept" && p.status === "concept")
-    return matchesSearch && matchesFilter
+  const filtered = productsData.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand.toLowerCase().includes(search.toLowerCase()) ||
+      p.sku.toLowerCase().includes(search.toLowerCase())
+    const matchCategory = categoryFilter === "All" || p.category === categoryFilter
+    const matchStatus = statusFilter === "All" || p.status === statusFilter.toLowerCase()
+    const matchMarket = marketFilter === "All" || p.market.includes(marketFilter)
+    return matchSearch && matchCategory && matchStatus && matchMarket
   })
 
-  // If viewing a product detail
-  if (selectedProduct) {
-    return (
-      <>
-        <ProductDetailView
-          product={selectedProduct}
-          onBack={() => setSelectedProduct(null)}
-          onEdit={(p) => setEditingProduct(p)}
-        />
-        {editingProduct && (
-          <ProductEditModal
-            product={editingProduct}
-            onClose={() => setEditingProduct(null)}
-            onSave={() => {}}
-            isNew={false}
-          />
-        )}
-      </>
-    )
-  }
+  const displayed = showAll ? filtered : filtered.slice(0, 9)
+  const activeCount = productsData.filter((p) => p.status === "active").length
+  const conceptCount = productsData.filter((p) => p.status === "concept").length
+  const alerts = productsData.filter((p) => p.alert)
 
   return (
     <div className="space-y-6">
-      {/* Recently Viewed Carousel */}
-      <div className="relative">
-        <div className="flex items-center gap-4 overflow-x-auto pb-2 px-1">
-          <button
-            type="button"
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4 text-slate-600" />
-          </button>
-          {recentlyViewed.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-28 cursor-pointer group"
-              onClick={() => setSelectedProduct(product)}
-            >
-              <div className="aspect-square rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center group-hover:border-blue-300 transition-colors overflow-hidden">
-                <Package className="h-10 w-10 text-slate-300" />
-              </div>
-              <p className="mt-2 text-xs text-slate-700 truncate text-center">{product.name}</p>
+      {/* Hero stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Actions */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <Bell className="h-4 w-4 text-slate-400" />Product Actions
+            </h3>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Notifications Pending</span>
+              <span className="font-semibold text-slate-800">6</span>
             </div>
-          ))}
-          <button
-            type="button"
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-white border border-slate-200 shadow-md rounded-full hover:bg-slate-50 transition-colors"
-          >
-            <ChevronRight className="h-4 w-4 text-slate-600" />
-          </button>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Actions Pending</span>
+              <span className="font-semibold text-slate-800">0</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Concept Products</span>
+              <span className="font-semibold text-amber-600">{conceptCount}</span>
+            </div>
+          </div>
+          <div className="mt-3 h-1.5 bg-slate-100 rounded-full">
+            <div className="h-1.5 bg-blue-500 rounded-full" style={{ width: `${(activeCount / productsData.length) * 100}%` }} />
+          </div>
+          <p className="text-xs text-slate-500 mt-1">{activeCount}/{productsData.length} active</p>
+        </div>
+
+        {/* Active Products */}
+        <div className="rounded-xl p-5 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }}>
+          <div>
+            <p className="text-blue-200 text-xs font-medium mb-1">Active Products</p>
+            <p className="text-4xl font-bold">{activeCount}</p>
+            <p className="text-blue-200 text-xs mt-1">In your catalog</p>
+            <div className="flex items-center gap-1 mt-2 text-xs text-green-300 font-medium">
+              <TrendingUp className="h-3 w-3" />+2.4% this period
+            </div>
+          </div>
+          <Package className="h-12 w-12 text-blue-300 opacity-50" />
+        </div>
+
+        {/* Concept Products */}
+        <div className="rounded-xl p-5 text-white flex items-center justify-between" style={{ background: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)" }}>
+          <div>
+            <p className="text-amber-100 text-xs font-medium mb-1">Concept Products</p>
+            <p className="text-4xl font-bold">{conceptCount}</p>
+            <p className="text-amber-100 text-xs mt-1">In development</p>
+            <div className="flex items-center gap-1 mt-2 text-xs text-white font-medium">
+              <TrendingUp className="h-3 w-3" />+8% this period
+            </div>
+          </div>
+          <Lightbulb className="h-12 w-12 text-amber-200 opacity-50" />
         </div>
       </div>
 
-      {/* Header with count and filters */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-slate-800">
-            Active Products <span className="text-blue-600 font-normal">488008</span>
-          </h1>
+      {/* List/Grid section */}
+      <div className="bg-white rounded-xl border border-slate-200">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-3 p-4 border-b border-slate-100 flex-wrap">
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveFilter("retail")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeFilter === "retail"
-                  ? "bg-slate-800 text-white"
-                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Retail
+            <h2 className="text-base font-semibold text-slate-800">All Products</h2>
+            <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{filtered.length} items</span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products..."
+                className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+              />
+            </div>
+
+            {/* Status filter */}
+            <div className="relative">
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+                className="pl-3 pr-7 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none appearance-none bg-white">
+                {STATUSES.map((s) => <option key={s}>{s}</option>)}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
+
+            {/* Market filter */}
+            <div className="relative">
+              <select value={marketFilter} onChange={(e) => setMarketFilter(e.target.value)}
+                className="pl-3 pr-7 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none appearance-none bg-white">
+                {MARKETS.map((m) => <option key={m}>{m}</option>)}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+            </div>
+
+            <button type="button" onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+              <Filter className="h-3.5 w-3.5" />Filters
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveFilter("concept")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeFilter === "concept"
-                  ? "bg-teal-500 text-white"
-                  : "bg-white border border-teal-200 text-teal-600 hover:bg-teal-50"
-              }`}
-            >
-              <Lightbulb className="h-4 w-4" />
-              Concept
+
+            <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors">
+              <Plus className="h-3.5 w-3.5" />Add
             </button>
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-white border border-red-200 text-red-600 hover:bg-red-50 transition-colors"
-            >
-              <Bell className="h-4 w-4" />
-              Latest updates
-            </button>
-            <button
-              type="button"
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors"
-            >
-              <Star className="h-4 w-4" />
-              Journey AI
-            </button>
+
+            {/* View toggle */}
+            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+              <button type="button" onClick={() => setViewMode("grid")} className={`p-1.5 transition-colors ${viewMode === "grid" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}>
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button type="button" onClick={() => setViewMode("list")} className={`p-1.5 transition-colors ${viewMode === "list" ? "bg-slate-900 text-white" : "hover:bg-slate-50 text-slate-500"}`}>
+                <List className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-          >
-            <LayoutGrid className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-          >
-            <List className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
 
-      {/* Filters row */}
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-          Filters:
-        </div>
-        {["Market", "Brand", "Type"].map((filter) => (
-          <button
-            key={filter}
-            type="button"
-            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-600 hover:bg-slate-50"
-          >
-            {filter.slice(0, 2)}...
-            <ChevronDown className="h-3 w-3" />
-          </button>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-end items-center gap-2">
-        <button type="button" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
-          <ChevronLeft className="h-4 w-4" />
-          Previous
-        </button>
-        {[1, 2, 3, 4, 5].map((page) => (
-          <button
-            key={page}
-            type="button"
-            onClick={() => setCurrentPage(page)}
-            className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-              currentPage === page ? "bg-slate-800 text-white" : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
-        <button type="button" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
-          Next
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Products table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Image</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Product Name</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Brand</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Type</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Flavor</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Version</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Country</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Score</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {filteredProducts.map((product) => (
-              <tr key={product.id} className="hover:bg-slate-50 transition-colors">
-                <td className="px-4 py-4">
-                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-5 w-5 text-slate-400" />
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-sm font-medium text-slate-800">{product.name}</span>
-                </td>
-                <td className="px-4 py-4 text-sm text-slate-600">{product.brand}</td>
-                <td className="px-4 py-4 text-sm text-slate-600">{product.type || "-"}</td>
-                <td className="px-4 py-4 text-sm text-slate-600">{product.flavor || "-"}</td>
-                <td className="px-4 py-4">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">v{product.version}</span>
-                </td>
-                <td className="px-4 py-4 text-lg">{product.countryFlag}</td>
-                <td className="px-4 py-4">
-                  <span className={`px-2.5 py-1 rounded text-xs font-medium uppercase ${
-                    product.status === "active"
-                      ? "bg-slate-800 text-white"
-                      : product.status === "concept"
-                        ? "bg-teal-100 text-teal-700"
-                        : "bg-slate-100 text-slate-600"
-                  }`}>
-                    {product.status}
-                  </span>
-                </td>
-                <td className="px-4 py-4 text-sm text-slate-600">{product.nutritionScore}%</td>
-                <td className="px-4 py-4">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProduct(product)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                    View
-                  </button>
-                </td>
-              </tr>
+        {/* Category pills */}
+        {showFilters && (
+          <div className="px-4 py-3 border-b border-slate-100 flex gap-2 flex-wrap">
+            {CATEGORIES.map((c) => (
+              <button key={c} type="button" onClick={() => setCategoryFilter(c)}
+                className={`px-3 py-1 text-xs rounded-full font-medium transition-colors ${categoryFilter === c ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
+                {c}
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+        )}
+
+        {/* List header */}
+        {viewMode === "list" && (
+          <div className="hidden md:grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <span className="w-9" />
+            <span>Product</span>
+            <div className="flex items-center gap-6 pr-20">
+              <span className="w-14 text-center">Nutrition</span>
+              <span className="w-14 text-center">Sustain.</span>
+              <span className="w-14 text-center">Cost</span>
+              <span className="w-16 text-right">Price</span>
+              <span className="w-16 text-center">Ingred.</span>
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        {viewMode === "grid" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {displayed.map((product) => (
+              <ProductGridCard key={product.id} product={product} onView={() => setSelectedProduct(product)} />
+            ))}
+          </div>
+        ) : (
+          <div>
+            {displayed.map((product) => (
+              <ProductListRow key={product.id} product={product} onView={() => setSelectedProduct(product)} />
+            ))}
+          </div>
+        )}
+
+        {/* Show more */}
+        {filtered.length > 9 && (
+          <div className="p-4 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-sm text-slate-500">Showing {displayed.length} of {filtered.length}</p>
+            <button type="button" onClick={() => setShowAll(!showAll)}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              {showAll ? "Show less" : `Show all ${filtered.length}`}
+              <ChevronRight className={`h-4 w-4 transition-transform ${showAll ? "rotate-90" : ""}`} />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Floating Add button */}
-      <button
-        type="button"
-        onClick={() => setIsAddingNew(true)}
-        className="fixed bottom-8 right-8 p-4 bg-slate-800 text-white rounded-full shadow-lg hover:bg-slate-700 transition-colors"
-      >
-        <Plus className="h-6 w-6" />
-      </button>
+      {/* Quick tip */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-5 flex items-start gap-4">
+        <div className="p-3 bg-blue-100 rounded-lg shrink-0">
+          <Zap className="h-5 w-5 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
+          <p className="text-sm text-slate-600">Use concept products to experiment with formulations before moving them to production. Track ingredient costs and nutritional data in real-time.</p>
+        </div>
+      </div>
 
-      {/* Add/Edit Modal */}
-      {(isAddingNew || editingProduct) && (
-        <ProductEditModal
-          product={editingProduct}
-          onClose={() => {
-            setIsAddingNew(false)
-            setEditingProduct(null)
-          }}
-          onSave={() => {}}
-          isNew={isAddingNew}
-        />
+      {/* Detail Drawer */}
+      {selectedProduct && (
+        <ProductDetailDrawer product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </div>
   )
