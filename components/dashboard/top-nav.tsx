@@ -30,9 +30,10 @@ import {
   X,
   Archive,
   Eye,
+  GitBranch,
 } from "lucide-react"
 
-export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations" | "guava" | "account" | "notifications"
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations" | "guava" | "account" | "notifications" | "workflows"
 
 // ─── Notification Types ───────────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ export const notificationsData: Notification[] = [
 const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
   { name: "Overview", id: "overview", icon: Home },
   { name: "Generate", id: "generate", icon: Zap },
+  { name: "Workflows", id: "workflows", icon: GitBranch },
   { name: "Ingredients", id: "ingredients", icon: Leaf, badge: "10+" },
   { name: "Products", id: "products", icon: Package },
   { name: "Suppliers", id: "suppliers", icon: Box },

@@ -51,6 +51,7 @@ import { ProductsPage } from "@/components/dashboard/products-page"
 import { NotificationsPage } from "@/components/dashboard/notifications-page"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
 import { SuppliersPage, SupplierIngredientsPage } from "@/components/dashboard/suppliers-page"
+import { WorkflowsPage } from "@/components/dashboard/workflows-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1158,6 +1159,9 @@ export default function DashboardPage() {
 
         {/* ── Packaging Page ────────────────────────────────────── */}
         {activePage === "packaging" && <PackagingPage />}
+
+        {/* ── Workflows Page ────────────────────────────────────── */}
+        {activePage === "workflows" && <WorkflowsPage onNavigate={setActivePage} />}
       </main>
 
       {/* Modals */}
