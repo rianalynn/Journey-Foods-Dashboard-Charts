@@ -39,8 +39,8 @@ import {
 } from "lucide-react"
 
 import { TopNav, type PageType } from "@/components/dashboard/top-nav"
-
 import { GenerateTab } from "@/components/dashboard/generate-tab"
+import { KnowledgeHub } from "@/components/dashboard/knowledge-hub"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1097,15 +1097,18 @@ export default function DashboardPage() {
 
       <main className="p-6">
         {/* ── Supplier mode welcome banner ───────────────────────── */}
-        {isSupplierMode && activePage !== "generate" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "knowledge-hub" && (
           <h1 className="text-2xl font-bold text-slate-800 mb-6">Welcome, Supplier!</h1>
         )}
+
+        {/* ── Knowledge Hub ─────────────────────────────────────── */}
+        {activePage === "knowledge-hub" && <KnowledgeHub />}
 
         {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
         {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && (
           <SupplierIngredientPortfolio />
         )}
 

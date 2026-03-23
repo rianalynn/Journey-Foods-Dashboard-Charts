@@ -16,9 +16,10 @@ import {
   User,
   Check,
   LogOut,
+  BookOpen,
 } from "lucide-react"
 
-export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging"
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub"
 
 const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
   { name: "Overview", id: "overview", icon: Home },
@@ -143,6 +144,19 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
                   >
                     <User className="h-4 w-4 text-slate-400" />
                     Profile
+                  </button>
+
+                  {/* Knowledge Hub link */}
+                  <button
+                    type="button"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => {
+                      onNavigate("knowledge-hub")
+                      setProfileOpen(false)
+                    }}
+                  >
+                    <BookOpen className="h-4 w-4 text-slate-400" />
+                    Knowledge Hub
                   </button>
 
                   {/* Toggle supplier mode */}
