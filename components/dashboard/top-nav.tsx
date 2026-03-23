@@ -182,34 +182,42 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
 
       {/* Tab navigation row */}
       <nav className="flex items-center gap-1 px-6 overflow-x-auto" aria-label="Main navigation">
-        {mainNav.map((item) => {
-          const Icon = item.icon
-          const isActive = activePage === item.id
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onNavigate(item.id)}
-              className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                isActive
-                  ? "border-slate-800 text-slate-900"
-                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {item.name}
-              {item.badge && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                    isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"
-                  }`}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </button>
-          )
-        })}
+        {mainNav
+          .filter((item) => {
+            // Hide Products, Suppliers, Packaging tabs in Supplier Mode
+            if (isSupplierMode && (item.id === "products" || item.id === "suppliers" || item.id === "packaging")) {
+              return false
+            }
+            return true
+          })
+          .map((item) => {
+            const Icon = item.icon
+            const isActive = activePage === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onNavigate(item.id)}
+                className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  isActive
+                    ? "border-slate-800 text-slate-900"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {item.name}
+                {item.badge && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                      isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"
+                    }`}
+                  >
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            )
+          })}
 
         <div className="ml-auto flex items-center gap-1 pl-4 border-l border-slate-100 shrink-0">
           {supportNav.map((item) => {

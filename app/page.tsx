@@ -39,7 +39,7 @@ import {
 } from "lucide-react"
 
 import { TopNav, type PageType } from "@/components/dashboard/top-nav"
-import { SupplierToggle, type SupplierView } from "@/components/dashboard/supplier-toggle"
+
 import { GenerateTab } from "@/components/dashboard/generate-tab"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -444,11 +444,10 @@ function AlertsCard({ title, alerts: initialAlerts }: { title: string; alerts: A
 
 // ─── SupplierCard ─────────────────────────────────────────────────────────────
 
-function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
+function SupplierCard({ supplier, onConnect, viewMode }: {
   supplier: Supplier
   onConnect: (supplier: Supplier) => void
   viewMode: ViewMode
-  supplierView: SupplierView
 }) {
   const formatWhatsAppLink = (phone: string) => {
     const cleaned = phone.replace(/[^0-9]/g, "")
@@ -471,12 +470,6 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
             {supplier.location}
           </div>
         </div>
-        {supplierView === "supplier" && (
-          <div className="hidden md:flex items-center gap-3 text-xs text-slate-500">
-            <span>MOQ: {supplier.minOrder ?? "TBD"}</span>
-            <span>Lead: {supplier.leadTime ?? "TBD"}</span>
-          </div>
-        )}
         <div className="text-sm text-slate-600">Score: {supplier.score}/100</div>
         <div className="flex items-center gap-2">
           {supplier.phone && (
@@ -495,7 +488,7 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
             onClick={() => onConnect(supplier)}
             className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
           >
-            {supplierView === "supplier" ? "View Profile" : "Connect"}
+            Connect
           </button>
         </div>
       </div>
@@ -525,12 +518,6 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
           <span className="text-slate-600">Score: </span>
           <span className="font-semibold text-slate-800">{supplier.score}/100</span>
         </div>
-        {supplierView === "supplier" && supplier.minOrder && (
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <span>MOQ: <span className="font-medium text-slate-700">{supplier.minOrder}</span></span>
-            <span>Lead time: <span className="font-medium text-slate-700">{supplier.leadTime}</span></span>
-          </div>
-        )}
         <div className="flex items-center gap-1 text-xs text-slate-500">
           <Clock className="h-3 w-3" />
           Last updated: {supplier.lastUpdated}
@@ -538,19 +525,17 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
       </div>
 
       <div className="mb-3">
-        <p className="text-xs text-slate-500 mb-1.5">
-          {supplierView === "supplier" ? "Categories:" : "Ingredients:"}
-        </p>
-        {(supplierView === "supplier" ? (supplier.categories ?? []) : supplier.ingredients).length > 0 ? (
+        <p className="text-xs text-slate-500 mb-1.5">Ingredients:</p>
+        {supplier.ingredients.length > 0 ? (
           <div className="flex flex-wrap gap-1">
-            {(supplierView === "supplier" ? (supplier.categories ?? []) : supplier.ingredients).slice(0, 3).map((item, i) => (
+            {supplier.ingredients.slice(0, 3).map((item, i) => (
               <span key={i} className="px-2 py-0.5 text-xs bg-blue-50 text-blue-700 rounded-full border border-blue-200">
                 {item}
               </span>
             ))}
-            {(supplierView === "supplier" ? (supplier.categories ?? []) : supplier.ingredients).length > 3 && (
+            {supplier.ingredients.length > 3 && (
               <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded-full">
-                +{(supplierView === "supplier" ? (supplier.categories ?? []) : supplier.ingredients).length - 3} more
+                +{supplier.ingredients.length - 3} more
               </span>
             )}
           </div>
@@ -581,7 +566,7 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
           onClick={() => onConnect(supplier)}
           className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
         >
-          {supplierView === "supplier" ? "View Profile" : "Connect"}
+          Connect
         </button>
       </div>
     </div>
@@ -590,11 +575,10 @@ function SupplierCard({ supplier, onConnect, viewMode, supplierView }: {
 
 // ─── SupplierDetailModal ──────────────────────────────────────────────────────
 
-function SupplierDetailModal({ supplier, onClose, onSendEmail, supplierView }: {
+function SupplierDetailModal({ supplier, onClose, onSendEmail }: {
   supplier: Supplier
   onClose: () => void
   onSendEmail: (supplier: Supplier) => void
-  supplierView: SupplierView
 }) {
   const formatWhatsAppLink = (phone: string) => {
     const cleaned = phone.replace(/[^0-9]/g, "")
@@ -641,18 +625,6 @@ function SupplierDetailModal({ supplier, onClose, onSendEmail, supplierView }: {
               <p className="text-xs text-slate-500 mb-1">Last Updated</p>
               <p className="text-sm font-medium text-slate-800">{supplier.lastUpdated}</p>
             </div>
-            {supplierView === "supplier" && (
-              <>
-                <div className="bg-slate-50 rounded-lg p-4">
-                  <p className="text-xs text-slate-500 mb-1">Min. Order Qty</p>
-                  <p className="text-sm font-medium text-slate-800">{supplier.minOrder ?? "TBD"}</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-4">
-                  <p className="text-xs text-slate-500 mb-1">Lead Time</p>
-                  <p className="text-sm font-medium text-slate-800">{supplier.leadTime ?? "TBD"}</p>
-                </div>
-              </>
-            )}
           </div>
 
           <div>
@@ -726,25 +698,14 @@ function SupplierDetailModal({ supplier, onClose, onSendEmail, supplierView }: {
         </div>
 
         <div className="p-6 border-t border-slate-200 flex gap-3">
-          {supplierView === "manufacturer" && (
-            <button
-              type="button"
-              onClick={() => onSendEmail(supplier)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              <Send className="h-4 w-4" />
-              Send Outreach Email
-            </button>
-          )}
-          {supplierView === "supplier" && (
-            <button
-              type="button"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition-colors"
-            >
-              <Star className="h-4 w-4" />
-              Request Partnership
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => onSendEmail(supplier)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Send className="h-4 w-4" />
+            Send Outreach Email
+          </button>
           <button
             type="button"
             onClick={onClose}
@@ -1095,8 +1056,7 @@ function SupplierIngredientPortfolio() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const [activePage, setActivePage] = useState<PageType>("suppliers")
-  const [supplierView, setSupplierView] = useState<SupplierView>("manufacturer")
+  const [activePage, setActivePage] = useState<PageType>("overview")
   const [isSupplierMode, setIsSupplierMode] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
@@ -1149,65 +1109,49 @@ export default function DashboardPage() {
           <SupplierIngredientPortfolio />
         )}
 
-        {/* ── Suppliers Tab ─────────────────────────────────────── */}
-        {activePage === "suppliers" && (
+        {/* ── Suppliers Tab (Manufacturer mode only) ────────────── */}
+        {activePage === "suppliers" && !isSupplierMode && (
           <>
             <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <h1 className="text-2xl font-bold text-slate-800">Supplier List</h1>
-              <div className="flex items-center gap-3 flex-wrap">
-                <SupplierToggle view={supplierView} onChange={setSupplierView} />
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                    aria-label="Grid view"
-                  >
-                    <LayoutGrid className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("list")}
-                    className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                    aria-label="List view"
-                  >
-                    <List className="h-5 w-5" />
-                  </button>
-                </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                  aria-label="Grid view"
+                >
+                  <LayoutGrid className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                  aria-label="List view"
+                >
+                  <List className="h-5 w-5" />
+                </button>
               </div>
             </div>
-
-            {supplierView === "supplier" && (
-              <div className="mb-5 p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-indigo-500 shrink-0" />
-                <p className="text-sm text-indigo-700">
-                  You're viewing this page as a <span className="font-semibold">Supplier</span>. See how manufacturers browse your profile and discover partnership opportunities.
-                </p>
-              </div>
-            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2">
                 {viewMode === "grid" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} supplierView={supplierView} />
+                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
                     ))}
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} supplierView={supplierView} />
+                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
                     ))}
                   </div>
                 )}
               </div>
               <div className="lg:col-span-1">
-                {supplierView === "manufacturer" ? (
-                  <EmailTrackingPanel emails={emailTracking} />
-                ) : (
-                  <SupplierProfilePanel />
-                )}
+                <EmailTrackingPanel emails={emailTracking} />
               </div>
             </div>
           </>
@@ -1338,7 +1282,6 @@ export default function DashboardPage() {
           supplier={selectedSupplier}
           onClose={() => setSelectedSupplier(null)}
           onSendEmail={handleSendEmail}
-          supplierView={supplierView}
         />
       )}
       {showEmailModal && selectedSupplier && (
