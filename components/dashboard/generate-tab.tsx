@@ -43,15 +43,15 @@ export interface AIModel {
 
 export const BASIC_MODEL: AIModel = {
   id: "basic",
-  label: "Basic",
+  label: "Journey Basic",
   sub: "Clay",
-  subtag: "unformed",
+  subtag: "native",
   section: "general",
-  icon: "M",
+  icon: "JF",
   color: "from-stone-500 to-slate-600",
   ring: "ring-stone-400",
-  desc: "The entry point - shapeable, fast, and accessible for general CPG and ingredient queries.",
-  tags: ["Fast", "CPG", "General"],
+  desc: "Journey Foods' native model — the entry point built on our CPG knowledge base. Shapeable, fast, and purpose-built for ingredient and product queries.",
+  tags: ["Native", "CPG", "Fast"],
   live: true,
 }
 
@@ -359,7 +359,7 @@ function ModelSelectorDropdown({
         onClick={onToggle}
         className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${selectedModel.color} text-white text-sm font-medium hover:opacity-90 transition-opacity`}
       >
-        <span className="w-5 h-5 rounded bg-white/20 flex items-center justify-center text-xs font-bold">
+        <span className={`w-5 h-5 rounded bg-white/20 flex items-center justify-center font-bold ${selectedModel.icon.length > 1 ? "text-[9px] tracking-tight" : "text-xs"}`}>
           {selectedModel.icon}
         </span>
         <div className="flex flex-col items-start leading-tight">
@@ -389,12 +389,15 @@ function ModelSelectorDropdown({
                   selectedModel.id === model.id ? "bg-slate-50" : ""
                 }`}
               >
-                <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center text-white font-bold shrink-0 ${model.icon.length > 1 ? "text-[10px] tracking-tight" : "text-sm"}`}>
                   {model.icon}
                 </span>
                 <div className="text-left flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="font-semibold text-slate-800 text-sm">{model.label}</span>
+                    {model.id === "basic" && (
+                      <span className="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded font-medium">Journey Native</span>
+                    )}
                     {model.sub && (
                       <>
                         <span className="text-slate-300">·</span>
@@ -403,11 +406,11 @@ function ModelSelectorDropdown({
                         </span>
                       </>
                     )}
-                    {model.live && <span className="w-1.5 h-1.5 rounded-full bg-green-400" />}
+                    {model.live && <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />}
                   </div>
                   <span className="text-xs text-slate-500">{model.subtag ?? "general chat"}</span>
                 </div>
-                {selectedModel.id === model.id && <Check className="h-4 w-4 text-indigo-500" />}
+                {selectedModel.id === model.id && <Check className="h-4 w-4 text-indigo-500 shrink-0" />}
               </button>
             ))}
 
@@ -430,7 +433,7 @@ function ModelSelectorDropdown({
                   !model.live ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50"
                 } ${selectedModel.id === model.id ? "bg-slate-50" : ""}`}
               >
-                <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                <span className={`w-8 h-8 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center text-white font-bold shrink-0 ${model.icon.length > 1 ? "text-[10px] tracking-tight" : "text-sm"}`}>
                   {model.icon}
                 </span>
                 <div className="text-left flex-1 min-w-0">
@@ -501,11 +504,14 @@ function ChatMessage({ message, flowExpanded, sourceExpanded, onToggleFlow, onTo
       <div className="max-w-[85%]">
         {/* Model badge */}
         {message.model && (
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`w-6 h-6 rounded-lg bg-gradient-to-br ${message.model.color} flex items-center justify-center text-white text-xs font-bold`}>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className={`w-6 h-6 rounded-lg bg-gradient-to-br ${message.model.color} flex items-center justify-center text-white font-bold ${message.model.icon.length > 1 ? "text-[9px] tracking-tight" : "text-xs"}`}>
               {message.model.icon}
             </span>
             <span className="text-sm font-medium text-slate-700">{message.model.label}</span>
+            {message.model.id === "basic" && (
+              <span className="text-[10px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded font-medium">Journey Native</span>
+            )}
             {message.model.sub && (
               <>
                 <span className="text-slate-300">·</span>
