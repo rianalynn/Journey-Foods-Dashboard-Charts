@@ -49,6 +49,7 @@ import { AccountPage } from "@/components/dashboard/account-page"
 import { IngredientsPage } from "@/components/dashboard/ingredients-page"
 import { ProductsPage } from "@/components/dashboard/products-page"
 import { NotificationsPage } from "@/components/dashboard/notifications-page"
+import { OverviewTab } from "@/components/dashboard/overview-tab"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1189,44 +1190,9 @@ export default function DashboardPage() {
         {/* ── Products Page ─────────────────────────────────────── */}
         {!isSupplierMode && activePage === "products" && <ProductsPage />}
 
-        {/* ── Overview quick tip (overview only) ───────────────── */}
+        {/* ── Overview Tab ───────────────────────────────────── */}
         {!isSupplierMode && activePage === "overview" && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <ActionCard
-                title="Ingredient Actions"
-                icon={<Bell className="h-4 w-4" />}
-                completed={8}
-                total={10}
-                actions={[
-                  { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
-                  { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                ]}
-              />
-              <StatCard
-                title="Active Product Ingredients"
-                value={92}
-                subtitle="Across all products"
-                trend={{ value: 12, isPositive: true }}
-                icon={<Leaf className="h-4 w-4" />}
-                gradientFrom="#1e40af"
-                gradientTo="#3b82f6"
-                chartColor="#ffffff"
-              />
-              <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
-            </div>
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Zap className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
-                  <p className="text-sm text-slate-600">Welcome to JourneyFoods! Use the navigation above to explore ingredients, products, and suppliers in your network.</p>
-                </div>
-              </div>
-            </div>
-          </>
+          <OverviewTab onNavigate={setActivePage} userName="Riana" />
         )}
 
         {/* ── Packaging Page ────────────────────────────────────── */}

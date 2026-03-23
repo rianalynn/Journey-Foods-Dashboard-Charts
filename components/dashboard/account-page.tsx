@@ -17,6 +17,7 @@ import {
   Zap,
   Bot,
   Check,
+  Code2,
 } from "lucide-react"
 import { 
   type AIModel, 
@@ -25,10 +26,11 @@ import {
   JOURNEY_MODELS, 
   ALL_MODELS 
 } from "./generate-tab"
+import { DeveloperPortalModal, DeveloperPortalCard } from "./developer-portal-modal"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings"
+type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings" | "developer"
 type PreferenceTab = "product" | "ingredient" | "packaging" | "other"
 type CompanyTab = "brands" | "markets" | "company-type" | "users"
 type BillingTab = "invoices" | "subscription" | "billing-info" | "upgrade"
@@ -146,6 +148,7 @@ export function AccountPage() {
   const [companyTab, setCompanyTab] = useState<CompanyTab>("brands")
   const [billingTab, setBillingTab] = useState<BillingTab>("subscription")
   const [selectedDefaultModel, setSelectedDefaultModel] = useState<AIModel>(BASIC_MODEL)
+  const [showDevPortal, setShowDevPortal] = useState(false)
   
   // Profile form state
   const [profile, setProfile] = useState({
@@ -189,6 +192,7 @@ export function AccountPage() {
     { id: "company" as const, label: "Company Settings", icon: Building2 },
     { id: "preferences" as const, label: "Preferences", icon: Sliders },
     { id: "ai-settings" as const, label: "AI Settings", icon: Bot },
+    { id: "developer" as const, label: "Developer Portal", icon: Code2 },
     { id: "billing" as const, label: "Billing", icon: CreditCard },
   ]
 
@@ -226,6 +230,7 @@ export function AccountPage() {
           {activeSection === "company" && "Company Settings"}
           {activeSection === "preferences" && "Preferences"}
           {activeSection === "ai-settings" && "AI Settings"}
+          {activeSection === "developer" && "Developer Portal"}
           {activeSection === "billing" && "Billing"}
         </h1>
 
@@ -957,7 +962,56 @@ export function AccountPage() {
             </div>
           </div>
         )}
+
+        {/* ── Developer Portal ──────────────────────────────────────────────── */}
+        {activeSection === "developer" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">API Access</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Connect to the Journey Foods API to integrate our ingredient data, formulation tools, and analytics into your existing systems.
+              </p>
+            </div>
+
+            <DeveloperPortalCard onClick={() => setShowDevPortal(true)} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-slate-800 mb-2">API Documentation</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Comprehensive guides, endpoint references, and code examples.
+                </p>
+                <a
+                  href="https://developers.journeyfoods.io/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  View Documentation →
+                </a>
+              </div>
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-slate-800 mb-2">Webhooks</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Set up real-time notifications for price changes, supply alerts, and more.
+                </p>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  Configure Webhooks →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Developer Portal Modal */}
+      <DeveloperPortalModal
+        isOpen={showDevPortal}
+        onClose={() => setShowDevPortal(false)}
+      />
     </div>
   )
 }
