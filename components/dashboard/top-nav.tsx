@@ -148,7 +148,7 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
                     Profile
                   </button>
 
-                  {/* Account link */}
+                  {/* Account Settings link */}
                   <button
                     type="button"
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
@@ -158,7 +158,7 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
                     }}
                   >
                     <Settings className="h-4 w-4 text-slate-400" />
-                    Account
+                    Account Settings
                   </button>
 
                   {/* Knowledge Hub link */}
