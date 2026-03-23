@@ -411,16 +411,50 @@ export function AccountPage() {
               ))}
             </div>
 
-            <div className="max-w-xl">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Select..."
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            {companyTab !== "markets" && (
+              <div className="max-w-xl">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Select..."
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                </div>
               </div>
-            </div>
+            )}
+
+            {companyTab === "markets" && (
+              <div className="max-w-2xl">
+                <MarketsSelector
+                  selectedRegions={marketSelection.regions}
+                  selectedCountries={marketSelection.countries}
+                  onRegionToggle={(regionCode) => {
+                    setMarketSelection((prev) => ({
+                      ...prev,
+                      regions: prev.regions.includes(regionCode)
+                        ? prev.regions.filter((r) => r !== regionCode)
+                        : [...prev.regions, regionCode],
+                    }))
+                  }}
+                  onCountryToggle={(countryCode) => {
+                    setMarketSelection((prev) => ({
+                      ...prev,
+                      countries: prev.countries.includes(countryCode)
+                        ? prev.countries.filter((c) => c !== countryCode)
+                        : [...prev.countries, countryCode],
+                    }))
+                  }}
+                  onSelectAll={() => {
+                    setMarketSelection({
+                      regions: regions.map((r) => r.code),
+                      countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
+                    })
+                  }}
+                  onClearAll={() => setMarketSelection({ regions: [], countries: [] })}
+                />
+              </div>
+            )}
 
             <p className="text-sm text-slate-600 mt-8 max-w-lg">
               These preferences will help tailor our product suggestions and filter your live searching whilst using the app.
