@@ -17,9 +17,10 @@ import {
   Check,
   LogOut,
   BookOpen,
+  Tv,
 } from "lucide-react"
 
-export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations"
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations" | "guava"
 
 const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
   { name: "Overview", id: "overview", icon: Home },
@@ -259,6 +260,19 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
           >
             <Link2 className="h-4 w-4" />
             Integrations
+          </button>
+          {/* Guava - clickable */}
+          <button
+            type="button"
+            onClick={() => onNavigate("guava")}
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              activePage === "guava"
+                ? "border-slate-800 text-slate-900"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <Tv className="h-4 w-4" />
+            Guava
           </button>
         </div>
       </nav>
