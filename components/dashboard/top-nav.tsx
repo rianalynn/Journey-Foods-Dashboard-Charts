@@ -19,7 +19,7 @@ import {
   BookOpen,
 } from "lucide-react"
 
-export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics"
+export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations"
 
 const mainNav: Array<{ name: string; id: PageType; icon: React.ComponentType<{ className?: string }>; badge?: string }> = [
   { name: "Overview", id: "overview", icon: Home },
@@ -247,10 +247,15 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
             <BarChart3 className="h-4 w-4" />
             Analytics
           </button>
-          {/* Integrations */}
+          {/* Integrations - clickable */}
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-slate-400 hover:text-slate-600 whitespace-nowrap transition-colors border-b-2 border-transparent"
+            onClick={() => onNavigate("integrations")}
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              activePage === "integrations"
+                ? "border-slate-800 text-slate-900"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
           >
             <Link2 className="h-4 w-4" />
             Integrations
