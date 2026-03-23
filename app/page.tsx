@@ -45,6 +45,7 @@ import { AnalyticsPage } from "@/components/dashboard/analytics-page"
 import { IntegrationsPage } from "@/components/dashboard/integrations-page"
 import { GuavaPage } from "@/components/dashboard/guava-page"
 import { PackagingPage } from "@/components/dashboard/packaging-page"
+import { AccountPage } from "@/components/dashboard/account-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1101,7 +1102,7 @@ export default function DashboardPage() {
 
       <main className="p-6">
         {/* ── Supplier mode welcome banner ───────────────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && activePage !== "account" && (
           <h1 className="text-2xl font-bold text-slate-800 mb-6">Welcome, Supplier!</h1>
         )}
 
@@ -1117,11 +1118,14 @@ export default function DashboardPage() {
         {/* ── Guava Page ───────────────────────────────────────── */}
         {activePage === "guava" && <GuavaPage />}
 
+        {/* ── Account Page ─────────────────────────────────────── */}
+        {activePage === "account" && <AccountPage />}
+
         {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
         {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && (
+        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && activePage !== "account" && (
           <SupplierIngredientPortfolio />
         )}
 
