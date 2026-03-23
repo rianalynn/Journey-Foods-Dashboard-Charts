@@ -44,6 +44,7 @@ import { KnowledgeHub } from "@/components/dashboard/knowledge-hub"
 import { AnalyticsPage } from "@/components/dashboard/analytics-page"
 import { IntegrationsPage } from "@/components/dashboard/integrations-page"
 import { GuavaPage } from "@/components/dashboard/guava-page"
+import { PackagingPage } from "@/components/dashboard/packaging-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1279,16 +1280,8 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* ── Packaging placeholder ─────────────────────────────── */}
-        {activePage === "packaging" && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="p-4 bg-slate-100 rounded-2xl mb-4">
-              <Package className="h-10 w-10 text-slate-400" />
-            </div>
-            <h2 className="text-xl font-semibold text-slate-700">Packaging</h2>
-            <p className="text-sm text-slate-500 mt-2 max-w-xs">Packaging management and design tools are coming soon.</p>
-          </div>
-        )}
+        {/* ── Packaging Page ────────────────────────────────────── */}
+        {activePage === "packaging" && <PackagingPage />}
       </main>
 
       {/* Modals */}
