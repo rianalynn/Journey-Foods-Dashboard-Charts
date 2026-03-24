@@ -1,7 +1,6 @@
 "use client"
 
 import { Lock, Sparkles, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { PAGE_LABELS, PAGE_DESCRIPTIONS, type PageType } from "@/lib/feature-gates"
 import { useUser } from "@/lib/user-context"
 
@@ -70,21 +69,20 @@ export function FeatureGateOverlay({ feature, children }: FeatureGateOverlayProp
 
           {/* CTA Buttons */}
           <div className="space-y-3">
-            <Button 
+            <button 
               onClick={handleStartTrial}
-              className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium"
+              className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg flex items-center justify-center gap-2"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
+              <Sparkles className="w-4 h-4" />
               Start Free Trial
-            </Button>
-            <Button 
-              variant="outline"
-              className="w-full h-12 border-slate-200 text-slate-700 hover:bg-slate-50"
+            </button>
+            <button 
+              className="w-full h-12 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg flex items-center justify-center gap-2"
               onClick={() => window.open('/plans', '_blank')}
             >
               View Plans
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Footer */}
