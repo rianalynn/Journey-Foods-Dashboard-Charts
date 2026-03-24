@@ -33,9 +33,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-white overflow-hidden">
-        {/* Logo */}
         <div className="absolute top-8 left-8 z-10">
           <div className="flex items-center gap-2">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +55,6 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           </div>
         </div>
 
-        {/* Decorative curves */}
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
           <path 
             d="M-100 200 Q100 300 50 500 Q0 700 200 750" 
@@ -99,9 +96,7 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
         </svg>
       </div>
 
-      {/* Right side - Login form */}
       <div className="flex-1 flex flex-col bg-slate-50">
-        {/* Top bar */}
         <div className="flex justify-end items-center p-6">
           <span className="text-sm text-slate-500 mr-2">Need an account?</span>
           <button
@@ -112,7 +107,6 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
           </button>
         </div>
 
-        {/* Form container */}
         <div className="flex-1 flex items-center justify-center px-8">
           <div className="w-full max-w-md">
             <h1 className="text-2xl font-semibold text-slate-800 text-center mb-8">
