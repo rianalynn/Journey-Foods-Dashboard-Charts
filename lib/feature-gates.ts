@@ -17,18 +17,45 @@ export type PageType =
   | "knowledge-hub"
   | "settings"
 
-// Pages that are always accessible regardless of subscription
+// Pages accessible on free/no subscription (very limited)
 export const FREE_PAGES: PageType[] = [
   "overview",
-  "knowledge-hub",
   "account",
+  "settings",
+  "knowledge-hub",
+]
+
+// Pages accessible on trial (limited features: overview, settings, generate, products)
+export const TRIAL_PAGES: PageType[] = [
+  "overview",
+  "account",
+  "settings",
+  "knowledge-hub",
+  "generate",
   "products",
+]
+
+// Pages that require active paid subscription (everything)
+export const PAID_PAGES: PageType[] = [
+  "overview",
+  "generate",
+  "workflows",
+  "ingredients",
+  "products",
+  "suppliers",
+  "packaging",
+  "analytics",
+  "integrations",
+  "documents",
+  "guava",
+  "account",
+  "admin",
+  "knowledge-hub",
   "settings",
 ]
 
-// Pages that require trial or active subscription
+// Pages always locked unless paid subscription
 export const GATED_PAGES: PageType[] = [
-  "generate",
   "workflows",
   "ingredients",
   "suppliers",
@@ -44,9 +71,16 @@ export function canAccessPage(
   page: PageType,
   subscriptionStatus: SubscriptionStatus | undefined
 ): boolean {
-  if (FREE_PAGES.includes(page)) return true
-  if (subscriptionStatus === "trial" || subscriptionStatus === "active") return true
-  return false
+  // Active paid subscription = full access
+  if (subscriptionStatus === "active") return true
+  
+  // Trial = limited access (overview, settings, generate, products)
+  if (subscriptionStatus === "trial") {
+    return TRIAL_PAGES.includes(page)
+  }
+  
+  // No subscription/expired = very limited
+  return FREE_PAGES.includes(page)
 }
 
 export function isPageLocked(
