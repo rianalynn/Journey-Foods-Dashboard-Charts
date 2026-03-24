@@ -52,6 +52,11 @@ import { NotificationsPage } from "@/components/dashboard/notifications-page"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
 import { SuppliersPage, SupplierIngredientsPage } from "@/components/dashboard/suppliers-page"
 import { WorkflowsPage } from "@/components/dashboard/workflows-page"
+import { UserProvider, useUser } from "@/lib/user-context"
+import { isPageLocked, type PageType as FeaturePageType } from "@/lib/feature-gates"
+import { GatedContent } from "@/components/dashboard/feature-gate-overlay"
+import { AuthFlow } from "@/components/auth/auth-flow"
+import { OnboardingSurvey } from "@/components/auth/onboarding-survey"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1067,12 +1072,40 @@ function SupplierIngredientPortfolio() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+  return (
+    <UserProvider>
+      <DashboardContent />
+    </UserProvider>
+  )
+}
+
+function DashboardContent() {
+  const { user, isAuthenticated, isLoading, logout } = useUser()
   const [activePage, setActivePage] = useState<PageType>("overview")
   const [isSupplierMode, setIsSupplierMode] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailTracking, setEmailTracking] = useState<EmailTracking[]>([])
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500" />
+      </div>
+    )
+  }
+
+  // Show auth flow if not authenticated
+  if (!isAuthenticated) {
+    return <AuthFlow />
+  }
+
+  // Show onboarding if not completed
+  if (user && !user.onboardingCompleted) {
+    return <OnboardingSurvey />
+  }
 
   const handleConnectSupplier = (supplier: Supplier) => {
     setSelectedSupplier(supplier)
@@ -1097,6 +1130,9 @@ export default function DashboardPage() {
     setSelectedSupplier(null)
   }
 
+  // Helper function to check if page is locked
+  const checkPageLocked = (page: PageType) => isPageLocked(page as FeaturePageType, user?.subscriptionStatus)
+
   return (
     <div className="min-h-screen bg-slate-50">
       <TopNav
@@ -1104,6 +1140,8 @@ export default function DashboardPage() {
         onNavigate={setActivePage}
         isSupplierMode={isSupplierMode}
         onToggleSupplierMode={() => setIsSupplierMode((prev) => !prev)}
+        subscriptionStatus={user?.subscriptionStatus}
+        onLogout={logout}
       />
 
       <main className="p-6">
@@ -1115,53 +1153,87 @@ export default function DashboardPage() {
         {/* ── Knowledge Hub ─────────────────────────────────────── */}
         {activePage === "knowledge-hub" && <KnowledgeHub />}
 
-        {/* ── Analytics Page ───────────────────────────────────── */}
-        {activePage === "analytics" && <AnalyticsPage />}
+        {/* ── Analytics Page (Gated) ───────────────────────────────────── */}
+        {activePage === "analytics" && (
+          <GatedContent feature="analytics" isLocked={checkPageLocked("analytics")}>
+            <AnalyticsPage />
+          </GatedContent>
+        )}
 
-        {/* ── Integrations Page ────────────────────────────────── */}
-        {activePage === "integrations" && <IntegrationsPage />}
+        {/* ── Integrations Page (Gated) ────────────────────────────────── */}
+        {activePage === "integrations" && (
+          <GatedContent feature="integrations" isLocked={checkPageLocked("integrations")}>
+            <IntegrationsPage />
+          </GatedContent>
+        )}
 
-        {/* ── Guava Page ───────────────────────────────────────── */}
-        {activePage === "guava" && <GuavaPage />}
+        {/* ── Guava Page (Gated) ───────────────────────────────────────── */}
+        {activePage === "guava" && (
+          <GatedContent feature="guava" isLocked={checkPageLocked("guava")}>
+            <GuavaPage />
+          </GatedContent>
+        )}
 
-{/* ── Account Page ─────────────────────────────────────── */}
-  {activePage === "account" && <AccountPage />}
+        {/* ── Account Page ─────────────────────────────────────── */}
+        {activePage === "account" && <AccountPage />}
 
-  {/* ── Notifications Page ─────────────────────────────────────── */}
-  {activePage === "notifications" && <NotificationsPage />}
+        {/* ── Notifications Page ─────────────────────────────────────── */}
+        {activePage === "notifications" && <NotificationsPage />}
   
-  {/* ── Generate Tab ─────────────────────────────────────── */}
-        {activePage === "generate" && <GenerateTab />}
+        {/* ── Generate Tab (Gated) ─────────────────────────────────────── */}
+        {activePage === "generate" && (
+          <GatedContent feature="generate" isLocked={checkPageLocked("generate")}>
+            <GenerateTab />
+          </GatedContent>
+        )}
 
         {/* ── Supplier Mode: Supplier Dashboard (Overview) ───────────────── */}
         {isSupplierMode && activePage === "overview" && (
           <SuppliersPage isSupplierMode={isSupplierMode} />
         )}
 
-        {/* ── Suppliers Tab ─────────────────────────────────────── */}
+        {/* ── Suppliers Tab (Gated) ─────────────────────────────────────── */}
         {activePage === "suppliers" && (
-          <SuppliersPage isSupplierMode={isSupplierMode} />
+          <GatedContent feature="suppliers" isLocked={checkPageLocked("suppliers")}>
+            <SuppliersPage isSupplierMode={isSupplierMode} />
+          </GatedContent>
         )}
 
-        {/* ── Ingredients Page ─────────────────────────────────── */}
-        {!isSupplierMode && activePage === "ingredients" && <IngredientsPage />}
+        {/* ── Ingredients Page (Gated) ─────────────────────────────────── */}
+        {!isSupplierMode && activePage === "ingredients" && (
+          <GatedContent feature="ingredients" isLocked={checkPageLocked("ingredients")}>
+            <IngredientsPage />
+          </GatedContent>
+        )}
 
-        {/* ── Supplier Mode: Ingredients Management ────────────── */}
-        {isSupplierMode && activePage === "ingredients" && <SupplierIngredientsPage />}
+        {/* ── Supplier Mode: Ingredients Management (Gated) ────────────── */}
+        {isSupplierMode && activePage === "ingredients" && (
+          <GatedContent feature="ingredients" isLocked={checkPageLocked("ingredients")}>
+            <SupplierIngredientsPage />
+          </GatedContent>
+        )}
 
         {/* ── Products Page ─────────────────────────────────────── */}
         {!isSupplierMode && activePage === "products" && <ProductsPage />}
 
         {/* ── Overview Tab ───────────────────────────────────── */}
         {!isSupplierMode && activePage === "overview" && (
-          <OverviewTab onNavigate={setActivePage} userName="Riana" />
+          <OverviewTab onNavigate={setActivePage} userName={user?.firstName || "Riana"} />
         )}
 
-        {/* ── Packaging Page ────────────────────────────────────── */}
-        {activePage === "packaging" && <PackagingPage />}
+        {/* ── Packaging Page (Gated) ────────────────────────────────────── */}
+        {activePage === "packaging" && (
+          <GatedContent feature="packaging" isLocked={checkPageLocked("packaging")}>
+            <PackagingPage />
+          </GatedContent>
+        )}
 
-        {/* ── Workflows Page ────────────────────────────────────── */}
-        {activePage === "workflows" && <WorkflowsPage onNavigate={setActivePage} />}
+        {/* ── Workflows Page (Gated) ────────────────────────────────────── */}
+        {activePage === "workflows" && (
+          <GatedContent feature="workflows" isLocked={checkPageLocked("workflows")}>
+            <WorkflowsPage onNavigate={setActivePage} />
+          </GatedContent>
+        )}
       </main>
 
       {/* Modals */}

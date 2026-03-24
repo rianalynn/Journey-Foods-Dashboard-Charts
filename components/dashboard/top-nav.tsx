@@ -31,7 +31,10 @@ import {
   Archive,
   Eye,
   GitBranch,
+  Lock,
 } from "lucide-react"
+import { isPageLocked, type PageType as FeaturePageType } from "@/lib/feature-gates"
+import type { SubscriptionStatus } from "@/lib/user-context"
 
 export type PageType = "overview" | "generate" | "ingredients" | "products" | "suppliers" | "packaging" | "knowledge-hub" | "analytics" | "integrations" | "guava" | "account" | "notifications" | "workflows"
 
@@ -89,6 +92,8 @@ interface TopNavProps {
   onNavigate: (page: PageType) => void
   isSupplierMode: boolean
   onToggleSupplierMode: () => void
+  subscriptionStatus?: SubscriptionStatus
+  onLogout?: () => void
 }
 
 // ─── Notification Helper Functions ────────────────────────────────────────────
@@ -279,7 +284,7 @@ function NotificationsDropdown({
   )
 }
 
-export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplierMode }: TopNavProps) {
+export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplierMode, subscriptionStatus, onLogout }: TopNavProps) {
   const [profileOpen, setProfileOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>(notificationsData)
@@ -462,7 +467,10 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
                     <button
                       type="button"
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                      onClick={() => setProfileOpen(false)}
+                      onClick={() => {
+                        setProfileOpen(false)
+                        onLogout?.()
+                      }}
                     >
                       <LogOut className="h-4 w-4 text-slate-400" />
                       Log out
@@ -488,6 +496,7 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
           .map((item) => {
             const Icon = item.icon
             const isActive = activePage === item.id
+            const locked = isPageLocked(item.id as FeaturePageType, subscriptionStatus)
             return (
               <button
                 key={item.id}
@@ -496,12 +505,16 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
                 className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   isActive
                     ? "border-slate-800 text-slate-900"
+                    : locked
+                    ? "border-transparent text-slate-400 hover:text-slate-500"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                 }`}
+                title={locked ? "Upgrade to access this feature" : undefined}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={`h-4 w-4 ${locked ? "opacity-60" : ""}`} />
                 {item.name}
-                {item.badge && (
+                {locked && <Lock className="h-3 w-3 text-slate-400" />}
+                {item.badge && !locked && (
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                       isActive ? "bg-pink-500 text-white" : "bg-pink-100 text-pink-600"
@@ -516,44 +529,71 @@ export function TopNav({ activePage, onNavigate, isSupplierMode, onToggleSupplie
 
         <div className="ml-auto flex items-center gap-1 pl-4 border-l border-slate-100 shrink-0">
           {/* Analytics - clickable */}
-          <button
-            type="button"
-            onClick={() => onNavigate("analytics")}
-            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              activePage === "analytics"
-                ? "border-slate-800 text-slate-900"
-                : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <BarChart3 className="h-4 w-4" />
-            Analytics
-          </button>
+          {(() => {
+            const analyticsLocked = isPageLocked("analytics" as FeaturePageType, subscriptionStatus)
+            return (
+              <button
+                type="button"
+                onClick={() => onNavigate("analytics")}
+                className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  activePage === "analytics"
+                    ? "border-slate-800 text-slate-900"
+                    : analyticsLocked
+                    ? "border-transparent text-slate-400"
+                    : "border-transparent text-slate-400 hover:text-slate-600"
+                }`}
+                title={analyticsLocked ? "Upgrade to access" : undefined}
+              >
+                <BarChart3 className={`h-4 w-4 ${analyticsLocked ? "opacity-60" : ""}`} />
+                Analytics
+                {analyticsLocked && <Lock className="h-3 w-3 text-slate-400" />}
+              </button>
+            )
+          })()}
           {/* Integrations - clickable */}
-          <button
-            type="button"
-            onClick={() => onNavigate("integrations")}
-            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              activePage === "integrations"
-                ? "border-slate-800 text-slate-900"
-                : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Link2 className="h-4 w-4" />
-            Integrations
-          </button>
+          {(() => {
+            const integrationsLocked = isPageLocked("integrations" as FeaturePageType, subscriptionStatus)
+            return (
+              <button
+                type="button"
+                onClick={() => onNavigate("integrations")}
+                className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  activePage === "integrations"
+                    ? "border-slate-800 text-slate-900"
+                    : integrationsLocked
+                    ? "border-transparent text-slate-400"
+                    : "border-transparent text-slate-400 hover:text-slate-600"
+                }`}
+                title={integrationsLocked ? "Upgrade to access" : undefined}
+              >
+                <Link2 className={`h-4 w-4 ${integrationsLocked ? "opacity-60" : ""}`} />
+                Integrations
+                {integrationsLocked && <Lock className="h-3 w-3 text-slate-400" />}
+              </button>
+            )
+          })()}
           {/* Guava - clickable */}
-          <button
-            type="button"
-            onClick={() => onNavigate("guava")}
-            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-              activePage === "guava"
-                ? "border-slate-800 text-slate-900"
-                : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Tv className="h-4 w-4" />
-            Guava
-          </button>
+          {(() => {
+            const guavaLocked = isPageLocked("guava" as FeaturePageType, subscriptionStatus)
+            return (
+              <button
+                type="button"
+                onClick={() => onNavigate("guava")}
+                className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                  activePage === "guava"
+                    ? "border-slate-800 text-slate-900"
+                    : guavaLocked
+                    ? "border-transparent text-slate-400"
+                    : "border-transparent text-slate-400 hover:text-slate-600"
+                }`}
+                title={guavaLocked ? "Upgrade to access" : undefined}
+              >
+                <Tv className={`h-4 w-4 ${guavaLocked ? "opacity-60" : ""}`} />
+                Guava
+                {guavaLocked && <Lock className="h-3 w-3 text-slate-400" />}
+              </button>
+            )
+          })()}
         </div>
       </nav>
     </header>
