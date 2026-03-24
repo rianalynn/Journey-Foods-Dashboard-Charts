@@ -8,6 +8,7 @@ import {
   Filter,
   Plus,
   ChevronDown,
+  ChevronUp,
   X,
   Bell,
   Leaf,
@@ -16,6 +17,7 @@ import {
   TrendingDown,
   Star,
   ArrowUpRight,
+  ArrowLeft,
   Download,
   ExternalLink,
   ChevronRight,
@@ -25,9 +27,35 @@ import {
   DollarSign,
   BarChart3,
   RefreshCw,
+  FileText,
+  FileCheck,
+  Scale,
+  ShieldAlert,
+  Award,
+  Timer,
+  Apple,
+  Droplets,
+  Globe,
+  Shield,
+  CheckCircle,
 } from "lucide-react"
+import {
+  ComplianceBadge,
+  RegionTag,
+  SeverityBadge,
+  DataSourceBadge,
+} from "@/components/compliance/compliance-components"
+import {
+  ingredientComplianceData,
+  type IngredientComplianceStatus,
+  type ComplianceStatus,
+  getComplianceStatusColor,
+  getRegionByCode,
+} from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type DataSource = "sap" | "oracle" | "netsuite" | "excel" | "csv" | "manual" | "api"
 
 interface Ingredient {
   id: string
@@ -53,6 +81,7 @@ interface Ingredient {
   conceptProducts: number
   starred: boolean
   alert?: string
+  dataSource?: DataSource
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -63,14 +92,14 @@ const ingredientsData: Ingredient[] = [
     supplier: "TropiFresh Co.", score: 92, nutritionScore: 94, sustainabilityScore: 88, costScore: 84,
     price: 4.50, unit: "kg", status: "active", trend: "up", trendValue: 3.2,
     certifications: ["USDA Organic", "Non-GMO", "Fair Trade"], allergens: [],
-    origin: "Mexico", lastUpdated: "2 days ago", activeProducts: 12, conceptProducts: 5, starred: true,
+    origin: "Mexico", lastUpdated: "2 days ago", activeProducts: 12, conceptProducts: 5, starred: true, dataSource: "sap",
   },
   {
     id: "2", name: "Buckwheat Flour", category: "Food", subCategory: "Grain", form: "Powder",
     supplier: "Heartland Mills", score: 87, nutritionScore: 90, sustainabilityScore: 85, costScore: 88,
     price: 2.75, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Gluten-Free", "Non-GMO"], allergens: [],
-    origin: "USA", lastUpdated: "1 week ago", activeProducts: 8, conceptProducts: 15, starred: false,
+    origin: "USA", lastUpdated: "1 week ago", activeProducts: 8, conceptProducts: 15, starred: false, dataSource: "excel",
   },
   {
     id: "3", name: "Turmeric Extract", category: "Food", subCategory: "Spice", form: "Powder",
@@ -78,70 +107,70 @@ const ingredientsData: Ingredient[] = [
     price: 18.20, unit: "kg", status: "flagged", trend: "down", trendValue: -5.1,
     certifications: ["USDA Organic"], allergens: [],
     origin: "India", lastUpdated: "3 days ago", activeProducts: 25, conceptProducts: 3,
-    starred: false, alert: "Supply chain disruption — 3-week delay expected",
+    starred: false, alert: "Supply chain disruption — 3-week delay expected", dataSource: "sap",
   },
   {
     id: "4", name: "Pea Protein Isolate", category: "Food", subCategory: "Protein", form: "Powder",
     supplier: "ProGreen Labs", score: 95, nutritionScore: 97, sustainabilityScore: 93, costScore: 82,
     price: 7.20, unit: "kg", status: "active", trend: "up", trendValue: 8.4,
     certifications: ["USDA Organic", "Non-GMO", "Vegan"], allergens: [],
-    origin: "Canada", lastUpdated: "5 hours ago", activeProducts: 18, conceptProducts: 9, starred: true,
+    origin: "Canada", lastUpdated: "5 hours ago", activeProducts: 18, conceptProducts: 9, starred: true, dataSource: "sap",
   },
   {
     id: "5", name: "Coconut Sugar", category: "Food", subCategory: "Sweetener", form: "Granule",
     supplier: "Island Harvest", score: 83, nutritionScore: 78, sustainabilityScore: 89, costScore: 76,
     price: 5.80, unit: "kg", status: "active", trend: "up", trendValue: 1.4,
     certifications: ["Fair Trade", "USDA Organic"], allergens: [],
-    origin: "Philippines", lastUpdated: "4 days ago", activeProducts: 6, conceptProducts: 11, starred: false,
+    origin: "Philippines", lastUpdated: "4 days ago", activeProducts: 6, conceptProducts: 11, starred: false, dataSource: "manual",
   },
   {
     id: "6", name: "Himalayan Pink Salt", category: "Food", subCategory: "Mineral", form: "Crystal",
     supplier: "Peak Minerals", score: 88, nutritionScore: 85, sustainabilityScore: 90, costScore: 92,
     price: 1.20, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Natural", "Non-GMO"], allergens: [],
-    origin: "Pakistan", lastUpdated: "2 weeks ago", activeProducts: 32, conceptProducts: 7, starred: false,
+    origin: "Pakistan", lastUpdated: "2 weeks ago", activeProducts: 32, conceptProducts: 7, starred: false, dataSource: "excel",
   },
   {
     id: "7", name: "Avocado Oil", category: "Food", subCategory: "Oil", form: "Liquid",
     supplier: "Verde Organics", score: 91, nutritionScore: 93, sustainabilityScore: 87, costScore: 72,
     price: 12.40, unit: "kg", status: "active", trend: "down", trendValue: -2.1,
     certifications: ["USDA Organic", "Non-GMO"], allergens: [],
-    origin: "Mexico", lastUpdated: "1 day ago", activeProducts: 9, conceptProducts: 4, starred: true,
+    origin: "Mexico", lastUpdated: "1 day ago", activeProducts: 9, conceptProducts: 4, starred: true, dataSource: "oracle",
   },
   {
     id: "8", name: "Chicory Root Fiber", category: "Food", subCategory: "Fiber", form: "Powder",
     supplier: "FiberTech EU", score: 86, nutritionScore: 88, sustainabilityScore: 84, costScore: 80,
     price: 6.10, unit: "kg", status: "concept", trend: "up", trendValue: 4.7,
     certifications: ["Non-GMO", "EU Organic"], allergens: [],
-    origin: "Belgium", lastUpdated: "6 days ago", activeProducts: 0, conceptProducts: 8, starred: false,
+    origin: "Belgium", lastUpdated: "6 days ago", activeProducts: 0, conceptProducts: 8, starred: false, dataSource: "api",
   },
   {
     id: "9", name: "Freeze Dried Blueberry", category: "Food", subCategory: "Fruit", form: "Granule",
     supplier: "Arctic Berry Co.", score: 89, nutritionScore: 91, sustainabilityScore: 86, costScore: 68,
     price: 22.00, unit: "kg", status: "active", trend: "up", trendValue: 2.8,
     certifications: ["USDA Organic", "Non-GMO"], allergens: [],
-    origin: "USA", lastUpdated: "3 days ago", activeProducts: 14, conceptProducts: 6, starred: false,
+    origin: "USA", lastUpdated: "3 days ago", activeProducts: 14, conceptProducts: 6, starred: false, dataSource: "sap",
   },
   {
     id: "10", name: "Oat Flour", category: "Food", subCategory: "Grain", form: "Powder",
     supplier: "Nordic Grains", score: 84, nutritionScore: 86, sustainabilityScore: 82, costScore: 94,
     price: 1.80, unit: "kg", status: "active", trend: "stable", trendValue: 0,
     certifications: ["Gluten-Free", "Non-GMO"], allergens: ["Oat"],
-    origin: "Sweden", lastUpdated: "1 week ago", activeProducts: 21, conceptProducts: 12, starred: false,
+    origin: "Sweden", lastUpdated: "1 week ago", activeProducts: 21, conceptProducts: 12, starred: false, dataSource: "csv",
   },
   {
     id: "11", name: "Matcha Powder", category: "Food", subCategory: "Tea", form: "Powder",
     supplier: "Kyoto Greens", score: 90, nutritionScore: 92, sustainabilityScore: 88, costScore: 61,
     price: 48.00, unit: "kg", status: "active", trend: "up", trendValue: 6.2,
     certifications: ["USDA Organic", "JAS Organic"], allergens: [],
-    origin: "Japan", lastUpdated: "2 days ago", activeProducts: 7, conceptProducts: 4, starred: true,
+    origin: "Japan", lastUpdated: "2 days ago", activeProducts: 7, conceptProducts: 4, starred: true, dataSource: "sap",
   },
   {
     id: "12", name: "Sunflower Lecithin", category: "Food", subCategory: "Emulsifier", form: "Liquid",
     supplier: "SunBio Labs", score: 79, nutritionScore: 75, sustainabilityScore: 83, costScore: 86,
     price: 3.60, unit: "kg", status: "concept", trend: "down", trendValue: -1.3,
     certifications: ["Non-GMO", "Soy-Free"], allergens: [],
-    origin: "Ukraine", lastUpdated: "2 weeks ago", activeProducts: 0, conceptProducts: 3, starred: false,
+    origin: "Ukraine", lastUpdated: "2 weeks ago", activeProducts: 0, conceptProducts: 3, starred: false, dataSource: "manual",
   },
 ]
 
@@ -149,7 +178,7 @@ const CATEGORIES = ["All", "Food", "Beverages", "Cosmetic", "Household", "Supple
 const STATUSES = ["All", "Active", "Concept", "Flagged"]
 const FORMS = ["All", "Powder", "Liquid", "Puree", "Granule", "Crystal"]
 
-// ─── Score Ring ───────────────────────────────────────────────────────────────
+// ─── Score Ring ──────────────────────────────────────────���────────────────────
 
 function ScoreRing({ value, size = 48, label }: { value: number; size?: number; label?: string }) {
   const r = (size - 8) / 2
@@ -168,6 +197,592 @@ function ScoreRing({ value, size = 48, label }: { value: number; size?: number; 
         </text>
       </svg>
       {label && <span className="text-[10px] text-slate-500 font-medium">{label}</span>}
+    </div>
+  )
+}
+
+// ─── Nutrition Data Type ──────────────────────────────────────────────────────
+
+interface NutritionData {
+  kCals: number
+  totalFat: number
+  saturatedFat: number
+  transFat: number
+  cholesterol: number
+  sodium: number
+  totalCarbohydrate: number
+  dietaryFiber: number
+  totalSugars: number
+  addedSugars: number
+  protein: number
+  potassiumDV: number
+  calciumDV: number
+  ironDV: number
+  vitaminCDV: number
+  vitaminDDV: number
+}
+
+// Mock nutrition data for ingredients
+const nutritionDataMap: Record<string, NutritionData> = {
+  "1": { kCals: 60, totalFat: 0.4, saturatedFat: 0.1, transFat: 0, cholesterol: 0, sodium: 1, totalCarbohydrate: 15, dietaryFiber: 1.6, totalSugars: 14, addedSugars: 0, protein: 0.8, potassiumDV: 4, calciumDV: 1, ironDV: 1, vitaminCDV: 60, vitaminDDV: 0 },
+  "2": { kCals: 343, totalFat: 3.4, saturatedFat: 0.7, transFat: 0, cholesterol: 0, sodium: 1, totalCarbohydrate: 71.5, dietaryFiber: 10, totalSugars: 0.9, addedSugars: 0, protein: 13.3, potassiumDV: 13, calciumDV: 2, ironDV: 13, vitaminCDV: 0, vitaminDDV: 0 },
+  "3": { kCals: 312, totalFat: 3.3, saturatedFat: 1.8, transFat: 0, cholesterol: 0, sodium: 27, totalCarbohydrate: 67, dietaryFiber: 22.7, totalSugars: 3.2, addedSugars: 0, protein: 9.7, potassiumDV: 62, calciumDV: 17, ironDV: 307, vitaminCDV: 1, vitaminDDV: 0 },
+  "4": { kCals: 370, totalFat: 2, saturatedFat: 0.4, transFat: 0, cholesterol: 0, sodium: 1230, totalCarbohydrate: 2, dietaryFiber: 1, totalSugars: 0, addedSugars: 0, protein: 80, potassiumDV: 2, calciumDV: 6, ironDV: 50, vitaminCDV: 0, vitaminDDV: 0 },
+  "5": { kCals: 375, totalFat: 1.5, saturatedFat: 1.3, transFat: 0, cholesterol: 0, sodium: 45, totalCarbohydrate: 92.1, dietaryFiber: 0, totalSugars: 92.1, addedSugars: 0, protein: 1.1, potassiumDV: 30, calciumDV: 3, ironDV: 5, vitaminCDV: 0, vitaminDDV: 0 },
+  "6": { kCals: 0, totalFat: 0, saturatedFat: 0, transFat: 0, cholesterol: 0, sodium: 36840, totalCarbohydrate: 0, dietaryFiber: 0, totalSugars: 0, addedSugars: 0, protein: 0, potassiumDV: 1, calciumDV: 2, ironDV: 2, vitaminCDV: 0, vitaminDDV: 0 },
+  "7": { kCals: 884, totalFat: 100, saturatedFat: 12, transFat: 0, cholesterol: 0, sodium: 0, totalCarbohydrate: 0, dietaryFiber: 0, totalSugars: 0, addedSugars: 0, protein: 0, potassiumDV: 0, calciumDV: 0, ironDV: 0, vitaminCDV: 0, vitaminDDV: 0 },
+  "8": { kCals: 17, totalFat: 0, saturatedFat: 0, transFat: 0, cholesterol: 0, sodium: 14, totalCarbohydrate: 0, dietaryFiber: 0, totalSugars: 0, addedSugars: 0, protein: 0, potassiumDV: 0, calciumDV: 3, ironDV: 1, vitaminCDV: 0, vitaminDDV: 0 },
+  "9": { kCals: 325, totalFat: 4.5, saturatedFat: 0.3, transFat: 0, cholesterol: 0, sodium: 3, totalCarbohydrate: 77, dietaryFiber: 13, totalSugars: 55, addedSugars: 0, protein: 1.5, potassiumDV: 7, calciumDV: 2, ironDV: 5, vitaminCDV: 80, vitaminDDV: 0 },
+  "10": { kCals: 404, totalFat: 9.1, saturatedFat: 1.6, transFat: 0, cholesterol: 0, sodium: 19, totalCarbohydrate: 65.7, dietaryFiber: 6.5, totalSugars: 0.8, addedSugars: 0, protein: 14.7, potassiumDV: 11, calciumDV: 5, ironDV: 26, vitaminCDV: 0, vitaminDDV: 0 },
+  "11": { kCals: 324, totalFat: 5.3, saturatedFat: 1.1, transFat: 0, cholesterol: 0, sodium: 9, totalCarbohydrate: 38.5, dietaryFiber: 38.5, totalSugars: 0, addedSugars: 0, protein: 30.4, potassiumDV: 40, calciumDV: 42, ironDV: 97, vitaminCDV: 10, vitaminDDV: 0 },
+  "12": { kCals: 763, totalFat: 97, saturatedFat: 22, transFat: 0, cholesterol: 0, sodium: 2, totalCarbohydrate: 0, dietaryFiber: 0, totalSugars: 0, addedSugars: 0, protein: 0, potassiumDV: 0, calciumDV: 0, ironDV: 0, vitaminCDV: 0, vitaminDDV: 0 },
+}
+
+// ─── Full Page Ingredient Detail View ─────────────────────────────────────────
+
+function IngredientFullPageView({ ingredient, onBack }: { ingredient: Ingredient; onBack: () => void }) {
+  const [selectedCountry, setSelectedCountry] = useState("US")
+  const [nutritionExpanded, setNutritionExpanded] = useState(true)
+  const [sustainabilityExpanded, setSustainabilityExpanded] = useState(false)
+  const [costExpanded, setCostExpanded] = useState(false)
+  const [regulatoryExpanded, setRegulatoryExpanded] = useState(false)
+  
+  const nutritionData = nutritionDataMap[ingredient.id] || nutritionDataMap["1"]
+
+  // Get compliance data for this ingredient
+  const complianceStatus: IngredientComplianceStatus = ingredientComplianceData[ingredient.id] || {
+    ingredientId: ingredient.id,
+    overallStatus: "pending" as ComplianceStatus,
+    regionStatuses: [{ regionCode: "NA", status: "pending" as ComplianceStatus, issues: [] }],
+    lastChecked: new Date().toISOString(),
+  }
+
+  const countries = [
+    { code: "US", name: "United States", flag: "🇺🇸" },
+    { code: "EU", name: "European Union", flag: "🇪🇺" },
+    { code: "UK", name: "United Kingdom", flag: "🇬🇧" },
+    { code: "CA", name: "Canada", flag: "🇨🇦" },
+    { code: "AU", name: "Australia", flag: "🇦🇺" },
+  ]
+
+  const selectedCountryData = countries.find(c => c.code === selectedCountry)
+
+  // Value color helper
+  const getValueColor = (value: number) => {
+    if (value === 0) return "text-slate-400"
+    return "text-violet-600"
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div className="px-6 py-4">
+          <button 
+            type="button" 
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors mb-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Ingredients
+          </button>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-green-100 to-emerald-50 border border-green-200 flex items-center justify-center">
+                <Leaf className="h-8 w-8 text-green-600" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold text-slate-800">{ingredient.name}</h1>
+                  {ingredient.starred && <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />}
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                    ingredient.status === "active" ? "bg-green-100 text-green-700" :
+                    ingredient.status === "flagged" ? "bg-red-100 text-red-700" :
+                    "bg-amber-100 text-amber-700"
+                  }`}>
+                    {ingredient.status.charAt(0).toUpperCase() + ingredient.status.slice(1)}
+                  </span>
+                  {ingredient.dataSource && <DataSourceBadge source={ingredient.dataSource} size="md" />}
+                </div>
+                <p className="text-sm text-slate-500 mt-1">{ingredient.subCategory} · {ingredient.form} · {ingredient.origin}</p>
+                <p className="text-xs text-slate-400 mt-0.5">Last updated {ingredient.lastUpdated}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button type="button" className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <Download className="h-4 w-4 text-slate-500" />
+              </button>
+              <button type="button" className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <ExternalLink className="h-4 w-4 text-slate-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alert banner */}
+      {ingredient.alert && (
+        <div className="mx-6 mt-4 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-red-800">Supply Alert</p>
+            <p className="text-sm text-red-700 mt-0.5">{ingredient.alert}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Two-column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Large ingredient photo placeholder */}
+          <div className="aspect-square max-h-80 rounded-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border border-green-100 flex items-center justify-center overflow-hidden">
+            <div className="text-center">
+              <div className="w-32 h-32 mx-auto rounded-2xl bg-white/60 border border-green-200/50 flex items-center justify-center shadow-sm">
+                <Leaf className="h-16 w-16 text-green-500" />
+              </div>
+              <p className="text-sm text-green-600 mt-4 font-medium">{ingredient.name}</p>
+              <p className="text-xs text-green-500 mt-1">{ingredient.form} form</p>
+            </div>
+          </div>
+
+          {/* Country selector */}
+          <div className="relative">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide block mb-2">
+              Region
+            </label>
+            <div className="relative">
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="w-full pl-10 pr-10 py-3 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white font-medium"
+              >
+                {countries.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.flag} {country.name}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">{selectedCountryData?.flag}</span>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Ingredient info label */}
+          <div className="border-t border-slate-100 pt-6">
+            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+              <FileText className="h-4 w-4 text-slate-400" />
+              Ingredient info
+            </h3>
+          </div>
+
+          {/* Documents section */}
+          <div>
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Documents</h4>
+            <div className="flex gap-3">
+              <button type="button" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-colors">
+                <FileText className="h-4 w-4" />
+                <span className="text-sm font-medium">Datasheet</span>
+              </button>
+              <button type="button" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-colors">
+                <FileCheck className="h-4 w-4" />
+                <span className="text-sm font-medium">Claim</span>
+              </button>
+              <button type="button" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-blue-200 rounded-xl text-blue-600 hover:bg-blue-50 transition-colors">
+                <Scale className="h-4 w-4" />
+                <span className="text-sm font-medium">Regulation</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Allergen Statements */}
+          <div className="border-t border-slate-100 pt-5">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Allergen Statements</h4>
+            {ingredient.allergens.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {ingredient.allergens.map((allergen) => (
+                  <span key={allergen} className="px-3 py-1.5 text-sm bg-amber-50 text-amber-700 border border-amber-200 rounded-lg font-medium">
+                    {allergen}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg w-fit">
+                <ShieldAlert className="h-4 w-4 text-red-400" />
+                <span className="text-sm text-red-600 font-medium">Not Available</span>
+              </div>
+            )}
+          </div>
+
+          {/* Certification */}
+          <div className="border-t border-slate-100 pt-5">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Certification</h4>
+            {ingredient.certifications.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {ingredient.certifications.map((cert) => (
+                  <span key={cert} className="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-lg font-medium flex items-center gap-1.5">
+                    <Award className="h-3.5 w-3.5" />
+                    {cert}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg w-fit">
+                <ShieldAlert className="h-4 w-4 text-red-400" />
+                <span className="text-sm text-red-600 font-medium">Not Available</span>
+              </div>
+            )}
+          </div>
+
+          {/* Shelf Life */}
+          <div className="border-t border-slate-100 pt-5">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Shelf Life</h4>
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg w-fit">
+              <Timer className="h-4 w-4 text-red-400" />
+              <span className="text-sm text-red-600 font-medium">Not Available</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Score summary row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-slate-50 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-orange-100 rounded-lg">
+                  <Apple className="h-4 w-4 text-orange-500" />
+                </div>
+                <span className="text-xs text-slate-500 font-medium">Nutrition</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-800">{ingredient.nutritionScore}</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-green-100 rounded-lg">
+                  <Leaf className="h-4 w-4 text-green-500" />
+                </div>
+                <span className="text-xs text-slate-500 font-medium">Sustainability</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-800">{ingredient.sustainabilityScore > 0 ? ingredient.sustainabilityScore : "0"}</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-blue-100 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-blue-500" />
+                </div>
+                <span className="text-xs text-slate-500 font-medium">Cost</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-800">{ingredient.costScore > 0 ? `$${ingredient.price.toFixed(2)}` : "N/A"}</p>
+            </div>
+          </div>
+
+          {/* Nutrition analysis accordion - open by default */}
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setNutritionExpanded(!nutritionExpanded)}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-orange-500" />
+                </div>
+                <span className="font-semibold text-slate-800">Nutrition analysis</span>
+              </div>
+              {nutritionExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+            {nutritionExpanded && (
+              <div className="p-4 border-t border-slate-200">
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                  {/* Left column */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">kCals</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.kCals)}`}>{nutritionData.kCals}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Total fat</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.totalFat)}`}>{nutritionData.totalFat}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Saturated fat</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.saturatedFat)}`}>{nutritionData.saturatedFat}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Trans fat</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.transFat)}`}>{nutritionData.transFat}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Cholesterol</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.cholesterol)}`}>{nutritionData.cholesterol}mg</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Sodium</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.sodium)}`}>{nutritionData.sodium}mg</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Total carbohydrate</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.totalCarbohydrate)}`}>{nutritionData.totalCarbohydrate}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Dietary fiber</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.dietaryFiber)}`}>{nutritionData.dietaryFiber}g</span>
+                    </div>
+                  </div>
+                  {/* Right column */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Total sugars</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.totalSugars)}`}>{nutritionData.totalSugars}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Added sugars</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.addedSugars)}`}>{nutritionData.addedSugars}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Protein</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.protein)}`}>{nutritionData.protein}g</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Potassium %DV</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.potassiumDV)}`}>{nutritionData.potassiumDV}%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Calcium %DV</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.calciumDV)}`}>{nutritionData.calciumDV}%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Iron %DV</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.ironDV)}`}>{nutritionData.ironDV}%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Vitamin C %DV</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.vitaminCDV)}`}>{nutritionData.vitaminCDV}%</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-slate-600">Vitamin D %DV</span>
+                      <span className={`text-sm font-semibold ${getValueColor(nutritionData.vitaminDDV)}`}>{nutritionData.vitaminDDV}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sustainability analysis accordion - collapsed by default */}
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setSustainabilityExpanded(!sustainabilityExpanded)}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Droplets className="h-5 w-5 text-green-500" />
+                </div>
+                <span className="font-semibold text-slate-800">Sustainability analysis</span>
+              </div>
+              {sustainabilityExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+            {sustainabilityExpanded && (
+              <div className="p-4 border-t border-slate-200">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-green-50 rounded-lg p-3">
+                    <p className="text-xs text-slate-500">Carbon Footprint</p>
+                    <p className="text-lg font-semibold text-green-700 mt-1">2.4 kg CO2e</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-xs text-slate-500">Water Usage</p>
+                    <p className="text-lg font-semibold text-blue-700 mt-1">120 L/kg</p>
+                  </div>
+                  <div className="bg-amber-50 rounded-lg p-3">
+                    <p className="text-xs text-slate-500">Land Use</p>
+                    <p className="text-lg font-semibold text-amber-700 mt-1">3.2 m²/kg</p>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-3">
+                    <p className="text-xs text-slate-500">Overall Score</p>
+                    <p className="text-lg font-semibold text-purple-700 mt-1">{ingredient.sustainabilityScore}/100</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Cost prediction accordion - collapsed by default */}
+          <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setCostExpanded(!costExpanded)}
+              className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Globe className="h-5 w-5 text-blue-500" />
+                </div>
+                <span className="font-semibold text-slate-800">Cost prediction</span>
+              </div>
+              {costExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+            {costExpanded && (
+              <div className="p-4 border-t border-slate-200">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">Current Price</span>
+                    <span className="text-lg font-semibold text-slate-800">${ingredient.price.toFixed(2)}/{ingredient.unit}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">30-Day Forecast</span>
+                    <span className={`text-sm font-semibold ${ingredient.trend === "up" ? "text-red-600" : ingredient.trend === "down" ? "text-green-600" : "text-slate-600"}`}>
+                      {ingredient.trend === "up" ? "+" : ingredient.trend === "down" ? "-" : ""}{Math.abs(ingredient.trendValue)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600">Market Trend</span>
+                    <div className="flex items-center gap-1">
+                      {ingredient.trend === "up" ? (
+                        <TrendingUp className="h-4 w-4 text-red-500" />
+                      ) : ingredient.trend === "down" ? (
+                        <TrendingDown className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                      <span className="text-sm font-medium capitalize text-slate-700">{ingredient.trend}</span>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100">
+                    <p className="text-xs text-slate-500">Supplier: {ingredient.supplier}</p>
+                    <p className="text-xs text-slate-500 mt-1">Origin: {ingredient.origin}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Regulatory compliance accordion */}
+          <div className={`border rounded-xl overflow-hidden ${getComplianceStatusColor(complianceStatus.overallStatus).border}`}>
+            <button
+              type="button"
+              onClick={() => setRegulatoryExpanded(!regulatoryExpanded)}
+              className={`w-full flex items-center justify-between p-4 ${getComplianceStatusColor(complianceStatus.overallStatus).bg} hover:brightness-95 transition-colors`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${complianceStatus.overallStatus === "compliant" ? "bg-green-100" : complianceStatus.overallStatus === "review-needed" ? "bg-amber-100" : complianceStatus.overallStatus === "blocked" ? "bg-red-100" : "bg-slate-100"}`}>
+                  <Shield className={`h-5 w-5 ${complianceStatus.overallStatus === "compliant" ? "text-green-500" : complianceStatus.overallStatus === "review-needed" ? "text-amber-500" : complianceStatus.overallStatus === "blocked" ? "text-red-500" : "text-slate-500"}`} />
+                </div>
+                <span className="font-semibold text-slate-800">Regulatory compliance</span>
+                <ComplianceBadge status={complianceStatus.overallStatus} size="sm" />
+              </div>
+              {regulatoryExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+            {regulatoryExpanded && (
+              <div className="p-4 border-t border-slate-200 bg-white">
+                {/* Region compliance grid */}
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Status by Region</p>
+                  {complianceStatus.regionStatuses.map((regionStatus) => {
+                    const region = getRegionByCode(regionStatus.regionCode)
+                    const statusColors = getComplianceStatusColor(regionStatus.status)
+                    return (
+                      <div key={regionStatus.regionCode} className={`flex items-center justify-between p-3 rounded-lg border ${statusColors.border} ${statusColors.bg}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{region?.flag}</span>
+                          <span className="text-sm font-medium text-slate-700">{region?.name || regionStatus.regionCode}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ComplianceBadge status={regionStatus.status} size="sm" />
+                          {regionStatus.issues.length > 0 && (
+                            <span className="text-xs text-slate-500">({regionStatus.issues.length} issue{regionStatus.issues.length !== 1 ? "s" : ""})</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Issues if any */}
+                {complianceStatus.regionStatuses.some(rs => rs.issues.length > 0) && (
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Issues Detected</p>
+                    <div className="space-y-2">
+                      {complianceStatus.regionStatuses.flatMap(rs => rs.issues).map((issue) => (
+                        <div key={issue.id} className={`p-3 rounded-lg border ${getComplianceStatusColor(issue.status).border} ${getComplianceStatusColor(issue.status).bg}`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-slate-800">{issue.ruleName}</span>
+                            <SeverityBadge severity={issue.severity} size="sm" />
+                          </div>
+                          <p className="text-xs text-slate-600">{issue.description}</p>
+                          {issue.aiFix && (
+                            <div className="mt-2 pt-2 border-t border-slate-200/50">
+                              <p className="text-xs text-blue-600 flex items-center gap-1">
+                                <Zap className="h-3 w-3" />
+                                AI Fix: {issue.aiFix}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* All clear message if no issues */}
+                {complianceStatus.overallStatus === "compliant" && (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    No regulatory issues detected for this ingredient.
+                  </div>
+                )}
+
+                {/* Last checked */}
+                <p className="mt-4 text-xs text-slate-400">
+                  Last checked: {new Date(complianceStatus.lastChecked).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Product usage summary */}
+          <div className="bg-slate-50 rounded-xl p-4">
+            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Product Usage</h4>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-slate-400" />
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{ingredient.activeProducts + ingredient.conceptProducts}</p>
+                  <p className="text-xs text-slate-500">Total products</p>
+                </div>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <div className="text-center">
+                  <p className="font-semibold text-green-600">{ingredient.activeProducts}</p>
+                  <p className="text-xs text-slate-500">Active</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-semibold text-amber-600">{ingredient.conceptProducts}</p>
+                  <p className="text-xs text-slate-500">Concept</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -537,6 +1152,7 @@ export function IngredientsPage() {
   const [statusFilter, setStatusFilter] = useState("All")
   const [formFilter, setFormFilter] = useState("All")
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null)
+  const [showFullPage, setShowFullPage] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
@@ -555,6 +1171,21 @@ export function IngredientsPage() {
   const alerts = ingredientsData.filter((i) => i.alert || i.status === "flagged")
   const flaggedCount = ingredientsData.filter((i) => i.status === "flagged").length
   const activeCount = ingredientsData.filter((i) => i.status === "active").length
+
+  const handleViewIngredient = (ingredient: Ingredient) => {
+    setSelectedIngredient(ingredient)
+    setShowFullPage(true)
+  }
+
+  const handleBackToList = () => {
+    setShowFullPage(false)
+    setSelectedIngredient(null)
+  }
+
+  // Show full page view when ingredient is selected
+  if (showFullPage && selectedIngredient) {
+    return <IngredientFullPageView ingredient={selectedIngredient} onBack={handleBackToList} />
+  }
 
   return (
     <div className="space-y-6">
@@ -718,13 +1349,13 @@ export function IngredientsPage() {
         {viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {displayed.map((ingredient) => (
-              <IngredientGridCard key={ingredient.id} ingredient={ingredient} onView={() => setSelectedIngredient(ingredient)} />
+              <IngredientGridCard key={ingredient.id} ingredient={ingredient} onView={() => handleViewIngredient(ingredient)} />
             ))}
           </div>
         ) : (
           <div>
             {displayed.map((ingredient) => (
-              <IngredientListRow key={ingredient.id} ingredient={ingredient} onView={() => setSelectedIngredient(ingredient)} />
+              <IngredientListRow key={ingredient.id} ingredient={ingredient} onView={() => handleViewIngredient(ingredient)} />
             ))}
           </div>
         )}
@@ -753,10 +1384,6 @@ export function IngredientsPage() {
         </div>
       </div>
 
-      {/* Detail Drawer */}
-      {selectedIngredient && (
-        <IngredientDetailDrawer ingredient={selectedIngredient} onClose={() => setSelectedIngredient(null)} />
-      )}
     </div>
   )
 }

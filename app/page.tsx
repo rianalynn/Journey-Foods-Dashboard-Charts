@@ -48,6 +48,10 @@ import { PackagingPage } from "@/components/dashboard/packaging-page"
 import { AccountPage } from "@/components/dashboard/account-page"
 import { IngredientsPage } from "@/components/dashboard/ingredients-page"
 import { ProductsPage } from "@/components/dashboard/products-page"
+import { NotificationsPage } from "@/components/dashboard/notifications-page"
+import { OverviewTab } from "@/components/dashboard/overview-tab"
+import { SuppliersPage, SupplierIngredientsPage } from "@/components/dashboard/suppliers-page"
+import { WorkflowsPage } from "@/components/dashboard/workflows-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1120,113 +1124,44 @@ export default function DashboardPage() {
         {/* ── Guava Page ───────────────────────────────────────── */}
         {activePage === "guava" && <GuavaPage />}
 
-        {/* ── Account Page ─────────────────────────────────────── */}
-        {activePage === "account" && <AccountPage />}
+{/* ── Account Page ─────────────────────────────────────── */}
+  {activePage === "account" && <AccountPage />}
 
-        {/* ── Generate Tab ─────────────────────────────────────── */}
+  {/* ── Notifications Page ─────────────────────────────────────── */}
+  {activePage === "notifications" && <NotificationsPage />}
+  
+  {/* ── Generate Tab ─────────────────────────────────────── */}
         {activePage === "generate" && <GenerateTab />}
 
-        {/* ── Supplier Mode: Ingredient Portfolio ───────────────── */}
-        {isSupplierMode && activePage !== "generate" && activePage !== "suppliers" && activePage !== "knowledge-hub" && activePage !== "analytics" && activePage !== "integrations" && activePage !== "guava" && activePage !== "account" && (
-          <SupplierIngredientPortfolio />
+        {/* ── Supplier Mode: Supplier Dashboard (Overview) ───────────────── */}
+        {isSupplierMode && activePage === "overview" && (
+          <SuppliersPage isSupplierMode={isSupplierMode} />
         )}
 
-        {/* ── Suppliers Tab (Manufacturer mode only) ────────────── */}
-        {activePage === "suppliers" && !isSupplierMode && (
-          <>
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-              <h1 className="text-2xl font-bold text-slate-800">Supplier List</h1>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  aria-label="Grid view"
-                >
-                  <LayoutGrid className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-slate-800 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
-                  aria-label="List view"
-                >
-                  <List className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {suppliersData.map((supplier) => (
-                      <SupplierCard key={supplier.id} supplier={supplier} onConnect={handleConnectSupplier} viewMode={viewMode} />
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="lg:col-span-1">
-                <EmailTrackingPanel emails={emailTracking} />
-              </div>
-            </div>
-          </>
+        {/* ── Suppliers Tab ─────────────────────────────────────── */}
+        {activePage === "suppliers" && (
+          <SuppliersPage isSupplierMode={isSupplierMode} />
         )}
 
         {/* ── Ingredients Page ─────────────────────────────────── */}
         {!isSupplierMode && activePage === "ingredients" && <IngredientsPage />}
 
+        {/* ── Supplier Mode: Ingredients Management ────────────── */}
+        {isSupplierMode && activePage === "ingredients" && <SupplierIngredientsPage />}
+
         {/* ── Products Page ─────────────────────────────────────── */}
         {!isSupplierMode && activePage === "products" && <ProductsPage />}
 
-        {/* ── Overview quick tip (overview only) ───────────────── */}
+        {/* ── Overview Tab ───────────────────────────────────── */}
         {!isSupplierMode && activePage === "overview" && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <ActionCard
-                title="Ingredient Actions"
-                icon={<Bell className="h-4 w-4" />}
-                completed={8}
-                total={10}
-                actions={[
-                  { id: "n", label: "Notifications Pending", count: 0, priority: "medium" },
-                  { id: "a", label: "Actions Pending", count: 0, priority: "high" },
-                ]}
-              />
-              <StatCard
-                title="Active Product Ingredients"
-                value={92}
-                subtitle="Across all products"
-                trend={{ value: 12, isPositive: true }}
-                icon={<Leaf className="h-4 w-4" />}
-                gradientFrom="#1e40af"
-                gradientTo="#3b82f6"
-                chartColor="#ffffff"
-              />
-              <AlertsCard title="Ingredient Alerts" alerts={ingredientAlerts} />
-            </div>
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 mt-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Zap className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-800 mb-1">Quick Tip</h3>
-                  <p className="text-sm text-slate-600">Welcome to JourneyFoods! Use the navigation above to explore ingredients, products, and suppliers in your network.</p>
-                </div>
-              </div>
-            </div>
-          </>
+          <OverviewTab onNavigate={setActivePage} userName="Riana" />
         )}
 
         {/* ── Packaging Page ────────────────────────────────────── */}
         {activePage === "packaging" && <PackagingPage />}
+
+        {/* ── Workflows Page ────────────────────────────────────── */}
+        {activePage === "workflows" && <WorkflowsPage onNavigate={setActivePage} />}
       </main>
 
       {/* Modals */}

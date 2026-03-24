@@ -7,6 +7,8 @@ import {
   Sliders,
   CreditCard,
   ChevronDown,
+  ChevronRight,
+  ChevronUp,
   Upload,
   Shield,
   Search,
@@ -15,11 +17,39 @@ import {
   FileText,
   Code,
   Zap,
+  Bot,
+  Check,
+  Code2,
+  Globe,
+  AlertTriangle,
 } from "lucide-react"
+import { 
+  type AIModel, 
+  BASIC_MODEL, 
+  GENERAL_MODELS, 
+  JOURNEY_MODELS, 
+  ALL_MODELS 
+} from "./generate-tab"
+import { DeveloperPortalModal, DeveloperPortalCard } from "./developer-portal-modal"
+import {
+  GuardrailsToggle,
+  SeverityThresholdSelector,
+  MarketsSelector,
+  RegulatoryRuleCard,
+} from "@/components/compliance/compliance-components"
+import {
+  type RegulatoryGuardrails,
+  type MarketSelection,
+  type RuleSeverity,
+  defaultGuardrails,
+  defaultMarketSelection,
+  regulatoryRules,
+  regions,
+} from "@/lib/compliance-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AccountSection = "profile" | "company" | "preferences" | "billing"
+type AccountSection = "profile" | "company" | "preferences" | "billing" | "ai-settings" | "developer" | "regulatory" | "markets"
 type PreferenceTab = "product" | "ingredient" | "packaging" | "other"
 type CompanyTab = "brands" | "markets" | "company-type" | "users"
 type BillingTab = "invoices" | "subscription" | "billing-info" | "upgrade"
@@ -136,6 +166,8 @@ export function AccountPage() {
   const [preferenceTab, setPreferenceTab] = useState<PreferenceTab>("product")
   const [companyTab, setCompanyTab] = useState<CompanyTab>("brands")
   const [billingTab, setBillingTab] = useState<BillingTab>("subscription")
+  const [selectedDefaultModel, setSelectedDefaultModel] = useState<AIModel>(BASIC_MODEL)
+  const [showDevPortal, setShowDevPortal] = useState(false)
   
   // Profile form state
   const [profile, setProfile] = useState({
@@ -166,6 +198,11 @@ export function AccountPage() {
   const [selectedFilling, setSelectedFilling] = useState<string[]>(["Cold Fill"])
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>(["Glass"])
 
+  // Regulatory settings state
+  const [guardrails, setGuardrails] = useState<RegulatoryGuardrails>(defaultGuardrails)
+  const [marketSelection, setMarketSelection] = useState<MarketSelection>(defaultMarketSelection)
+  const [activeRuleIds, setActiveRuleIds] = useState<string[]>(regulatoryRules.map(r => r.id))
+
   const toggleSelection = (item: string, current: string[], setter: (v: string[]) => void) => {
     if (current.includes(item)) {
       setter(current.filter(i => i !== item))
@@ -178,6 +215,10 @@ export function AccountPage() {
     { id: "profile" as const, label: "Profile Settings", icon: User },
     { id: "company" as const, label: "Company Settings", icon: Building2 },
     { id: "preferences" as const, label: "Preferences", icon: Sliders },
+    { id: "regulatory" as const, label: "Regulatory Guardrails", icon: Shield },
+    { id: "markets" as const, label: "Target Markets", icon: Globe },
+    { id: "ai-settings" as const, label: "AI Settings", icon: Bot },
+    { id: "developer" as const, label: "Developer Portal", icon: Code2 },
     { id: "billing" as const, label: "Billing", icon: CreditCard },
   ]
 
@@ -210,7 +251,16 @@ export function AccountPage() {
 
       {/* Main content */}
       <div className="flex-1 bg-white rounded-r-xl border border-slate-200 border-l-0 p-8">
-        <h1 className="text-xl font-semibold text-slate-800 mb-6">Profile Settings</h1>
+        <h1 className="text-xl font-semibold text-slate-800 mb-6">
+          {activeSection === "profile" && "Profile Settings"}
+          {activeSection === "company" && "Company Settings"}
+          {activeSection === "preferences" && "Preferences"}
+          {activeSection === "regulatory" && "Regulatory Guardrails"}
+          {activeSection === "markets" && "Target Markets"}
+          {activeSection === "ai-settings" && "AI Settings"}
+          {activeSection === "developer" && "Developer Portal"}
+          {activeSection === "billing" && "Billing"}
+        </h1>
 
         {/* ── Profile Settings ─────────────────────────────────────────────── */}
         {activeSection === "profile" && (
@@ -361,16 +411,137 @@ export function AccountPage() {
               ))}
             </div>
 
-            <div className="max-w-xl">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Select..."
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            {companyTab !== "markets" && (
+              <div className="max-w-xl">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Select..."
+                    className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                </div>
               </div>
-            </div>
+            )}
+
+            {companyTab === "markets" && (
+              <div className="max-w-3xl space-y-6">
+                {/* Summary of Operating Markets */}
+                <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3">Your Operating Markets</h3>
+                  {marketSelection.regions.length === 0 && marketSelection.countries.length === 0 ? (
+                    <p className="text-sm text-slate-500 italic">No markets selected. Select regions or countries below.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Selected Regions */}
+                      {marketSelection.regions.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Regions ({marketSelection.regions.length})</p>
+                          <div className="flex flex-wrap gap-2">
+                            {marketSelection.regions.map((regionCode) => {
+                              const region = regions.find(r => r.code === regionCode)
+                              if (!region) return null
+                              return (
+                                <span key={regionCode} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
+                                  <span>{region.flag}</span>
+                                  {region.name}
+                                  <button
+                                    type="button"
+                                    onClick={() => setMarketSelection(prev => ({
+                                      ...prev,
+                                      regions: prev.regions.filter(r => r !== regionCode),
+                                      countries: prev.countries.filter(c => !region.countries.some(rc => rc.code === c)),
+                                    }))}
+                                    className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Selected Countries (not part of selected regions) */}
+                      {(() => {
+                        const countriesNotInSelectedRegions = marketSelection.countries.filter(countryCode => {
+                          const country = regions.flatMap(r => r.countries).find(c => c.code === countryCode)
+                          return country && !marketSelection.regions.includes(country.regionCode)
+                        })
+                        if (countriesNotInSelectedRegions.length === 0) return null
+                        return (
+                          <div>
+                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Individual Countries ({countriesNotInSelectedRegions.length})</p>
+                            <div className="flex flex-wrap gap-2">
+                              {countriesNotInSelectedRegions.map((countryCode) => {
+                                const country = regions.flatMap(r => r.countries).find(c => c.code === countryCode)
+                                if (!country) return null
+                                return (
+                                  <span key={countryCode} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-800 text-sm rounded-full font-medium">
+                                    <span>{country.flag}</span>
+                                    {country.name}
+                                    <button
+                                      type="button"
+                                      onClick={() => setMarketSelection(prev => ({
+                                        ...prev,
+                                        countries: prev.countries.filter(c => c !== countryCode),
+                                      }))}
+                                      className="ml-1 hover:bg-emerald-200 rounded-full p-0.5 transition-colors"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })()}
+                      
+                      {/* Total count */}
+                      <div className="pt-3 border-t border-slate-200">
+                        <p className="text-sm text-slate-600">
+                          Operating in <span className="font-semibold text-slate-800">{marketSelection.countries.length} countries</span> across <span className="font-semibold text-slate-800">{marketSelection.regions.length} regions</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Markets Selector */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3">Select Operating Markets</h3>
+                  <MarketsSelector
+                    selectedRegions={marketSelection.regions}
+                    selectedCountries={marketSelection.countries}
+                    onRegionToggle={(regionCode) => {
+                      setMarketSelection((prev) => ({
+                        ...prev,
+                        regions: prev.regions.includes(regionCode)
+                          ? prev.regions.filter((r) => r !== regionCode)
+                          : [...prev.regions, regionCode],
+                      }))
+                    }}
+                    onCountryToggle={(countryCode) => {
+                      setMarketSelection((prev) => ({
+                        ...prev,
+                        countries: prev.countries.includes(countryCode)
+                          ? prev.countries.filter((c) => c !== countryCode)
+                          : [...prev.countries, countryCode],
+                      }))
+                    }}
+                    onSelectAll={() => {
+                      setMarketSelection({
+                        regions: regions.map((r) => r.code),
+                        countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
+                      })
+                    }}
+                    onClearAll={() => setMarketSelection({ regions: [], countries: [] })}
+                  />
+                </div>
+              </div>
+            )}
 
             <p className="text-sm text-slate-600 mt-8 max-w-lg">
               These preferences will help tailor our product suggestions and filter your live searching whilst using the app.
@@ -793,7 +964,429 @@ export function AccountPage() {
             )}
           </div>
         )}
+
+        {/* ── AI Settings ──────────────────────────────────────────────────── */}
+        {activeSection === "ai-settings" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Default AI Model</h2>
+              <p className="text-sm text-slate-500 mb-4">
+                Choose your default AI model for the Generate tab. You can always switch models within the chat.
+              </p>
+            </div>
+
+            {/* General Models */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">General Models</h3>
+              <div className="grid gap-3">
+                {GENERAL_MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => setSelectedDefaultModel(model)}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      selectedDefaultModel.id === model.id
+                        ? `border-transparent ring-2 ${model.ring} bg-slate-50`
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-lg font-bold shrink-0`}>
+                        {model.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-bold text-slate-800">{model.label}</span>
+                          {model.sub && (
+                            <>
+                              <span className="text-slate-300">·</span>
+                              <span className={`font-semibold bg-gradient-to-r ${model.color} bg-clip-text text-transparent text-sm`}>
+                                {model.sub}
+                              </span>
+                              <span className="text-slate-400 text-xs tracking-widest">{model.subtag}</span>
+                            </>
+                          )}
+                          {model.live ? (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Coming Soon</span>
+                          )}
+                          {selectedDefaultModel.id === model.id && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Default</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 leading-snug">{model.desc}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {model.tags.map((t) => (
+                            <span key={t} className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-1 flex items-center justify-center ${
+                        selectedDefaultModel.id === model.id
+                          ? `bg-gradient-to-br ${model.color} border-transparent`
+                          : "border-slate-300"
+                      }`}>
+                        {selectedDefaultModel.id === model.id && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Journey AI Models */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">Journey AI Models</h3>
+              <div className="grid gap-3">
+                {JOURNEY_MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    type="button"
+                    onClick={() => model.live && setSelectedDefaultModel(model)}
+                    disabled={!model.live}
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                      !model.live
+                        ? "border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed"
+                        : selectedDefaultModel.id === model.id
+                        ? `border-transparent ring-2 ${model.ring} bg-slate-50`
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${model.color} flex items-center justify-center text-white text-lg font-bold shrink-0`}>
+                        {model.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-bold text-slate-800">{model.label}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className={`font-semibold bg-gradient-to-r ${model.color} bg-clip-text text-transparent text-sm`}>
+                            {model.sub}
+                          </span>
+                          <span className="text-slate-400 text-xs tracking-widest">{model.subtag}</span>
+                          {model.live ? (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">Forging</span>
+                          )}
+                          {selectedDefaultModel.id === model.id && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Default</span>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500 leading-snug">{model.desc}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {model.tags.map((t) => (
+                            <span key={t} className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-1 flex items-center justify-center ${
+                        selectedDefaultModel.id === model.id
+                          ? `bg-gradient-to-br ${model.color} border-transparent`
+                          : "border-slate-300"
+                      }`}>
+                        {selectedDefaultModel.id === model.id && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Save button */}
+            <div className="pt-4 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save AI Preferences
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Developer Portal ──────────────────────────────────────────────── */}
+        {activeSection === "developer" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">API Access</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Connect to the Journey Foods API to integrate our ingredient data, formulation tools, and analytics into your existing systems.
+              </p>
+            </div>
+
+            <DeveloperPortalCard onClick={() => setShowDevPortal(true)} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-slate-800 mb-2">API Documentation</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Comprehensive guides, endpoint references, and code examples.
+                </p>
+                <a
+                  href="https://developers.journeyfoods.io/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  View Documentation →
+                </a>
+              </div>
+              <div className="bg-slate-50 rounded-xl border border-slate-200 p-5">
+                <h3 className="font-semibold text-slate-800 mb-2">Webhooks</h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  Set up real-time notifications for price changes, supply alerts, and more.
+                </p>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  Configure Webhooks →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Regulatory Guardrails ──────────────────────────────────────────── */}
+        {activeSection === "regulatory" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Compliance Settings</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Configure how regulatory compliance is enforced across your products and ingredients.
+              </p>
+            </div>
+
+            {/* Master Toggles */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">General Settings</h3>
+              
+              <GuardrailsToggle
+                label="Enable Regulatory Guardrails"
+                description="Automatically check products and ingredients against applicable regulations"
+                enabled={guardrails.enabled}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, enabled })}
+              />
+
+              <GuardrailsToggle
+                label="Auto-Block Non-Compliant Products"
+                description="Automatically prevent products with critical violations from being published"
+                enabled={guardrails.autoBlock}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, autoBlock: enabled })}
+              />
+
+              <GuardrailsToggle
+                label="Notify on Violations"
+                description="Send notifications when compliance issues are detected"
+                enabled={guardrails.notifyOnViolation}
+                onToggle={(enabled) => setGuardrails({ ...guardrails, notifyOnViolation: enabled })}
+              />
+            </div>
+
+            {/* Severity Threshold */}
+            <div className="pt-4 border-t border-slate-200">
+              <SeverityThresholdSelector
+                value={guardrails.severityThreshold}
+                onChange={(value) => setGuardrails({ ...guardrails, severityThreshold: value })}
+              />
+            </div>
+
+            {/* Enabled Rule Sets */}
+            <div className="pt-4 border-t border-slate-200">
+              <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">Enabled Rule Sources</h3>
+              <div className="flex flex-wrap gap-2">
+                {["FDA", "EFSA", "FSANZ", "Health Canada", "UK FSA", "Codex"].map((source) => (
+                  <button
+                    key={source}
+                    type="button"
+                    onClick={() => {
+                      if (guardrails.enabledRuleSets.includes(source)) {
+                        setGuardrails({
+                          ...guardrails,
+                          enabledRuleSets: guardrails.enabledRuleSets.filter((s) => s !== source),
+                        })
+                      } else {
+                        setGuardrails({
+                          ...guardrails,
+                          enabledRuleSets: [...guardrails.enabledRuleSets, source],
+                        })
+                      }
+                    }}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                      guardrails.enabledRuleSets.includes(source)
+                        ? "bg-blue-50 border-blue-300 text-blue-700"
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}
+                  >
+                    <span className={`inline-block w-3 h-3 rounded mr-2 ${
+                      guardrails.enabledRuleSets.includes(source) ? "bg-blue-500" : "bg-slate-300"
+                    }`} />
+                    {source}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Active Rules */}
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Active Regulatory Rules</h3>
+                <span className="text-xs text-slate-500">{activeRuleIds.length} of {regulatoryRules.length} active</span>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {regulatoryRules.map((rule) => (
+                  <RegulatoryRuleCard
+                    key={rule.id}
+                    rule={rule}
+                    isActive={activeRuleIds.includes(rule.id)}
+                    onToggle={(id, active) => {
+                      if (active) {
+                        setActiveRuleIds([...activeRuleIds, id])
+                      } else {
+                        setActiveRuleIds(activeRuleIds.filter((r) => r !== id))
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Guardrail Settings
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Target Markets ────────────────────────────────────────────────── */}
+        {activeSection === "markets" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-800 mb-1">Target Markets</h2>
+              <p className="text-sm text-slate-500 mb-6">
+                Select the regions and countries where your products will be sold. This determines which regulatory rules apply.
+              </p>
+            </div>
+
+            {/* Markets Selector */}
+            <MarketsSelector
+              selectedRegions={marketSelection.regions}
+              selectedCountries={marketSelection.countries}
+              onRegionToggle={(regionCode) => {
+                const region = regions.find((r) => r.code === regionCode)
+                if (!region) return
+                
+                if (marketSelection.regions.includes(regionCode)) {
+                  // Remove region and all its countries
+                  setMarketSelection({
+                    regions: marketSelection.regions.filter((r) => r !== regionCode),
+                    countries: marketSelection.countries.filter(
+                      (c) => !region.countries.some((rc) => rc.code === c)
+                    ),
+                  })
+                } else {
+                  // Add region and all its countries
+                  setMarketSelection({
+                    regions: [...marketSelection.regions, regionCode],
+                    countries: [
+                      ...marketSelection.countries,
+                      ...region.countries.map((c) => c.code).filter((c) => !marketSelection.countries.includes(c)),
+                    ],
+                  })
+                }
+              }}
+              onCountryToggle={(countryCode) => {
+                if (marketSelection.countries.includes(countryCode)) {
+                  setMarketSelection({
+                    ...marketSelection,
+                    countries: marketSelection.countries.filter((c) => c !== countryCode),
+                  })
+                } else {
+                  setMarketSelection({
+                    ...marketSelection,
+                    countries: [...marketSelection.countries, countryCode],
+                  })
+                }
+              }}
+              onSelectAll={() => {
+                setMarketSelection({
+                  regions: regions.map((r) => r.code),
+                  countries: regions.flatMap((r) => r.countries.map((c) => c.code)),
+                })
+              }}
+              onClearAll={() => {
+                setMarketSelection({ regions: [], countries: [] })
+              }}
+            />
+
+            {/* Selected Summary */}
+            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">Selection Summary</h3>
+              <div className="flex items-center gap-6">
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{marketSelection.regions.length}</p>
+                  <p className="text-xs text-slate-500">Regions</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-slate-800">{marketSelection.countries.length}</p>
+                  <p className="text-xs text-slate-500">Countries</p>
+                </div>
+              </div>
+              {marketSelection.countries.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 mb-2">Applicable regulatory bodies:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {marketSelection.regions.includes("NA") && (
+                      <>
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">FDA</span>
+                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">Health Canada</span>
+                      </>
+                    )}
+                    {marketSelection.regions.includes("EU") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">EFSA</span>
+                    )}
+                    {marketSelection.regions.includes("UK") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">UK FSA</span>
+                    )}
+                    {marketSelection.regions.includes("APAC") && (
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">FSANZ</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Save Button */}
+            <div className="pt-6 border-t border-slate-200">
+              <button
+                type="button"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Market Selection
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Developer Portal Modal */}
+      <DeveloperPortalModal
+        isOpen={showDevPortal}
+        onClose={() => setShowDevPortal(false)}
+      />
     </div>
   )
 }

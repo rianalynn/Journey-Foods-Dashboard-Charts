@@ -12,7 +12,9 @@ import {
   Clock,
   ArrowRight,
   BookOpen,
+  Code2,
 } from "lucide-react"
+import { DeveloperPortalModal } from "./developer-portal-modal"
 
 type HubTab = "glossary" | "guides" | "documentation" | "tutorials"
 
@@ -305,6 +307,7 @@ function TutorialsView() {
 
 export function KnowledgeHub() {
   const [activeTab, setActiveTab] = useState<HubTab>("tutorials")
+  const [showDevPortal, setShowDevPortal] = useState(false)
 
   return (
     <div className="max-w-7xl">
@@ -314,12 +317,22 @@ export function KnowledgeHub() {
           <h1 className="text-2xl font-bold text-slate-800">Knowledge Hub</h1>
           <p className="text-sm text-slate-500 mt-1">Learn how to get the most out of Journey Foods platform</p>
         </div>
-        <button
-          type="button"
-          className="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
-        >
-          Take a Tour
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowDevPortal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 border border-slate-200 bg-white text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 transition-colors"
+          >
+            <Code2 className="h-4 w-4" />
+            Developer Portal
+          </button>
+          <button
+            type="button"
+            className="px-5 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            Take a Tour
+          </button>
+        </div>
       </div>
 
       {/* Hero banner */}
@@ -390,6 +403,12 @@ export function KnowledgeHub() {
       {activeTab === "guides" && <GuidesView />}
       {activeTab === "documentation" && <DocumentationView />}
       {activeTab === "tutorials" && <TutorialsView />}
+
+      {/* Developer Portal Modal */}
+      <DeveloperPortalModal
+        isOpen={showDevPortal}
+        onClose={() => setShowDevPortal(false)}
+      />
     </div>
   )
 }
