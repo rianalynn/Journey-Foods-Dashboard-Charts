@@ -20,7 +20,7 @@ export interface User {
   state?: string
   country?: string
   useCase?: "personal" | "team"
-  reasonsForUsing?: string[]
+  useCaseReason?: string
   subscriptionStatus: SubscriptionStatus
   subscriptionPlan: SubscriptionPlan
   trialEndsAt?: string
@@ -33,7 +33,7 @@ export interface OnboardingData {
   company: string
   companySize: string
   useCase: "personal" | "team"
-  reasonsForUsing: string[]
+  useCaseReason: string
 }
 
 export interface RegistrationData {
@@ -156,7 +156,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         company: data.company || prev.company,
         companySize: data.companySize,
         useCase: data.useCase,
-        reasonsForUsing: data.reasonsForUsing,
+        useCaseReason: data.useCaseReason,
         onboardingCompleted: true,
       }
     })

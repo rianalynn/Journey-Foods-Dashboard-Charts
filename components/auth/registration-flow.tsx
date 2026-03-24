@@ -52,7 +52,7 @@ const REASONS = [
 ]
 
 export function RegistrationFlow({ onSwitchToLogin }: RegistrationFlowProps) {
-  const { registerUser } = useUser()
+  const { register, completeOnboarding, selectPlan } = useUser()
   const [step, setStep] = useState<Step>("account")
   const [accountData, setAccountData] = useState<Partial<RegistrationData>>({})
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({})
@@ -95,20 +95,32 @@ export function RegistrationFlow({ onSwitchToLogin }: RegistrationFlowProps) {
 
     setIsLoading(true)
     try {
-      await registerUser({
-        ...accountData,
+      // Register the user
+      await register({
         firstName: accountData.firstName || "",
         lastName: accountData.lastName || "",
         email: accountData.email || "",
         password: accountData.password || "",
-      } as RegistrationData, {
-        ...onboardingData,
+        company: onboardingData.company || "",
+        companyType: "",
+        jobTitle: "",
+        phone: "",
+        city: "",
+        state: "",
+        country: "",
+      } as RegistrationData)
+
+      // Complete onboarding
+      completeOnboarding({
         role: onboardingData.role || "",
         company: onboardingData.company || "",
         companySize: onboardingData.companySize || "",
-        useCase: onboardingData.useCase || "",
+        useCase: onboardingData.useCase || "personal",
         useCaseReason: onboardingData.useCaseReason || "other",
-      } as OnboardingData, selectedPlan)
+      } as OnboardingData)
+
+      // Select plan
+      selectPlan(selectedPlan as SubscriptionPlan, selectedPlan === "free_trial")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed")
     } finally {
