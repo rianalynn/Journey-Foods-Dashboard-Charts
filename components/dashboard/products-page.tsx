@@ -55,6 +55,15 @@ import {
   type ComplianceStatus,
   getComplianceStatusColor,
 } from "@/lib/compliance-data"
+import {
+  SubstitutionCard,
+  MultiMarketComparison,
+  RoleSwitch,
+  RolePriorityPanel,
+} from "@/components/formulation/formulation-features"
+import { getSubstitutionsForProduct } from "@/lib/substitution-data"
+import { getProductMarketComparison } from "@/lib/multi-market-data"
+import { type UserRole, getProductRoleData } from "@/lib/role-data"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -712,9 +721,10 @@ function EditProductPanel({ product, onClose, isNew = false }: { product?: Produ
 // ─── Product Detail View ──────────────────────────────────────────────────────
 
 function ProductDetailView({ product, onClose, onEdit }: { product: Product; onClose: () => void; onEdit: () => void }) {
-  const [activeTab, setActiveTab] = useState<"current" | "nutrition" | "label" | "packaging" | "compliance">("current")
+  const [activeTab, setActiveTab] = useState<"current" | "nutrition" | "label" | "packaging" | "compliance" | "substitutions" | "markets">("current")
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const [showComplianceDetails, setShowComplianceDetails] = useState(false)
+  const [currentRole, setCurrentRole] = useState<UserRole>("rd")
 
   // Get compliance data for this product
   const complianceStatus: ProductComplianceStatus = productComplianceData[product.id] || {
@@ -725,10 +735,21 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
     lastChecked: new Date().toISOString(),
   }
 
+  // Get substitutions for this product
+  const substitutions = getSubstitutionsForProduct(product.id)
+
+  // Get multi-market comparison
+  const marketComparison = getProductMarketComparison(product.id)
+
+  // Get role-based data
+  const roleData = getProductRoleData(product.id)
+
   const tabs = [
     { id: "current", label: "Current Version" },
     { id: "nutrition", label: "Nutrition" },
     { id: "compliance", label: "Compliance" },
+    { id: "substitutions", label: "Substitutions", badge: substitutions.length > 0 ? substitutions.length : undefined },
+    { id: "markets", label: "MENA Markets" },
     { id: "label", label: "Generate Label", isAction: true },
     { id: "packaging", label: "Matched Packaging" },
   ] as const
@@ -759,13 +780,17 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
             <span><span className="font-medium text-slate-700">Last Updated:</span> {product.lastUpdated}</span>
           </div>
         </div>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <ShoppingCart className="h-4 w-4" />
-          {product.type}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Role-Based Dashboard Switch */}
+          <RoleSwitch currentRole={currentRole} onRoleChange={setCurrentRole} />
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {product.type}
+          </button>
+        </div>
       </div>
 
       {/* Main Content Grid */}
@@ -882,13 +907,13 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
           {/* Tabs */}
           <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-200 px-4">
-              <div className="flex">
+              <div className="flex overflow-x-auto">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                       activeTab === tab.id
                         ? tab.isAction
                           ? "border-transparent"
@@ -897,6 +922,11 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
                     } ${tab.isAction ? "bg-blue-600 text-white rounded-lg my-2 mx-1" : ""}`}
                   >
                     {tab.label}
+                    {"badge" in tab && tab.badge && (
+                      <span className="px-1.5 py-0.5 text-xs bg-amber-100 text-amber-700 rounded-full">
+                        {tab.badge}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -1054,6 +1084,58 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
                   </div>
                 </div>
               )}
+
+              {/* Substitutions Tab */}
+              {activeTab === "substitutions" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-800">AI-Suggested Substitutions</h3>
+                    <span className="text-xs text-slate-500">{substitutions.length} suggestion{substitutions.length !== 1 ? "s" : ""}</span>
+                  </div>
+
+                  {substitutions.length > 0 ? (
+                    <div className="space-y-4">
+                      {substitutions.map((sub) => (
+                        <SubstitutionCard
+                          key={sub.id}
+                          substitution={sub}
+                          onApply={(s) => console.log("Apply substitution:", s.id)}
+                          onDismiss={(s) => console.log("Dismiss substitution:", s.id)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                        <Sparkles className="h-6 w-6 text-slate-400" />
+                      </div>
+                      <h4 className="font-medium text-slate-800">No Substitutions Available</h4>
+                      <p className="text-sm text-slate-500 mt-1">
+                        All ingredients are optimized for this formulation.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* MENA Markets Tab */}
+              {activeTab === "markets" && (
+                <div className="space-y-4">
+                  {marketComparison ? (
+                    <MultiMarketComparison comparison={marketComparison} />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                        <Globe className="h-6 w-6 text-slate-400" />
+                      </div>
+                      <h4 className="font-medium text-slate-800">No Market Data Available</h4>
+                      <p className="text-sm text-slate-500 mt-1">
+                        Market comparison data is not available for this product.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -1067,16 +1149,22 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
           </button>
         </div>
 
-        {/* Right: Recommendations + Ingredients Panel */}
+        {/* Right: Role-Based Panel + Recommendations + Ingredients */}
         <div className="space-y-4">
+          {/* Role-Based Priority Panel */}
+          {roleData && <RolePriorityPanel role={currentRole} data={roleData} />}
+
           {/* Recommendations */}
           <div className="bg-white rounded-xl border border-slate-200 p-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-slate-700">Recommendations:</span>
-              <span className="text-sm font-bold text-blue-600">0</span>
+              <span className="text-sm font-bold text-blue-600">{substitutions.length}</span>
             </div>
             <ChevronDown className="h-4 w-4 text-slate-400 mx-auto" />
           </div>
+
+          {/* MENA Market Summary (compact view) */}
+          {marketComparison && <MultiMarketComparison comparison={marketComparison} compact />}
 
           {/* Ingredients Breakdown */}
           <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -1086,7 +1174,7 @@ function ProductDetailView({ product, onClose, onEdit }: { product: Product; onC
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center overflow-hidden">
-                      <span className="text-lg">🥔</span>
+                      <Leaf className="h-4 w-4 text-amber-600" />
                     </div>
                     <span className="text-sm text-slate-700">{ing.name}</span>
                   </div>
